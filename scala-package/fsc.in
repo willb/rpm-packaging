@@ -1,0 +1,45 @@
+#!/bin/sh
+
+##############################################################################
+# Fast Scala compiler 2.6.1-RC2
+##############################################################################
+# (c) 2002-2007 LAMP/EPFL
+#
+# This is free software; see the distribution for copying conditions.
+# There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.
+##############################################################################
+
+[ -r @@JAVADIR@@-utils/java-functions ] \
+ && . @@JAVADIR@@-utils/java-functions || exit 1
+
+set_javacmd || exit 3
+check_java_env || exit 4
+set_jvm_dirs || exit 5
+
+SCALA_HOME="@@DATADIR@@/scala"
+
+# Constructing the extension classpath
+EXTENSION_CLASSPATH=""
+if [ -z "$EXTENSION_CLASSPATH" ] ; then
+    for ext in `ls -d "$SCALA_HOME"/lib/*` ; do
+        if [ -z "$EXTENSION_CLASSPATH" ] ; then
+            EXTENSION_CLASSPATH="$ext"
+        else
+            EXTENSION_CLASSPATH="$EXTENSION_CLASSPATH:$ext"
+        fi
+    done
+fi
+
+BOOT_CLASSPATH="`build-classpath scala/scala-library`"
+
+if [ $? != 0 ]; then
+  echo $"Could not find the scala library jar." >&2
+  echo $"Please check that Java is configured properly." >&2
+  exit 6
+fi
+
+# Reminder: substitution ${JAVA_OPTS:=-Xmx256M -Xms16M} DO NOT work on Solaris
+[ -n "$JAVA_OPTS" ] || JAVA_OPTS=""
+
+$JAVACMD $JAVA_OPTS -Xbootclasspath/a:"$BOOT_CLASSPATH" -cp "$EXTENSION_CLASSPATH" -Dscala.home="$SCALA_HOME" -Denv.classpath="$CLASSPATH" -Denv.emacs="$EMACS"  scala.tools.nsc.CompileClient  "$@"

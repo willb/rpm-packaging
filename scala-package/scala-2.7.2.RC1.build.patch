@@ -1,0 +1,31 @@
+diff -ur scala-2.7.2.RC1.orig/build.xml scala-2.7.2.RC1/build.xml
+--- scala-2.7.2.RC1.orig/build.xml	2008-08-20 01:56:04.000000000 -0600
++++ scala-2.7.2.RC1/build.xml	2008-08-29 10:13:11.000000000 -0600
+@@ -126,14 +126,7 @@
+     <condition property="os.win">
+       <os family="windows"/>
+     </condition>
+-  <!-- Finding out SVN revision -->
+-    <exec executable="svn" outputproperty="svn.out">
+-      <arg line=" info ${basedir}"/>
+-    </exec> 
+-    <propertyregex
+-      property="svn.number" input="${svn.out}" select="\1"
+-      regexp="Revision: ([0-9]+)"
+-      defaultValue="0"/>
++    <property name="svn.number" value="0"/>
+     <property name="init.avail" value="yes"/>
+   <!-- Generating version number -->
+     <property file="${basedir}/build.number"/>
+@@ -582,9 +575,8 @@
+   	<mkdir dir="${build-pack.dir}/lib"/>
+     <jar destfile="${build-pack.dir}/lib/scala-compiler.jar" manifest="${build-pack.dir}/META-INF/MANIFEST.MF">
+       <fileset dir="${build-quick.dir}/classes/compiler"/>
+-      <zipfileset src="${fjbg.jar}"/>
+-      <zipfileset src="${msil.jar}"/>
+-      <zipfileset src="${jline.jar}"/>
++      <zipfileset dirmode="755" filemode="644" src="${fjbg.jar}"/>
++      <zipfileset dirmode="755" filemode="644" src="${msil.jar}"/>
+     </jar>
+   </target>
+   
