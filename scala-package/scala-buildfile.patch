@@ -1,0 +1,19 @@
+--- build.xml.orig	2008-10-30 22:35:50.000000000 -0600
++++ build.xml	2008-10-30 22:38:43.000000000 -0600
+@@ -126,15 +126,7 @@
+     <condition property="os.win">
+       <os family="windows"/>
+     </condition>
+-  <!-- Finding out SVN revision -->
+-    <exec executable="svn" outputproperty="svn.out"
+-      failifexecutionfails="false">
+-      <arg line=" info ${basedir}"/>
+-    </exec>
+-    <propertyregex
+-      property="svn.number" input="${svn.out}" select="\1"
+-      regexp="Revision: ([0-9]+)"
+-      defaultValue="0"/>
++    <property name="svn.number" value="0"/>
+     <property name="init.avail" value="yes"/>
+   <!-- Generating version number -->
+     <property file="${basedir}/build.number"/>

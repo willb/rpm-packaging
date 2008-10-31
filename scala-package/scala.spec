@@ -1,7 +1,7 @@
 Name:           scala
 Version:        2.7.2
-%define fullversion %{version}.RC1
-Release:        0.2.RC1%{?dist}
+%define fullversion %{version}.RC5
+Release:        0.1.RC5%{?dist}
 Summary:        A hybrid functional/object-oriented language for the JVM
 BuildArch:      noarch
 Group:          Development/Languages
@@ -15,13 +15,13 @@ Source0:        http://www.scala-lang.org/downloads/distrib/files/scala-%{fullve
 
 %define msilversion %{fullversion}
 # Exported from upstream vcs
-#   svn export http://lampsvn.epfl.ch/svn-repos/scala/msil/tags/R_2_7_2_RC1 msil-2.7.2.RC1
-#   tar cjf msil-2.7.2.RC1.tar.bz2 msil-2.7.2.RC1
+#   svn export http://lampsvn.epfl.ch/svn-repos/scala/msil/tags/R_2_7_2_RC5 msil-2.7.2.RC5
+#   tar cjf msil-2.7.2.RC5.tar.bz2 msil-2.7.2.RC5
 Source1:      msil-%{msilversion}.tar.bz2
 
 %define fjbgversion r15432
 # Exported from upstream vcs
-# No tag for RC1
+# No tag for RC5
 #   svn export -r 15432 http://lampsvn.epfl.ch/svn-repos/scala/fjbg/trunk fjbg-r15432
 #   tar cjf fjbg-r15432.tar.bz2 fjbg-r15432
 Source2:        fjbg-%{fjbgversion}.tar.bz2
@@ -37,7 +37,7 @@ Source22:       scala.mime
 Source23:       scala-mime-info.xml
 Source24:       scala.ant.d
 
-Patch0:         scala-2.7.2.RC1.build.patch
+Patch0:         scala-buildfile.patch
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -99,15 +99,13 @@ the Scala programming language
 %define scaladir %{_datadir}/scala
 
 %prep
-%setup -q -c -a 1 -a 2 -n %{name}-%{fullversion}
-%patch0 -p1 -b .build
+%setup -q -a 1 -a 2 -n scala-%{fullversion}-sources
+%patch0 -b .build
 # remove all jar files except scala-library and scala-compiler needed
 # for bootstrap
 find . -not \( -name 'scala-library.jar' -or -name 'scala-compiler.jar' \) -and -name '*.jar' | xargs rm -f
 find . -name '*.dll' -or -name '*.so' -or -name '*.exe' | xargs rm -f
 ln -s `find-jar ant-contrib` lib/ant/ant-contrib.jar
-mkdir META-INF && touch META-INF/MANIFEST.MF
-
 
 %build
 # Scala is written in itself and therefore requires boot-strapping from an
@@ -218,7 +216,6 @@ rm -rf $RPM_BUILD_ROOT
 %files apidoc
 %defattr(-,root,root,-)
 %doc dists/scala-%{fullversion}/doc/scala-devel-docs/api
-%doc dists/scala-%{fullversion}/doc/scala-devel-docs/swing
 %doc dists/scala-%{fullversion}/doc/scala-devel-docs/LICENSE
 
 %files examples
@@ -226,13 +223,16 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/scala/examples
 
 %changelog
-* Sat Sep 06 2008 Geoff Reedy <geoff@programmer-monk.net> - 2.7.2-0.2.RC2
+* Thu Oct 30 2008 Geoff Reedy <geoff@programmer-monk.net> - 2.7.2-0.1.RC5
+- update to 2.7.2-RC5
+
+* Sat Sep 06 2008 Geoff Reedy <geoff@programmer-monk.net> - 2.7.2-0.2.RC1
 - All code is now under BSD license
 - Remove dll so and exe binaries in prep
 - Add BuildRequires required by Java packaging guidelines
 - Add missing defattr for examples and ant-scala
 
-* Wed Aug 20 2008 Geoff Reedy <geoff@programmer-monk.net> - 2.7.2-0.1.RC2
+* Wed Aug 20 2008 Geoff Reedy <geoff@programmer-monk.net> - 2.7.2-0.1.RC1
 - update to 2.7.2-RC1
 
 * Wed Aug 13 2008 Geoff Reedy <geoff@programmer-monk.net> - 2.7.1-3
