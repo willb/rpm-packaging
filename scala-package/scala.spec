@@ -1,7 +1,7 @@
 Name:           scala
 Version:        2.7.2
-%define fullversion %{version}.RC5
-Release:        0.1.RC5%{?dist}
+%define fullversion %{version}.RC6
+Release:        0.1.RC6%{?dist}
 Summary:        A hybrid functional/object-oriented language for the JVM
 BuildArch:      noarch
 Group:          Development/Languages
@@ -15,13 +15,13 @@ Source0:        http://www.scala-lang.org/downloads/distrib/files/scala-%{fullve
 
 %define msilversion %{fullversion}
 # Exported from upstream vcs
-#   svn export http://lampsvn.epfl.ch/svn-repos/scala/msil/tags/R_2_7_2_RC5 msil-2.7.2.RC5
-#   tar cjf msil-2.7.2.RC5.tar.bz2 msil-2.7.2.RC5
+#   svn export http://lampsvn.epfl.ch/svn-repos/scala/msil/tags/R_2_7_2_RC6 msil-2.7.2.RC6
+#   tar cjf msil-2.7.2.RC6.tar.bz2 msil-2.7.2.RC6
 Source1:      msil-%{msilversion}.tar.bz2
 
 %define fjbgversion r15432
 # Exported from upstream vcs
-# No tag for RC5
+# No tag for RC6
 #   svn export -r 15432 http://lampsvn.epfl.ch/svn-repos/scala/fjbg/trunk fjbg-r15432
 #   tar cjf fjbg-r15432.tar.bz2 fjbg-r15432
 Source2:        fjbg-%{fjbgversion}.tar.bz2
@@ -223,6 +223,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/scala/examples
 
 %changelog
+* Thu Nov 01 2008 Geoff Reedy <geoff@programmer-monk.net> - 2.7.2-0.1.RC6
+- update to 2.7.2-RC6
+
 * Thu Oct 30 2008 Geoff Reedy <geoff@programmer-monk.net> - 2.7.2-0.1.RC5
 - update to 2.7.2-RC5
 
