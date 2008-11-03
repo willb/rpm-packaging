@@ -1,7 +1,7 @@
 Name:           scala
 Version:        2.7.2
 %define fullversion %{version}.RC6
-Release:        0.1.RC6%{?dist}
+Release:        0.3.RC6%{?dist}
 Summary:        A hybrid functional/object-oriented language for the JVM
 BuildArch:      noarch
 Group:          Development/Languages
@@ -223,6 +223,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/scala/examples
 
 %changelog
+* Mon Nov 03 2008 Geoff Reedy <geoff@programmer-monk.net> - 2.7.2-0.3.RC6
+- bump release to fix upgrade path
+
 * Thu Nov 01 2008 Geoff Reedy <geoff@programmer-monk.net> - 2.7.2-0.1.RC6
 - update to 2.7.2-RC6
 
