@@ -1,7 +1,7 @@
 Name:           scala
 Version:        2.7.2
-%define fullversion %{version}.RC6
-Release:        0.3.RC6%{?dist}
+%define fullversion %{version}.final
+Release:        1%{?dist}
 Summary:        A hybrid functional/object-oriented language for the JVM
 BuildArch:      noarch
 Group:          Development/Languages
@@ -15,13 +15,13 @@ Source0:        http://www.scala-lang.org/downloads/distrib/files/scala-%{fullve
 
 %define msilversion %{fullversion}
 # Exported from upstream vcs
-#   svn export http://lampsvn.epfl.ch/svn-repos/scala/msil/tags/R_2_7_2_RC6 msil-2.7.2.RC6
-#   tar cjf msil-2.7.2.RC6.tar.bz2 msil-2.7.2.RC6
+#   svn export http://lampsvn.epfl.ch/svn-repos/scala/msil/tags/R_2_7_2_final msil-2.7.2.final
+#   tar cjf msil-2.7.2.final.tar.bz2 msil-2.7.2.final
 Source1:      msil-%{msilversion}.tar.bz2
 
 %define fjbgversion r15432
 # Exported from upstream vcs
-# No tag for RC6
+# No tag for 2.7.2
 #   svn export -r 15432 http://lampsvn.epfl.ch/svn-repos/scala/fjbg/trunk fjbg-r15432
 #   tar cjf fjbg-r15432.tar.bz2 fjbg-r15432
 Source2:        fjbg-%{fjbgversion}.tar.bz2
@@ -223,6 +223,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/scala/examples
 
 %changelog
+* Sun Nov 09 2008 Geoff Reedy <geoff@programmer-monk.net> - 2.7.2-1
+- update to 2.7.2 final
+
 * Mon Nov 03 2008 Geoff Reedy <geoff@programmer-monk.net> - 2.7.2-0.3.RC6
 - bump release to fix upgrade path
 
