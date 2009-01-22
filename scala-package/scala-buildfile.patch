@@ -1,6 +1,6 @@
---- build.xml.orig	2008-11-09 19:52:10.000000000 -0500
-+++ build.xml	2008-11-09 19:52:21.000000000 -0500
-@@ -126,15 +126,7 @@
+--- build.xml.orig	2009-01-09 09:28:25.000000000 -0700
++++ build.xml	2009-01-21 09:34:20.000000000 -0700
+@@ -160,15 +160,7 @@
      <condition property="os.win">
        <os family="windows"/>
      </condition>
@@ -17,8 +17,8 @@
      <property name="init.avail" value="yes"/>
    <!-- Generating version number -->
      <property file="${basedir}/build.number"/>
-@@ -585,7 +577,6 @@
-       <fileset dir="${build-quick.dir}/classes/compiler"/>
+@@ -627,7 +619,6 @@
+       <!-- filemode / dirmode: see trac ticket #1294 -->
        <zipfileset dirmode="755" filemode="644" src="${fjbg.jar}"/>
        <zipfileset dirmode="755" filemode="644" src="${msil.jar}"/>
 -      <zipfileset dirmode="755" filemode="644" src="${jline.jar}"/>
