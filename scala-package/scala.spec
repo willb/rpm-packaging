@@ -1,7 +1,7 @@
 Name:           scala
-Version:        2.7.3
+Version:        2.7.4
 %define fullversion %{version}.final
-Release:        2%{?dist}
+Release:        1%{?dist}
 Summary:        A hybrid functional/object-oriented language for the JVM
 BuildArch:      noarch
 Group:          Development/Languages
@@ -15,15 +15,15 @@ Source0:        http://www.scala-lang.org/downloads/distrib/files/scala-%{fullve
 
 %define msilversion %{fullversion}
 # Exported from upstream vcs
-#   svn export http://lampsvn.epfl.ch/svn-repos/scala/msil/tags/R_2_7_3_final msil-2.7.3.final
-#   tar cjf msil-2.7.3.final.tar.bz2 msil-2.7.3.final
+#   svn export http://lampsvn.epfl.ch/svn-repos/scala/msil/tags/R_2_7_4_final msil-2.7.4.final
+#   tar cjf msil-2.7.4.final.tar.bz2 msil-2.7.4.final
 Source1:      msil-%{msilversion}.tar.bz2
 
-%define fjbgversion r15432
+%define fjbgversion r17392
 # Exported from upstream vcs
-# No tag for 2.7.2
-#   svn export -r 15432 http://lampsvn.epfl.ch/svn-repos/scala/fjbg/trunk fjbg-r15432
-#   tar cjf fjbg-r15432.tar.bz2 fjbg-r15432
+# No tag for 2.7.4
+#   svn export -r 17392 http://lampsvn.epfl.ch/svn-repos/scala/fjbg/trunk fjbg-r17392
+#   tar cjf fjbg-r17392.tar.bz2 fjbg-r17392
 Source2:        fjbg-%{fjbgversion}.tar.bz2
 
 # Scripts
@@ -202,8 +202,8 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_datadir}/scala
 %{_datadir}/scala/lib
 %{_mandir}/man1/*
-%doc dists/scala-%{fullversion}/doc/scala-devel-docs/LICENSE
-%doc dists/scala-%{fullversion}/doc/scala-devel-docs/README
+%doc dists/scala-%{fullversion}/doc/LICENSE
+%doc dists/scala-%{fullversion}/doc/README
 %{_datadir}/mime-info/*
 %{_datadir}/mime/packages/*
 
@@ -216,13 +216,16 @@ rm -rf $RPM_BUILD_ROOT
 %files apidoc
 %defattr(-,root,root,-)
 %doc dists/scala-%{fullversion}/doc/scala-devel-docs/api
-%doc dists/scala-%{fullversion}/doc/scala-devel-docs/LICENSE
+%doc dists/scala-%{fullversion}/doc/LICENSE
 
 %files examples
 %defattr(-,root,root,-)
 %{_datadir}/scala/examples
 
 %changelog
+* Tue May 12 2009 Geoff Reedy <geoff@programmer-monk.net> - 2.4.4-1
+- update to 2.7.4 final
+
 * Wed Feb 25 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.7.3-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_11_Mass_Rebuild
 

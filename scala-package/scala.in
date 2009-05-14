@@ -32,7 +32,7 @@ if [ -z "$EXTENSION_CLASSPATH" ] ; then
 fi
 EXTENSION_CLASSPATH="$EXTENSION_CLASSPATH:`build-classpath jline`"
 
-BOOT_CLASSPATH="`build-classpath scala/scala-library`"
+BOOT_CLASSPATH="`build-classpath scala/scala-library jline`"
 
 if [ $? != 0 ]; then
   echo $"Could not find the scala library jar." >&2
