@@ -223,7 +223,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/scala/examples
 
 %changelog
-* Tue May 12 2009 Geoff Reedy <geoff@programmer-monk.net> - 2.4.4-1
+* Tue May 12 2009 Geoff Reedy <geoff@programmer-monk.net> - 2.7.4-1
 - update to 2.7.4 final
 
 * Wed Feb 25 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.7.3-2
