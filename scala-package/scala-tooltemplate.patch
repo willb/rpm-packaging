@@ -41,7 +41,7 @@ diff -ur ../scala-2.7.4.final-sources.orig/src/compiler/scala/tools/ant/template
  
  # Constructing the extension classpath
  TOOL_CLASSPATH="@classpath@"
-@@ -46,21 +29,9 @@
+@@ -46,21 +29,8 @@
      done
  fi
  
@@ -53,7 +53,7 @@ diff -ur ../scala-2.7.4.final-sources.orig/src/compiler/scala/tools/ant/template
 -    fi
 -    SCALA_HOME=`cygpath --$format "$SCALA_HOME"`
 -    TOOL_CLASSPATH=`cygpath --path --$format "$TOOL_CLASSPATH"`
- fi
+-fi
  
  # Reminder: substitution ${JAVA_OPTS:=-Xmx256M -Xms16M} DO NOT work on Solaris
  [ -n "$JAVA_OPTS" ] || JAVA_OPTS="@javaflags@"
