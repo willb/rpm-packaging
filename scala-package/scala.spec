@@ -1,7 +1,7 @@
 Name:           scala
 Version:        2.7.4
 %define fullversion %{version}.final
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        A hybrid functional/object-oriented language for the JVM
 BuildArch:      noarch
 Group:          Development/Languages
@@ -220,6 +220,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/scala/examples
 
 %changelog
+* Mon May 18 2009 Geoff Reedy <geoff@programmer-monk.net> - 2.7.4-5
+- fix problem in tooltemplate patch
+
 * Mon May 18 2009 Geoff Reedy <geoff@programmer-monk.net> - 2.7.4-4
 - make jline implicitly available to match upstream behavior
 
