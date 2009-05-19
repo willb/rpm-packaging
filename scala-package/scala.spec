@@ -1,7 +1,7 @@
 Name:           scala
 Version:        2.7.4
 %define fullversion %{version}.final
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        A hybrid functional/object-oriented language for the JVM
 BuildArch:      noarch
 Group:          Development/Languages
@@ -26,18 +26,13 @@ Source1:      msil-%{msilversion}.tar.bz2
 #   tar cjf fjbg-r17392.tar.bz2 fjbg-r17392
 Source2:        fjbg-%{fjbgversion}.tar.bz2
 
-# Scripts
-Source10:       scala.in
-Source11:       scalac.in
-Source12:       scaladoc.in
-Source13:       fsc.in
-
 Source21:       scala.keys
 Source22:       scala.mime
 Source23:       scala-mime-info.xml
 Source24:       scala.ant.d
 
 Patch0:         scala-buildfile.patch
+Patch1:         scala-tooltemplate.patch
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -101,6 +96,7 @@ the Scala programming language
 %prep
 %setup -q -a 1 -a 2 -n scala-%{fullversion}-sources
 %patch0 -b .build
+%patch1 -b .tooltemplate
 # remove all jar files except scala-library and scala-compiler needed
 # for bootstrap
 find . -not \( -name 'scala-library.jar' -or -name 'scala-compiler.jar' \) -and -name '*.jar' | xargs rm -f
@@ -143,9 +139,6 @@ cp msil-%{msilversion}/lib/msil.jar lib/msil.jar
 # Rebuild scala with freshly compiled msil
 %scala_ant clean fastdist || exit 1
 
-for script in %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13}; do
-        sed -e 's,@@JAVADIR@@,%{_javadir},g' -e 's,@@DATADIR@@,%{_datadir},g' $script > dists/scala-%{fullversion}/bin/`basename $script .in`
-done
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -186,6 +179,8 @@ install -p -m 644 %{SOURCE21} %{SOURCE22} $RPM_BUILD_ROOT%{_datadir}/mime-info/
 install -d $RPM_BUILD_ROOT%{_datadir}/mime/packages/
 install -p -m 644 %{SOURCE23} $RPM_BUILD_ROOT%{_datadir}/mime/packages/
 
+sed -i -e 's,@@JAVADIR@@,%{_javadir},g' -e 's,@@DATADIR@@,%{_datadir},g' $RPM_BUILD_ROOT%{_bindir}/*
+
 %post
 update-mime-database %{_datadir}/mime &> /dev/null || :
 
@@ -223,6 +218,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/scala/examples
 
 %changelog
+* Mon May 18 2009 Geoff Reedy <geoff@programmer-monk.net> - 2.7.4-2
+- fix launcher scripts by modifying template, not overriding them
+
 * Tue May 12 2009 Geoff Reedy <geoff@programmer-monk.net> - 2.7.4-1
 - update to 2.7.4 final
 

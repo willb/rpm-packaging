@@ -1,0 +1,70 @@
+diff -ur ../scala-2.7.4.final-sources.orig/src/compiler/scala/tools/ant/templates/tool-unix.tmpl ./src/compiler/scala/tools/ant/templates/tool-unix.tmpl
+--- ../scala-2.7.4.final-sources.orig/src/compiler/scala/tools/ant/templates/tool-unix.tmpl	2009-03-16 05:55:45.000000000 -0600
++++ ./src/compiler/scala/tools/ant/templates/tool-unix.tmpl	2009-05-18 21:34:52.000000000 -0600
+@@ -8,31 +8,14 @@
+ # PARTICULAR PURPOSE.
+ ##############################################################################
+ 
+-cygwin=false;
+-case "`uname`" in
+-    CYGWIN*) cygwin=true ;;
+-esac
+-
+-# Finding the root folder for this Scala distribution
+-SOURCE=$0;
+-SCRIPT=`basename "$SOURCE"`;
+-while [ -h "$SOURCE" ]; do
+-    SCRIPT=`basename "$SOURCE"`;
+-    LOOKUP=`ls -ld "$SOURCE"`;
+-    TARGET=`expr "$LOOKUP" : '.*-> \(.*\)$'`;
+-    if expr "${TARGET:-.}/" : '/.*/$' > /dev/null; then
+-        SOURCE=${TARGET:-.};
+-    else
+-        SOURCE=`dirname "$SOURCE"`/${TARGET:-.};
+-    fi;
+-done;
+-SCALA_HOME=`dirname "$SOURCE"`/..;
+-SCALA_HOME=`cd "$SCALA_HOME"; pwd`;
+-# Remove spaces from SCALA_HOME on windows
+-if $cygwin; then
+-    SCALA_HOME=`cygpath --windows --short-name "$SCALA_HOME"`
+-    SCALA_HOME=`cygpath --unix "$SCALA_HOME"`
+-fi
++[ -r @@JAVADIR@@-utils/java-functions ] \
++ && . @@JAVADIR@@-utils/java-functions || exit 1
++
++set_javacmd || exit 3
++check_java_env || exit 4
++set_jvm_dirs || exit 5
++
++SCALA_HOME="@@DATADIR@@/scala"
+ 
+ # Constructing the extension classpath
+ TOOL_CLASSPATH="@classpath@"
+@@ -46,21 +29,13 @@
+     done
+ fi
+ 
+-if $cygwin; then
+-    if [ "$OS" = "Windows_NT" ] && cygpath -m .>/dev/null 2>/dev/null ; then
+-        format=mixed
+-    else
+-        format=windows
+-    fi
+-    SCALA_HOME=`cygpath --$format "$SCALA_HOME"`
+-    TOOL_CLASSPATH=`cygpath --path --$format "$TOOL_CLASSPATH"`
++if [ -z "$TOOL_CLASSPATH" ] ; then
++  TOOL_CLASSPATH="`find-jar jline`"
++else
++  TOOL_CLASSPATH="$TOOL_CLASSPATH:`find-jar jline`"
+ fi
+ 
+ # Reminder: substitution ${JAVA_OPTS:=-Xmx256M -Xms16M} DO NOT work on Solaris
+ [ -n "$JAVA_OPTS" ] || JAVA_OPTS="@javaflags@"
+ 
+-if [ -z "$JAVACMD" -a -n "$JAVA_HOME" -a -x "$JAVA_HOME/bin/java" ]; then
+-    JAVACMD="$JAVA_HOME/bin/java"
+-fi
+-
+-exec "${JAVACMD:=java}" $JAVA_OPTS -cp "$TOOL_CLASSPATH" -Dscala.home="$SCALA_HOME" -Denv.classpath="$CLASSPATH" -Denv.emacs="$EMACS" @properties@ @class@ @toolflags@ "$@@"
++exec "${JAVACMD}" $JAVA_OPTS -cp "$TOOL_CLASSPATH" -Dscala.home="$SCALA_HOME" -Denv.classpath="$CLASSPATH" -Denv.emacs="$EMACS" @properties@ @class@ @toolflags@ "$@@"
