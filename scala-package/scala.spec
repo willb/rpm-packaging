@@ -1,7 +1,7 @@
 Name:           scala
 Version:        2.7.4
 %define fullversion %{version}.final
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        A hybrid functional/object-oriented language for the JVM
 BuildArch:      noarch
 Group:          Development/Languages
@@ -179,7 +179,7 @@ install -p -m 644 %{SOURCE21} %{SOURCE22} $RPM_BUILD_ROOT%{_datadir}/mime-info/
 install -d $RPM_BUILD_ROOT%{_datadir}/mime/packages/
 install -p -m 644 %{SOURCE23} $RPM_BUILD_ROOT%{_datadir}/mime/packages/
 
-sed -i -e 's,@@JAVADIR@@,%{_javadir},g' -e 's,@@DATADIR@@,%{_datadir},g' $RPM_BUILD_ROOT%{_bindir}/*
+sed -i -e 's,@JAVADIR@,%{_javadir},g' -e 's,@DATADIR@,%{_datadir},g' $RPM_BUILD_ROOT%{_bindir}/*
 
 %post
 update-mime-database %{_datadir}/mime &> /dev/null || :
@@ -218,6 +218,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/scala/examples
 
 %changelog
+* Mon May 18 2009 Geoff Reedy <geoff@programmer-monk.net> - 2.7.4-3
+- fix problem with substitutions to scripts in %%install
+
 * Mon May 18 2009 Geoff Reedy <geoff@programmer-monk.net> - 2.7.4-2
 - fix launcher scripts by modifying template, not overriding them
 
