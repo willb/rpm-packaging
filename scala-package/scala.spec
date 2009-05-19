@@ -1,7 +1,7 @@
 Name:           scala
 Version:        2.7.4
 %define fullversion %{version}.final
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        A hybrid functional/object-oriented language for the JVM
 BuildArch:      noarch
 Group:          Development/Languages
@@ -167,6 +167,8 @@ for libname in library compiler dbc partest swing; do
         ln -s scala-$libname-%{fullversion}.jar $RPM_BUILD_ROOT%{_javadir}/scala/scala-$libname.jar
         ln -s `relativepath %{_javadir}/scala/scala-$libname.jar %{scaladir}/lib` $RPM_BUILD_ROOT%{scaladir}/lib
 done
+jline_jar=`find-jar jline`
+ln -s `relativepath $jline_jar %{scaladir}/lib` $RPM_BUILD_ROOT%{scaladir}/lib
 
 install -d $RPM_BUILD_ROOT%{_sysconfdir}/ant.d
 install -p -m 644 %{SOURCE24} $RPM_BUILD_ROOT%{_sysconfdir}/ant.d/scala
@@ -218,6 +220,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/scala/examples
 
 %changelog
+* Mon May 18 2009 Geoff Reedy <geoff@programmer-monk.net> - 2.7.4-4
+- make jline implicitly available to match upstream behavior
+
 * Mon May 18 2009 Geoff Reedy <geoff@programmer-monk.net> - 2.7.4-3
 - fix problem with substitutions to scripts in %%install
 
