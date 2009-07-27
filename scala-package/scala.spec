@@ -1,7 +1,7 @@
 Name:           scala
 Version:        2.7.4
 %define fullversion %{version}.final
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        A hybrid functional/object-oriented language for the JVM
 BuildArch:      noarch
 Group:          Development/Languages
@@ -220,6 +220,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/scala/examples
 
 %changelog
+* Sun Jul 26 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.7.4-6
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
+
 * Mon May 18 2009 Geoff Reedy <geoff@programmer-monk.net> - 2.7.4-5
 - fix problem in tooltemplate patch
 
