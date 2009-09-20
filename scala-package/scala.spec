@@ -1,7 +1,7 @@
 Name:           scala
-Version:        2.7.4
+Version:        2.7.5
 %define fullversion %{version}.final
-Release:        6%{?dist}
+Release:        1%{?dist}
 Summary:        A hybrid functional/object-oriented language for the JVM
 BuildArch:      noarch
 Group:          Development/Languages
@@ -15,8 +15,8 @@ Source0:        http://www.scala-lang.org/downloads/distrib/files/scala-%{fullve
 
 %define msilversion %{fullversion}
 # Exported from upstream vcs
-#   svn export http://lampsvn.epfl.ch/svn-repos/scala/msil/tags/R_2_7_4_final msil-2.7.4.final
-#   tar cjf msil-2.7.4.final.tar.bz2 msil-2.7.4.final
+#   svn export http://lampsvn.epfl.ch/svn-repos/scala/msil/tags/R_2_7_5_final msil-2.7.5.final
+#   tar cjf msil-2.7.5.final.tar.bz2 msil-2.7.5.final
 Source1:      msil-%{msilversion}.tar.bz2
 
 %define fjbgversion r17392
@@ -220,6 +220,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/scala/examples
 
 %changelog
+* Sat Sep 19 2009 Geoff Reedy <geoff@programmer-monk.net> - 2.7.5-1
+- Update to upstream 2.7.5 release
+
 * Sun Jul 26 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.7.4-6
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
 
