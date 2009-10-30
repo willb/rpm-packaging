@@ -1,5 +1,5 @@
 Name:           scala
-Version:        2.7.5
+Version:        2.7.7
 %define fullversion %{version}.final
 Release:        1%{?dist}
 Summary:        A hybrid functional/object-oriented language for the JVM
@@ -13,7 +13,7 @@ URL:            http://www.scala-lang.org/
 # Source
 Source0:        http://www.scala-lang.org/downloads/distrib/files/scala-%{fullversion}-sources.tgz
 
-%define msilversion %{fullversion}
+%define msilversion 2.7.5.final
 # Exported from upstream vcs
 #   svn export http://lampsvn.epfl.ch/svn-repos/scala/msil/tags/R_2_7_5_final msil-2.7.5.final
 #   tar cjf msil-2.7.5.final.tar.bz2 msil-2.7.5.final
@@ -220,6 +220,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/scala/examples
 
 %changelog
+* Thu Oct 29 2009 Geoff Reedy <geoff@programmer-monk.net> - 2.7.7-1
+- Update to upstream 2.7.7 release
+
 * Sat Sep 19 2009 Geoff Reedy <geoff@programmer-monk.net> - 2.7.5-1
 - Update to upstream 2.7.5 release
 
