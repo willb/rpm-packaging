@@ -1,0 +1,28 @@
+Only in scala-2.8.0.final-sources: build
+Only in scala-2.8.0.final-sources/lib: jline.jar
+diff -ur scala-2.8.0.final-sources.jline/src/compiler/scala/tools/nsc/interpreter/Completion.scala scala-2.8.0.final-sources/src/compiler/scala/tools/nsc/interpreter/Completion.scala
+--- scala-2.8.0.final-sources.jline/src/compiler/scala/tools/nsc/interpreter/Completion.scala	2010-05-26 08:37:35.000000000 -0600
++++ scala-2.8.0.final-sources/src/compiler/scala/tools/nsc/interpreter/Completion.scala	2010-08-14 21:19:23.032706263 -0600
+@@ -306,7 +306,8 @@
+       else xs.reduceLeft(_ zip _ takeWhile (x => x._1 == x._2) map (_._1) mkString)
+ 
+     // This is jline's entry point for completion.
+-    override def complete(_buf: String, cursor: Int, candidates: JList[String]): Int = {
++    override def complete(_buf: String, cursor: Int, _candidates: JList[_]): Int = {
++      val candidates = _candidates.asInstanceOf[JList[String]]
+       val buf = onull(_buf)
+       verbosity = if (isConsecutiveTabs(buf, cursor)) verbosity + 1 else 0
+       DBG("complete(%s, %d) last = (%s, %d), verbosity: %s".format(buf, cursor, lastBuf, lastCursor, verbosity))
+Only in scala-2.8.0.final-sources/src/compiler/scala/tools/nsc/interpreter: .Completion.scala.swp
+diff -ur scala-2.8.0.final-sources.jline/src/compiler/scala/tools/nsc/interpreter/History.scala scala-2.8.0.final-sources/src/compiler/scala/tools/nsc/interpreter/History.scala
+--- scala-2.8.0.final-sources.jline/src/compiler/scala/tools/nsc/interpreter/History.scala	2010-04-07 08:43:08.000000000 -0600
++++ scala-2.8.0.final-sources/src/compiler/scala/tools/nsc/interpreter/History.scala	2010-08-14 21:13:02.962043386 -0600
+@@ -14,7 +14,7 @@
+ /** Primarily, a wrapper for JLine's History.
+  */
+ class History(val jhistory: JHistory) {
+-  def asJavaList = jhistory.getHistoryList
++  def asJavaList = jhistory.getHistoryList.asInstanceOf[java.util.List[String]]
+   def asList: List[String] = asBuffer(asJavaList).toList
+   def index = jhistory.getCurrentIndex
+ 

@@ -1,5 +1,5 @@
 Name:           scala
-Version:        2.7.7
+Version:        2.8.0
 %define fullversion %{version}.final
 Release:        1%{?dist}
 Summary:        A hybrid functional/object-oriented language for the JVM
@@ -13,46 +13,32 @@ URL:            http://www.scala-lang.org/
 # Source
 Source0:        http://www.scala-lang.org/downloads/distrib/files/scala-%{fullversion}-sources.tgz
 
-%define msilversion 2.7.5.final
-# Exported from upstream vcs
-#   svn export http://lampsvn.epfl.ch/svn-repos/scala/msil/tags/R_2_7_5_final msil-2.7.5.final
-#   tar cjf msil-2.7.5.final.tar.bz2 msil-2.7.5.final
-Source1:      msil-%{msilversion}.tar.bz2
-
-%define fjbgversion r17392
-# Exported from upstream vcs
-# No tag for 2.7.4
-#   svn export -r 17392 http://lampsvn.epfl.ch/svn-repos/scala/fjbg/trunk fjbg-r17392
-#   tar cjf fjbg-r17392.tar.bz2 fjbg-r17392
-Source2:        fjbg-%{fjbgversion}.tar.bz2
-
 Source21:       scala.keys
 Source22:       scala.mime
 Source23:       scala-mime-info.xml
 Source24:       scala.ant.d
 
-Patch0:         scala-buildfile.patch
-Patch1:         scala-tooltemplate.patch
+Patch0:         scala-2.8.0-fix3716.patch
+Patch1:         scala-2.8.0-use_system_jline.patch
+Patch2:         scala-2.8.0-tooltemplate.patch
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-%if 0%{fedora} == 8
-%define java_sdk icedtea
-%else
-%define java_sdk openjdk
-%endif
+%define jline_jar /usr/share/java/jline.jar
 
 # Force build with openjdk/icedtea because gij is horribly slow and I haven't
 # been successful at integrating aot compilation with the build process
-BuildRequires:  java-devel-%{java_sdk}
+BuildRequires:  java-devel-openjdk >= 1:1.6.0
 BuildRequires:  ant
 BuildRequires:  ant-contrib
 BuildRequires:  ant-nodeps
 BuildRequires:  jline
-BuildRequires:  jpackage-utils, java-devel
+BuildRequires:  jpackage-utils
+BuildRequires:  shtool
 Requires:       java
 Requires:       jline
 Requires:       jpackage-utils
+Requires:       %{jline_jar}
 
 %description
 Scala is a general purpose programming language designed to express common
@@ -94,14 +80,20 @@ the Scala programming language
 %define scaladir %{_datadir}/scala
 
 %prep
-%setup -q -a 1 -a 2 -n scala-%{fullversion}-sources
-%patch0 -b .build
-%patch1 -b .tooltemplate
+%setup -q -n scala-%{fullversion}-sources
+%patch0 -p1 -b .fix3716
+%patch1 -p1 -b .systemjline
+%patch2 -p1 -b .tooltemplate
 # remove all jar files except scala-library and scala-compiler needed
 # for bootstrap
-find . -not \( -name 'scala-library.jar' -or -name 'scala-compiler.jar' \) -and -name '*.jar' | xargs rm -f
+find . -not \( -name 'scala-library.jar' -or -name 'scala-compiler.jar' -or -name 'msil.jar' -or -name 'fjbg.jar' -or -name 'forkjoin.jar' \) -and -name '*.jar' | xargs rm -f
 find . -name '*.dll' -or -name '*.so' -or -name '*.exe' | xargs rm -f
-ln -s `find-jar ant-contrib` lib/ant/ant-contrib.jar
+
+##
+# Copy system jline over bundled library
+##
+
+ln -s %{jline_jar} lib/jline.jar
 
 %build
 # Scala is written in itself and therefore requires boot-strapping from an
@@ -114,61 +106,42 @@ ln -s `find-jar ant-contrib` lib/ant/ant-contrib.jar
 # be replaced with this one and successfully build the whole distribution
 # again
 
-# Force build with openjdk/icedtea because gij is horribly slow and I haven't
-# been successful at integrating aot compilation with the build process
-%define java_home %{_jvmdir}/java-%{java_sdk}
+##
+# Rebuild Bundled jline
+##
 
-%define scala_ant %ant -Dsvn.out="" -Dant.jar="`find-jar ant`" -Dant-contrib.jar="`find-jar ant-contrib`" -Djline.jar="`find-jar jline`" -Dversion.number="%{fullversion}"
+#(
+#  cd src/jline
+#  mkdir -p .m2/repository
+#  mvn-jpp -Dmaven.repo.local=$PWD/.m2/repository package
+#  cp target/jline-0.9.95-SNAPSHOT.jar ../../lib/jline.jar
+#)
 
-# Build FJBG
-export ANT_OPTS=-Xmx1024M
-(cd fjbg-%{fjbgversion}; %ant -Djar-file=fjbg.jar jar) || exit 1
-cp fjbg-%{fjbgversion}/fjbg.jar lib/fjbg.jar
+%define java_home %{_jvmdir}/java-openjdk
 
-# Build msil with bootstrap compiler
-(cd msil-%{msilversion}; make SCALAC="java -Xbootclasspath/a:../lib/scala-library.jar -cp ../lib/scala-library.jar:../lib/scala-compiler.jar:../lib/fjbg.jar scala.tools.nsc.Main" jar) || exit 1
-cp msil-%{msilversion}/lib/msil.jar lib/msil.jar
+# rebuild internal libraries and bootstrap compiler
+%ant -Dversion.number=%{fullversion} -Djava6.home=%{_jvmdir}/java-1.6.0 newlibs newforkjoin locker.clean pack.done starr.done locker.clean || exit 1
 
-# Build scala binaries
-%scala_ant pack.comp || exit 1
-
-# Rebuild msil with freshly compiled scala
-(cd msil-%{msilversion}; make SCALAC="java -Xbootclasspath/a:../build/pack/lib/scala-library.jar -cp ../build/pack/lib/scala-library.jar:../build/pack/lib/scala-compiler.jar scala.tools.nsc.Main" clean jar) || exit 1
-cp msil-%{msilversion}/lib/msil.jar lib/msil.jar
-
-# Rebuild scala with freshly compiled msil
-%scala_ant clean fastdist || exit 1
-
+# build distribution with newly built compiler
+%ant -Dversion.number=%{fullversion} newlibs libs.clean locker.clean docs.clean dist.done || exit 1
 
 %install
 rm -rf $RPM_BUILD_ROOT
 
-function relativepath {
-  UPDIRS=""
-  PATHA="$1"
-  PATHB="$2"
-  while [ "$PATHA" == "${PATHA#$PATHB}" ] ; do
-    UPDIRS="../$UPDIRS"
-    PATHB="`dirname "$PATHB"`"
-  done
-  echo $UPDIRS${PATHA#$PATHB/}
-}
-
 install -d $RPM_BUILD_ROOT%{_mandir}/man1 $RPM_BUILD_ROOT%{_bindir}
-for prog in scaladoc fsc scala scalac; do
+for prog in scaladoc fsc scala scalac scalap; do
         install -p -m 755 dists/scala-%{fullversion}/bin/$prog $RPM_BUILD_ROOT%{_bindir}
         install -p -m 644 dists/scala-%{fullversion}/man/man1/$prog.1 $RPM_BUILD_ROOT%{_mandir}/man1
 done
 
 install -p -m 755 -d $RPM_BUILD_ROOT%{_javadir}/scala
 install -p -m 755 -d $RPM_BUILD_ROOT%{scaladir}/lib
-for libname in library compiler dbc partest swing; do
-        install -m 644 dists/scala-%{fullversion}/lib/scala-$libname.jar $RPM_BUILD_ROOT%{_javadir}/scala/scala-$libname-%{fullversion}.jar
-        ln -s scala-$libname-%{fullversion}.jar $RPM_BUILD_ROOT%{_javadir}/scala/scala-$libname.jar
-        ln -s `relativepath %{_javadir}/scala/scala-$libname.jar %{scaladir}/lib` $RPM_BUILD_ROOT%{scaladir}/lib
+for libname in scala-compiler scala-dbc scala-library scala-partest scala-swing scalap ; do
+        install -m 644 dists/scala-%{fullversion}/lib/$libname.jar $RPM_BUILD_ROOT%{_javadir}/scala/$libname-%{fullversion}.jar
+        ln -s $libname-%{fullversion}.jar $RPM_BUILD_ROOT%{_javadir}/scala/$libname.jar
+        shtool mkln -s $RPM_BUILD_ROOT%{_javadir}/scala/$libname.jar $RPM_BUILD_ROOT%{scaladir}/lib
 done
-jline_jar=`find-jar jline`
-ln -s `relativepath $jline_jar %{scaladir}/lib` $RPM_BUILD_ROOT%{scaladir}/lib
+shtool mkln -s $RPM_BUILD_ROOT%{jline_jar} $RPM_BUILD_ROOT%{scaladir}/lib
 
 install -d $RPM_BUILD_ROOT%{_sysconfdir}/ant.d
 install -p -m 644 %{SOURCE24} $RPM_BUILD_ROOT%{_sysconfdir}/ant.d/scala
@@ -220,6 +193,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/scala/examples
 
 %changelog
+* Sun Aug 15 2010 Geoff Reedy <geoff@programmer-monk.net> - 2.8.0-1
+- Update to upstream 2.8.0 release
+
 * Thu Oct 29 2009 Geoff Reedy <geoff@programmer-monk.net> - 2.7.7-1
 - Update to upstream 2.7.7 release
 
