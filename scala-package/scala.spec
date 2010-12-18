@@ -1,5 +1,5 @@
 Name:           scala
-Version:        2.8.0
+Version:        2.8.1
 %define fullversion %{version}.final
 Release:        1%{?dist}
 Summary:        A hybrid functional/object-oriented language for the JVM
@@ -18,8 +18,7 @@ Source22:       scala.mime
 Source23:       scala-mime-info.xml
 Source24:       scala.ant.d
 
-Patch0:         scala-2.8.0-fix3716.patch
-Patch1:         scala-2.8.0-use_system_jline.patch
+Patch1:         scala-2.8.1-use_system_jline.patch
 Patch2:         scala-2.8.0-tooltemplate.patch
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -81,7 +80,6 @@ the Scala programming language
 
 %prep
 %setup -q -n scala-%{fullversion}-sources
-%patch0 -p1 -b .fix3716
 %patch1 -p1 -b .systemjline
 %patch2 -p1 -b .tooltemplate
 # remove all jar files except scala-library and scala-compiler needed
@@ -193,6 +191,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/scala/examples
 
 %changelog
+* Thu Dec  9 2010 Jochen Schmitt <Jochen herr-schmitt de> - 2.8.1-1
+- New upstream release (#661853)
+
 * Sun Aug 15 2010 Geoff Reedy <geoff@programmer-monk.net> - 2.8.0-1
 - Update to upstream 2.8.0 release
 
