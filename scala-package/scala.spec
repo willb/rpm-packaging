@@ -1,7 +1,7 @@
 Name:           scala
 Version:        2.8.1
 %define fullversion %{version}.final
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        A hybrid functional/object-oriented language for the JVM
 BuildArch:      noarch
 Group:          Development/Languages
@@ -191,6 +191,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/scala/examples
 
 %changelog
+* Wed Feb 09 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.8.1-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
+
 * Thu Dec  9 2010 Jochen Schmitt <Jochen herr-schmitt de> - 2.8.1-1
 - New upstream release (#661853)
 
