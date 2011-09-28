@@ -1,7 +1,8 @@
+%global fullversion %{version}.final
+
 Name:           scala
-Version:        2.8.1
-%define fullversion %{version}.final
-Release:        2%{?dist}
+Version:        2.9.1
+Release:        1%{?dist}
 Summary:        A hybrid functional/object-oriented language for the JVM
 BuildArch:      noarch
 Group:          Development/Languages
@@ -18,9 +19,6 @@ Source22:       scala.mime
 Source23:       scala-mime-info.xml
 Source24:       scala.ant.d
 
-Patch1:         scala-2.8.1-use_system_jline.patch
-Patch2:         scala-2.8.0-tooltemplate.patch
-
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %define jline_jar /usr/share/java/jline.jar
@@ -31,11 +29,11 @@ BuildRequires:  java-devel-openjdk >= 1:1.6.0
 BuildRequires:  ant
 BuildRequires:  ant-contrib
 BuildRequires:  ant-nodeps
-BuildRequires:  jline
+# BuildRequires:  jline
 BuildRequires:  jpackage-utils
 BuildRequires:  shtool
 Requires:       java
-Requires:       jline
+# Requires:       jline
 Requires:       jpackage-utils
 Requires:       %{jline_jar}
 
@@ -80,62 +78,23 @@ the Scala programming language
 
 %prep
 %setup -q -n scala-%{fullversion}-sources
-%patch1 -p1 -b .systemjline
-%patch2 -p1 -b .tooltemplate
-# remove all jar files except scala-library and scala-compiler needed
-# for bootstrap
-find . -not \( -name 'scala-library.jar' -or -name 'scala-compiler.jar' -or -name 'msil.jar' -or -name 'fjbg.jar' -or -name 'forkjoin.jar' \) -and -name '*.jar' | xargs rm -f
-find . -name '*.dll' -or -name '*.so' -or -name '*.exe' | xargs rm -f
-
-##
-# Copy system jline over bundled library
-##
-
-ln -s %{jline_jar} lib/jline.jar
 
 %build
-# Scala is written in itself and therefore requires boot-strapping from an
-# initial binary build. The dist target of the ant build is a staged build
-# that makes sure that the package bootstraps properly. The bundled binary
-# compiler is used to compile the source code. That binary is used to 
-# compile the source code again. That binary is used to compile the code
-# again and the output is checked that it is exactly the same.  This makes
-# sure that the build is repeatable and that the bootstrap compiler could
-# be replaced with this one and successfully build the whole distribution
-# again
-
-##
-# Rebuild Bundled jline
-##
-
-#(
-#  cd src/jline
-#  mkdir -p .m2/repository
-#  mvn-jpp -Dmaven.repo.local=$PWD/.m2/repository package
-#  cp target/jline-0.9.95-SNAPSHOT.jar ../../lib/jline.jar
-#)
-
-%define java_home %{_jvmdir}/java-openjdk
-
-# rebuild internal libraries and bootstrap compiler
-%ant -Dversion.number=%{fullversion} -Djava6.home=%{_jvmdir}/java-1.6.0 newlibs newforkjoin locker.clean pack.done starr.done locker.clean || exit 1
-
-# build distribution with newly built compiler
-%ant -Dversion.number=%{fullversion} newlibs libs.clean locker.clean docs.clean dist.done || exit 1
+export ANT_OPTS="-Xms1024m -Xmx1024m"
+%ant build
 
 %install
 rm -rf $RPM_BUILD_ROOT
 
-install -d $RPM_BUILD_ROOT%{_mandir}/man1 $RPM_BUILD_ROOT%{_bindir}
+install -d $RPM_BUILD_ROOT%{_bindir}
 for prog in scaladoc fsc scala scalac scalap; do
-        install -p -m 755 dists/scala-%{fullversion}/bin/$prog $RPM_BUILD_ROOT%{_bindir}
-        install -p -m 644 dists/scala-%{fullversion}/man/man1/$prog.1 $RPM_BUILD_ROOT%{_mandir}/man1
+        install -p -m 755 build/pack/bin/$prog $RPM_BUILD_ROOT%{_bindir}
 done
 
 install -p -m 755 -d $RPM_BUILD_ROOT%{_javadir}/scala
 install -p -m 755 -d $RPM_BUILD_ROOT%{scaladir}/lib
 for libname in scala-compiler scala-dbc scala-library scala-partest scala-swing scalap ; do
-        install -m 644 dists/scala-%{fullversion}/lib/$libname.jar $RPM_BUILD_ROOT%{_javadir}/scala/$libname-%{fullversion}.jar
+        install -m 644 build/pack/lib/$libname.jar $RPM_BUILD_ROOT%{_javadir}/scala/$libname-%{fullversion}.jar
         ln -s $libname-%{fullversion}.jar $RPM_BUILD_ROOT%{_javadir}/scala/$libname.jar
         shtool mkln -s $RPM_BUILD_ROOT%{_javadir}/scala/$libname.jar $RPM_BUILD_ROOT%{scaladir}/lib
 done
@@ -144,7 +103,7 @@ shtool mkln -s $RPM_BUILD_ROOT%{jline_jar} $RPM_BUILD_ROOT%{scaladir}/lib
 install -d $RPM_BUILD_ROOT%{_sysconfdir}/ant.d
 install -p -m 644 %{SOURCE24} $RPM_BUILD_ROOT%{_sysconfdir}/ant.d/scala
 
-cp -pr dists/scala-%{fullversion}/doc/scala-devel-docs/examples $RPM_BUILD_ROOT%{_datadir}/scala/
+cp -pr build/pack/doc/scala-devel-docs/examples $RPM_BUILD_ROOT%{_datadir}/scala/
 
 install -d $RPM_BUILD_ROOT%{_datadir}/mime-info
 install -p -m 644 %{SOURCE21} %{SOURCE22} $RPM_BUILD_ROOT%{_datadir}/mime-info/
