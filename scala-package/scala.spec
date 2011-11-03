@@ -21,7 +21,7 @@ Source24:       scala.ant.d
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-%define jline_jar /usr/share/java/jline.jar
+%define jline_jar /usr/share/java/jline2.jar
 
 # Force build with openjdk/icedtea because gij is horribly slow and I haven't
 # been successful at integrating aot compilation with the build process
@@ -29,11 +29,11 @@ BuildRequires:  java-devel-openjdk >= 1:1.6.0
 BuildRequires:  ant
 BuildRequires:  ant-contrib
 BuildRequires:  ant-nodeps
-# BuildRequires:  jline
+BuildRequires:  jline2
 BuildRequires:  jpackage-utils
 BuildRequires:  shtool
 Requires:       java
-# Requires:       jline
+Requires:       jline2
 Requires:       jpackage-utils
 Requires:       %{jline_jar}
 
@@ -103,7 +103,7 @@ shtool mkln -s $RPM_BUILD_ROOT%{jline_jar} $RPM_BUILD_ROOT%{scaladir}/lib
 install -d $RPM_BUILD_ROOT%{_sysconfdir}/ant.d
 install -p -m 644 %{SOURCE24} $RPM_BUILD_ROOT%{_sysconfdir}/ant.d/scala
 
-cp -pr build/pack/doc/scala-devel-docs/examples $RPM_BUILD_ROOT%{_datadir}/scala/
+cp -pr docs/examples $RPM_BUILD_ROOT%{_datadir}/scala/
 
 install -d $RPM_BUILD_ROOT%{_datadir}/mime-info
 install -p -m 644 %{SOURCE21} %{SOURCE22} $RPM_BUILD_ROOT%{_datadir}/mime-info/
@@ -128,9 +128,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_javadir}/scala
 %dir %{_datadir}/scala
 %{_datadir}/scala/lib
-%{_mandir}/man1/*
-%doc dists/scala-%{fullversion}/doc/LICENSE
-%doc dists/scala-%{fullversion}/doc/README
+%doc docs/LICENSE
+%doc README
 %{_datadir}/mime-info/*
 %{_datadir}/mime/packages/*
 
@@ -142,14 +141,17 @@ rm -rf $RPM_BUILD_ROOT
 
 %files apidoc
 %defattr(-,root,root,-)
-%doc dists/scala-%{fullversion}/doc/scala-devel-docs/api
-%doc dists/scala-%{fullversion}/doc/LICENSE
+# %doc dists/scala-%{fullversion}/doc/scala-devel-docs/api
+%doc docs/LICENSE
 
 %files examples
 %defattr(-,root,root,-)
 %{_datadir}/scala/examples
 
 %changelog
+* Thu Nov  3 2011 Jochen Schmitt <Jochen herr-schmitt de> - 2.9.1-1
+- New upstream release
+
 * Wed Feb 09 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.8.1-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
 
