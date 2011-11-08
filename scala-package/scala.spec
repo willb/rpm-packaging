@@ -14,6 +14,12 @@ URL:            http://www.scala-lang.org/
 # Source
 Source0:        http://www.scala-lang.org/downloads/distrib/files/scala-%{fullversion}-sources.tgz
 
+# Change the default classpath (SCALA_HOME)
+Patch1:		scala-2.9.1-tooltemplate.patch
+
+# Use system jline2 instead of bundled jline2
+Patch2:	        scala-2.9.1-use_system_jline.patch
+
 Source21:       scala.keys
 Source22:       scala.mime
 Source23:       scala-mime-info.xml
@@ -21,7 +27,8 @@ Source24:       scala.ant.d
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-%define jline_jar /usr/share/java/jline2.jar
+%global jline2_jar /usr/share/java/jline2.jar
+%global jansi_jar /usr/share/java/jansi.jar
 
 # Force build with openjdk/icedtea because gij is horribly slow and I haven't
 # been successful at integrating aot compilation with the build process
@@ -35,7 +42,8 @@ BuildRequires:  shtool
 Requires:       java
 Requires:       jline2
 Requires:       jpackage-utils
-Requires:       %{jline_jar}
+Requires:       %{jline2_jar}
+Requires:	%{jansi_jar}
 
 %description
 Scala is a general purpose programming language designed to express common
@@ -78,10 +86,17 @@ the Scala programming language
 
 %prep
 %setup -q -n scala-%{fullversion}-sources
+%patch1 -p1 -b .tool
+%patch2 -p1 -b .sysjline
+
+pushd src
+rm -rf jline
+popd
 
 %build
+
 export ANT_OPTS="-Xms1024m -Xmx1024m"
-%ant build
+%ant build docs
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -98,7 +113,8 @@ for libname in scala-compiler scala-dbc scala-library scala-partest scala-swing 
         ln -s $libname-%{fullversion}.jar $RPM_BUILD_ROOT%{_javadir}/scala/$libname.jar
         shtool mkln -s $RPM_BUILD_ROOT%{_javadir}/scala/$libname.jar $RPM_BUILD_ROOT%{scaladir}/lib
 done
-shtool mkln -s $RPM_BUILD_ROOT%{jline_jar} $RPM_BUILD_ROOT%{scaladir}/lib
+shtool mkln -s $RPM_BUILD_ROOT%{jline2_jar} $RPM_BUILD_ROOT%{scaladir}/lib
+shtool mkln -s $RPM_BUILD_ROOT%{jansi_jar} $RPM_BUILD_ROOT%{scaladir}/lib
 
 install -d $RPM_BUILD_ROOT%{_sysconfdir}/ant.d
 install -p -m 644 %{SOURCE24} $RPM_BUILD_ROOT%{_sysconfdir}/ant.d/scala
@@ -112,6 +128,9 @@ install -d $RPM_BUILD_ROOT%{_datadir}/mime/packages/
 install -p -m 644 %{SOURCE23} $RPM_BUILD_ROOT%{_datadir}/mime/packages/
 
 sed -i -e 's,@JAVADIR@,%{_javadir},g' -e 's,@DATADIR@,%{_datadir},g' $RPM_BUILD_ROOT%{_bindir}/*
+
+install -d $RPM_BUILD_ROOT%{_mandir}/man1
+install -p -m 644 build/scaladoc/manual/man/man1/* $RPM_BUILD_ROOT%{_mandir}/man1
 
 %post
 update-mime-database %{_datadir}/mime &> /dev/null || :
@@ -132,6 +151,7 @@ rm -rf $RPM_BUILD_ROOT
 %doc README
 %{_datadir}/mime-info/*
 %{_datadir}/mime/packages/*
+%{_mandir}/man1/*
 
 %files -n ant-scala
 %defattr(-,root,root,-)
@@ -141,7 +161,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files apidoc
 %defattr(-,root,root,-)
-# %doc dists/scala-%{fullversion}/doc/scala-devel-docs/api
+%doc build/scaladoc/library/*
 %doc docs/LICENSE
 
 %files examples
