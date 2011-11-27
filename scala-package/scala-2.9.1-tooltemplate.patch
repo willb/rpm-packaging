@@ -1,7 +1,7 @@
 diff -up scala-2.9.1.final-sources/src/compiler/scala/tools/ant/templates/tool-unix.tmpl.tool scala-2.9.1.final-sources/src/compiler/scala/tools/ant/templates/tool-unix.tmpl
 --- scala-2.9.1.final-sources/src/compiler/scala/tools/ant/templates/tool-unix.tmpl.tool	2011-05-02 12:20:26.000000000 +0200
-+++ scala-2.9.1.final-sources/src/compiler/scala/tools/ant/templates/tool-unix.tmpl	2011-11-03 19:49:45.558715195 +0100
-@@ -47,24 +47,13 @@ case "`uname`" in
++++ scala-2.9.1.final-sources/src/compiler/scala/tools/ant/templates/tool-unix.tmpl	2011-11-27 20:15:00.986325419 +0100
+@@ -47,24 +47,15 @@ case "`uname`" in
      CYGWIN*) cygwin=true ;;
  esac
  
@@ -23,6 +23,8 @@ diff -up scala-2.9.1.final-sources/src/compiler/scala/tools/ant/templates/tool-u
 -SCALA_HOME=`dirname "$SOURCE"`
 -SCALA_HOME=`cd "$SCALA_HOME"; pwd -P`
 -SCALA_HOME=`cd "$SCALA_HOME"/..; pwd`
++export JAVA_HOME=/usr/lib/jvm/java-1.6.0/
++
 +[ -r @@JAVADIR@@-utils/java-functions ] && . @@JAVADIR@@-utils/java-functions || exit 1
 +
 +set_javacmd || exit 3
@@ -33,7 +35,7 @@ diff -up scala-2.9.1.final-sources/src/compiler/scala/tools/ant/templates/tool-u
  
  # Remove spaces from SCALA_HOME on windows
  if $cygwin; then
-@@ -84,23 +73,6 @@ if [ -z "$TOOL_CLASSPATH" ] ; then
+@@ -84,23 +75,6 @@ if [ -z "$TOOL_CLASSPATH" ] ; then
      done
  fi
  
@@ -57,7 +59,7 @@ diff -up scala-2.9.1.final-sources/src/compiler/scala/tools/ant/templates/tool-u
  [ -n "$JAVA_OPTS" ] || JAVA_OPTS="@javaflags@"
  
  # break out -D and -J options and add them to JAVA_OPTS as well
-@@ -146,11 +118,7 @@ done
+@@ -146,11 +120,7 @@ done
  # reset "$@@" to the remaining args
  set -- "${scala_args[@@]}"
  

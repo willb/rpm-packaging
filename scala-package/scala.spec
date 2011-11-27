@@ -2,7 +2,7 @@
 
 Name:           scala
 Version:        2.9.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        A hybrid functional/object-oriented language for the JVM
 BuildArch:      noarch
 Group:          Development/Languages
@@ -15,6 +15,8 @@ URL:            http://www.scala-lang.org/
 Source0:        http://www.scala-lang.org/downloads/distrib/files/scala-%{fullversion}-sources.tgz
 
 # Change the default classpath (SCALA_HOME)
+# Set JAVA-HOME to jdk6, because scala does't
+# works with the jdk7
 Patch1:		scala-2.9.1-tooltemplate.patch
 
 # Use system jline2 instead of bundled jline2
@@ -32,7 +34,7 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # Force build with openjdk/icedtea because gij is horribly slow and I haven't
 # been successful at integrating aot compilation with the build process
-BuildRequires:  java-devel-openjdk >= 1:1.6.0
+BuildRequires:  java-1.6.0-openjdk-devel
 BuildRequires:  ant
 BuildRequires:  ant-contrib
 BuildRequires:  ant-nodeps
@@ -96,7 +98,8 @@ popd
 %build
 
 export ANT_OPTS="-Xms1024m -Xmx1024m"
-%ant build docs
+export JAVA_HOME=/usr/lib/jvm/java-1.6.0/
+ant build docs
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -169,6 +172,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/scala/examples
 
 %changelog
+* Sun Nov 27 2011 Jochen Schmitt <Jochen herr-schmitt de> - 2.9.1-2
+- Build explicit agains java-1.6.0
+
 * Thu Nov  3 2011 Jochen Schmitt <Jochen herr-schmitt de> - 2.9.1-1
 - New upstream release
 
