@@ -3,9 +3,12 @@
 %global snapshot_repository http://nexus.scala-tools.org/content/repositories/snapshots
 %global jline2_jar /usr/share/java/jline2.jar
 %global jansi_jar /usr/share/java/jansi.jar
+%global scaladir %{_datadir}/scala
+
+
 Name:           scala
 Version:        2.9.2
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        A hybrid functional/object-oriented language for the JVM
 BuildArch:      noarch
 Group:          Development/Languages
@@ -82,8 +85,6 @@ Scala is a general purpose programming language for the JVM that blends
 object-oriented and functional programming. This package contains examples for
 the Scala programming language
 
-%define scaladir %{_datadir}/scala
-
 %prep
 %setup -q -n scala-%{fullversion}-sources
 %patch1 -p1 -b .tool
@@ -114,8 +115,6 @@ pushd lib
 #    rm -rf vizant.jar
   popd
 popd
-# see https://github.com/scala/scala/pull/1019
-#sed -i "s|<files includes="${src.dir}/swing"/>|<!--files includes="${src.dir}/swing"/-->|" build.xml
 
 %build
 
@@ -132,8 +131,8 @@ done
 install -p -m 755 -d $RPM_BUILD_ROOT%{_javadir}/scala
 install -p -m 755 -d $RPM_BUILD_ROOT%{scaladir}/lib
 install -d -m 755 $RPM_BUILD_ROOT%{_mavenpomdir}
-# TODO scala-swing
-for libname in scala-compiler scala-dbc scala-library scala-partest scalap ; do
+
+for libname in scala-compiler scala-dbc scala-library scala-partest scalap scala-swing ; do
         install -m 644 build/pack/lib/$libname.jar $RPM_BUILD_ROOT%{_javadir}/scala/
         shtool mkln -s $RPM_BUILD_ROOT%{_javadir}/scala/$libname.jar $RPM_BUILD_ROOT%{scaladir}/lib
         sed -i "s|@VERSION@|%{fullversion}|" src/build/maven/$libname-pom.xml
@@ -195,6 +194,9 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %doc docs/LICENSE
 
 %changelog
+* Sat Nov 24 2012 Jochen Schmitt <Jochen herr-schmitt de> 2.9.2-2
+- Enabel swing module (#879828)
+
 * Thu Sep 13 2012 gil cattaneo <puntogil@libero.it> 2.9.2-1
 - update to 2.9.2
 - added maven poms
