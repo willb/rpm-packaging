@@ -1,0 +1,14 @@
+--- src/build/maven/scala-compiler-pom.xml	2012-03-18 17:09:24.000000000 +0100
++++ src/build/maven/scala-compiler-pom.xml-gil	2012-09-13 02:41:01.919727846 +0200
+@@ -39,9 +39,9 @@
+ 			<version>@VERSION@</version>
+ 		</dependency>
+     <dependency>
+-      <groupId>org.scala-lang</groupId>
++      <groupId>org.sonatype.jline</groupId>
+       <artifactId>jline</artifactId>
+-      <version>@VERSION@</version>
++      <version>2.5</version>
+       <optional>true</optional>
+     </dependency>
+ 	</dependencies>

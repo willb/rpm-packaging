@@ -23,7 +23,7 @@ diff -up scala-2.9.1.final-sources/src/compiler/scala/tools/ant/templates/tool-u
 -SCALA_HOME=`dirname "$SOURCE"`
 -SCALA_HOME=`cd "$SCALA_HOME"; pwd -P`
 -SCALA_HOME=`cd "$SCALA_HOME"/..; pwd`
-+export JAVA_HOME=/usr/lib/jvm/java-1.6.0/
++export JAVA_HOME=/usr/lib/jvm/java/
 +
 +[ -r @@JAVADIR@@-utils/java-functions ] && . @@JAVADIR@@-utils/java-functions || exit 1
 +

@@ -1,8 +1,11 @@
-%global fullversion %{version}.final
-
+%global fullversion %{version}
+%global release_repository http://nexus.scala-tools.org/content/repositories/releases
+%global snapshot_repository http://nexus.scala-tools.org/content/repositories/snapshots
+%global jline2_jar /usr/share/java/jline2.jar
+%global jansi_jar /usr/share/java/jansi.jar
 Name:           scala
-Version:        2.9.1
-Release:        4%{?dist}
+Version:        2.9.2
+Release:        1%{?dist}
 Summary:        A hybrid functional/object-oriented language for the JVM
 BuildArch:      noarch
 Group:          Development/Languages
@@ -10,36 +13,31 @@ Group:          Development/Languages
 # https://www.redhat.com/archives/fedora-legal-list/2007-December/msg00012.html
 License:        BSD
 URL:            http://www.scala-lang.org/
-
 # Source
-Source0:        http://www.scala-lang.org/downloads/distrib/files/scala-%{fullversion}-sources.tgz
-
+Source0:        http://www.scala-lang.org/downloads/distrib/files/scala-sources-%{fullversion}.tgz
 # Change the default classpath (SCALA_HOME)
-# Set JAVA-HOME to jdk6, because scala does't
-# works with the jdk7
-Patch1:		scala-2.9.1-tooltemplate.patch
-
+Patch1:		scala-2.9.2-tooltemplate.patch
 # Use system jline2 instead of bundled jline2
-Patch2:	        scala-2.9.1-use_system_jline.patch
+Patch2:	        scala-2.9.2-use_system_jline.patch
+# change org.scala-lang jline in org.sonatype.jline jline
+Patch3:	        scala-2.9.2-compiler-pom.patch
+
+Patch4:	        scala-2.9.2-java7.patch
 
 Source21:       scala.keys
 Source22:       scala.mime
 Source23:       scala-mime-info.xml
 Source24:       scala.ant.d
 
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-
-%global jline2_jar /usr/share/java/jline2.jar
-%global jansi_jar /usr/share/java/jansi.jar
-
 # Force build with openjdk/icedtea because gij is horribly slow and I haven't
 # been successful at integrating aot compilation with the build process
-BuildRequires:  java-1.6.0-openjdk-devel
+# BuildRequires:  java-1.6.0-openjdk-devel
+BuildRequires:  java-devel
 BuildRequires:  ant
 BuildRequires:  ant-contrib
-BuildRequires:  ant-nodeps
 BuildRequires:  jline2
 BuildRequires:  jpackage-utils
+# BuildRequires:  maven-ant-tasks
 BuildRequires:  shtool
 Requires:       java
 Requires:       jline2
@@ -90,19 +88,41 @@ the Scala programming language
 %setup -q -n scala-%{fullversion}-sources
 %patch1 -p1 -b .tool
 %patch2 -p1 -b .sysjline
+%patch3 -p0 -b .compiler-pom
+%patch4 -p1 -b .jdk7
 
 pushd src
 rm -rf jline
 popd
 
+pushd lib
+#  fjbg.jar ch.epfl.lamp
+#  forkjoin.jar scala.concurrent.forkjoin available @ https://bugzilla.redhat.com/show_bug.cgi?id=854234 as jsr166y
+  rm -rf jline.jar
+#  midpapi10.jar https://bugzilla.redhat.com/show_bug.cgi?id=807242 ?
+#  msil.jar ch.epfl.lamp.compiler
+#  scala-compiler.jar
+#  scala-library-src.jar
+#  scala-library.jar
+  pushd ant
+    rm -rf ant.jar
+    rm -rf ant-contrib.jar
+    ln -s $(build-classpath ant.jar) ant.jar
+    ln -s $(build-classpath ant/ant-contrib) ant-contrib.jar
+#    rm -rf ant-dotnet-1.0.jar
+    rm -rf maven-ant-tasks-2.1.1.jar
+#    rm -rf vizant.jar
+  popd
+popd
+# see https://github.com/scala/scala/pull/1019
+#sed -i "s|<files includes="${src.dir}/swing"/>|<!--files includes="${src.dir}/swing"/-->|" build.xml
+
 %build
 
 export ANT_OPTS="-Xms1024m -Xmx1024m"
-export JAVA_HOME=/usr/lib/jvm/java-1.6.0/
 ant build docs
 
 %install
-rm -rf $RPM_BUILD_ROOT
 
 install -d $RPM_BUILD_ROOT%{_bindir}
 for prog in scaladoc fsc scala scalac scalap; do
@@ -111,10 +131,16 @@ done
 
 install -p -m 755 -d $RPM_BUILD_ROOT%{_javadir}/scala
 install -p -m 755 -d $RPM_BUILD_ROOT%{scaladir}/lib
-for libname in scala-compiler scala-dbc scala-library scala-partest scala-swing scalap ; do
-        install -m 644 build/pack/lib/$libname.jar $RPM_BUILD_ROOT%{_javadir}/scala/$libname-%{fullversion}.jar
-        ln -s $libname-%{fullversion}.jar $RPM_BUILD_ROOT%{_javadir}/scala/$libname.jar
+install -d -m 755 $RPM_BUILD_ROOT%{_mavenpomdir}
+# TODO scala-swing
+for libname in scala-compiler scala-dbc scala-library scala-partest scalap ; do
+        install -m 644 build/pack/lib/$libname.jar $RPM_BUILD_ROOT%{_javadir}/scala/
         shtool mkln -s $RPM_BUILD_ROOT%{_javadir}/scala/$libname.jar $RPM_BUILD_ROOT%{scaladir}/lib
+        sed -i "s|@VERSION@|%{fullversion}|" src/build/maven/$libname-pom.xml
+        sed -i "s|@RELEASE_REPOSITORY@|%{release_repository}|" src/build/maven/$libname-pom.xml
+        sed -i "s|@SNAPSHOT_REPOSITORY@|%{snapshot_repository}|" src/build/maven/$libname-pom.xml
+        install -pm 644 src/build/maven/$libname-pom.xml $RPM_BUILD_ROOT%{_mavenpomdir}/JPP.%{name}-$libname.pom
+%add_maven_depmap JPP.%{name}-$libname.pom %{name}/$libname.jar
 done
 shtool mkln -s $RPM_BUILD_ROOT%{jline2_jar} $RPM_BUILD_ROOT%{scaladir}/lib
 shtool mkln -s $RPM_BUILD_ROOT%{jansi_jar} $RPM_BUILD_ROOT%{scaladir}/lib
@@ -141,37 +167,42 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %postun
 update-mime-database %{_datadir}/mime &> /dev/null || :
 
-%clean
-rm -rf $RPM_BUILD_ROOT
 
 %files
-%defattr(-,root,root,-)
 %{_bindir}/*
 %{_javadir}/scala
 %dir %{_datadir}/scala
 %{_datadir}/scala/lib
-%doc docs/LICENSE
-%doc README
 %{_datadir}/mime-info/*
 %{_datadir}/mime/packages/*
 %{_mandir}/man1/*
+%{_mavenpomdir}/JPP.%{name}-*.pom
+%{_mavendepmapfragdir}/%{name}
+%doc docs/LICENSE README
 
 %files -n ant-scala
-%defattr(-,root,root,-)
 # Following is plain config because the ant task classpath could change from
 # release to release
 %config %{_sysconfdir}/ant.d/*
+%doc docs/LICENSE
 
 %files apidoc
-%defattr(-,root,root,-)
 %doc build/scaladoc/library/*
 %doc docs/LICENSE
 
 %files examples
-%defattr(-,root,root,-)
 %{_datadir}/scala/examples
+%doc docs/LICENSE
 
 %changelog
+* Thu Sep 13 2012 gil cattaneo <puntogil@libero.it> 2.9.2-1
+- update to 2.9.2
+- added maven poms
+- adapted to current guideline
+- built with java 7 support
+- removed ant-nodeps from buildrequires
+- disabled swing module
+
 * Sat Jul 21 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.9.1-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
 
