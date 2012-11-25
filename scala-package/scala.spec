@@ -1,4 +1,4 @@
-%global fullversion %{version}
+%global fullversion %{version}-RC3
 %global release_repository http://nexus.scala-tools.org/content/repositories/releases
 %global snapshot_repository http://nexus.scala-tools.org/content/repositories/snapshots
 %global jline2_jar /usr/share/java/jline2.jar
@@ -7,8 +7,8 @@
 
 
 Name:           scala
-Version:        2.9.2
-Release:        2%{?dist}
+Version:        2.10.0
+Release:        0.3%{?dist}
 Summary:        A hybrid functional/object-oriented language for the JVM
 BuildArch:      noarch
 Group:          Development/Languages
@@ -17,11 +17,15 @@ Group:          Development/Languages
 License:        BSD
 URL:            http://www.scala-lang.org/
 # Source
-Source0:        http://www.scala-lang.org/downloads/distrib/files/scala-sources-%{fullversion}.tgz
+# Source archiv was built with
+# ./get-source.sh %{fullversion}
+# from git reposiroy
+Source0:	scala-%{fullversion}.tgz
+# Source0:        http://www.scala-lang.org/downloads/distrib/files/scala-sources-%{fullversion}.tgz
 # Change the default classpath (SCALA_HOME)
-Patch1:		scala-2.9.2-tooltemplate.patch
+Patch1:		scala-2.10.0-tooltemplate.patch
 # Use system jline2 instead of bundled jline2
-Patch2:	        scala-2.9.2-use_system_jline.patch
+Patch2:	        scala-2.10.0-use_system_jline.patch
 # change org.scala-lang jline in org.sonatype.jline jline
 Patch3:	        scala-2.9.2-compiler-pom.patch
 
@@ -86,11 +90,11 @@ object-oriented and functional programming. This package contains examples for
 the Scala programming language
 
 %prep
-%setup -q -n scala-%{fullversion}-sources
+%setup -q -n scala-%{fullversion}
 %patch1 -p1 -b .tool
 %patch2 -p1 -b .sysjline
 %patch3 -p0 -b .compiler-pom
-%patch4 -p1 -b .jdk7
+# %patch4 -p1 -b .jdk7
 
 pushd src
 rm -rf jline
@@ -111,7 +115,7 @@ pushd lib
     ln -s $(build-classpath ant.jar) ant.jar
     ln -s $(build-classpath ant/ant-contrib) ant-contrib.jar
 #    rm -rf ant-dotnet-1.0.jar
-    rm -rf maven-ant-tasks-2.1.1.jar
+#    rm -rf maven-ant-tasks-2.1.1.jar
 #    rm -rf vizant.jar
   popd
 popd
