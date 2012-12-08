@@ -17,10 +17,8 @@ Group:          Development/Languages
 License:        BSD
 URL:            http://www.scala-lang.org/
 # Source
-# Source archiv was built with
-# ./get-source.sh %{fullversion}
-# from git reposiroy
-Source0:	scala-%{fullversion}.tgz
+Source0:	http://www.scala-lang.org/downloads/distrib/files/scala-sources-%{fullversion}.tgz
+Source1:	scala-library-2.10.0-bnd.properties
 # Source0:        http://www.scala-lang.org/downloads/distrib/files/scala-sources-%{fullversion}.tgz
 # Change the default classpath (SCALA_HOME)
 Patch1:		scala-2.10.0-tooltemplate.patch
@@ -28,8 +26,8 @@ Patch1:		scala-2.10.0-tooltemplate.patch
 Patch2:	        scala-2.10.0-use_system_jline.patch
 # change org.scala-lang jline in org.sonatype.jline jline
 Patch3:	        scala-2.9.2-compiler-pom.patch
-
-Patch4:	        scala-2.9.2-java7.patch
+# Patch Swing module for JDK 1.7
+Patch4:	        scala-2.10.0-java7.patch
 
 Source21:       scala.keys
 Source22:       scala.mime
@@ -46,6 +44,7 @@ BuildRequires:  jline2
 BuildRequires:  jpackage-utils
 # BuildRequires:  maven-ant-tasks
 BuildRequires:  shtool
+BuildRequires:	aqute-bnd
 Requires:       java
 Requires:       jline2
 Requires:       jpackage-utils
@@ -90,11 +89,11 @@ object-oriented and functional programming. This package contains examples for
 the Scala programming language
 
 %prep
-%setup -q -n scala-%{fullversion}
+%setup -q -n scala-%{fullversion}-sources
 %patch1 -p1 -b .tool
 %patch2 -p1 -b .sysjline
 %patch3 -p0 -b .compiler-pom
-# %patch4 -p1 -b .jdk7
+%patch4 -p1 -b .jdk7
 
 pushd src
 rm -rf jline
@@ -125,6 +124,14 @@ popd
 export ANT_OPTS="-Xms1024m -Xmx1024m"
 ant build docs
 
+pushd build/pack/lib
+cp %{SOURCE1} bnd.properties
+java -jar $(build-classpath aqute-bnd) wrap -properties \
+    bnd.properties scala-library.jar
+mv scala-library.jar scala-library.jar.no
+mv scala-library.bar scala-library.jar
+popd
+
 %install
 
 install -d $RPM_BUILD_ROOT%{_bindir}
@@ -136,7 +143,7 @@ install -p -m 755 -d $RPM_BUILD_ROOT%{_javadir}/scala
 install -p -m 755 -d $RPM_BUILD_ROOT%{scaladir}/lib
 install -d -m 755 $RPM_BUILD_ROOT%{_mavenpomdir}
 
-for libname in scala-compiler scala-dbc scala-library scala-partest scalap scala-swing ; do
+for libname in scala-compiler scala-library scala-partest scala-reflect scalap scala-swing ; do
         install -m 644 build/pack/lib/$libname.jar $RPM_BUILD_ROOT%{_javadir}/scala/
         shtool mkln -s $RPM_BUILD_ROOT%{_javadir}/scala/$libname.jar $RPM_BUILD_ROOT%{scaladir}/lib
         sed -i "s|@VERSION@|%{fullversion}|" src/build/maven/$libname-pom.xml
@@ -181,7 +188,7 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %{_mandir}/man1/*
 %{_mavenpomdir}/JPP.%{name}-*.pom
 %{_mavendepmapfragdir}/%{name}
-%doc docs/LICENSE README
+%doc docs/LICENSE
 
 %files -n ant-scala
 # Following is plain config because the ant task classpath could change from
@@ -198,8 +205,8 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %doc docs/LICENSE
 
 %changelog
-* Sat Nov 24 2012 Jochen Schmitt <Jochen herr-schmitt de> 2.9.2-2
-- Enabel swing module (#879828)
+* Fri Dec  7 2012 Jochen Schmitt <Jochen herr-schmitt de> - 2.10.0-0.3
+- New upstream release
 
 * Thu Sep 13 2012 gil cattaneo <puntogil@libero.it> 2.9.2-1
 - update to 2.9.2
