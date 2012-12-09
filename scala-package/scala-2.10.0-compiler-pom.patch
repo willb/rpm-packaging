@@ -19,7 +19,7 @@
    <target name="init.extra.tasks" depends="init.maven.tasks" unless="init.extra.tasks.finished">
      <artifact:dependencies pathId="extra.tasks.classpath" filesetId="extra.tasks.fileset">
 -      <dependency groupId="biz.aQute" artifactId="bnd" version="1.50.0"/>
-+      <dependency groupId="biz.aQute" artifactId="bnd" />
++      <dependency groupId="biz.aQute" artifactId="bnd" version="0.0.363" />
      </artifact:dependencies>
      <!-- Pax runner -->
      <property name="pax.exam.version" value="2.5.0"/>
