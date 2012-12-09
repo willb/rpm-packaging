@@ -25,7 +25,7 @@ Patch1:		scala-2.10.0-tooltemplate.patch
 # Use system jline2 instead of bundled jline2
 Patch2:	        scala-2.10.0-use_system_jline.patch
 # change org.scala-lang jline in org.sonatype.jline jline
-Patch3:	        scala-2.9.2-compiler-pom.patch
+Patch3:	        scala-2.10.0-compiler-pom.patch
 # Patch Swing module for JDK 1.7
 Patch4:	        scala-2.10.0-java7.patch
 
