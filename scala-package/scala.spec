@@ -49,6 +49,7 @@ BuildRequires:  jpackage-utils
 # BuildRequires:  maven-ant-tasks
 BuildRequires:  shtool
 BuildRequires:	aqute-bnd
+BuildRequires:  junit4
 Requires:       java
 Requires:       jline2
 Requires:       jpackage-utils
