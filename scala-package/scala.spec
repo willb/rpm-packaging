@@ -1,4 +1,4 @@
-%global fullversion %{version}-RC3
+%global fullversion %{version}
 %global release_repository http://nexus.scala-tools.org/content/repositories/releases
 %global snapshot_repository http://nexus.scala-tools.org/content/repositories/snapshots
 %global jline2_jar /usr/share/java/jline2.jar
@@ -8,7 +8,7 @@
 
 Name:           scala
 Version:        2.10.0
-Release:        0.3%{?dist}
+Release:        1%{?dist}
 Summary:        A hybrid functional/object-oriented language for the JVM
 BuildArch:      noarch
 Group:          Development/Languages
@@ -33,6 +33,8 @@ Source21:       scala.keys
 Source22:       scala.mime
 Source23:       scala-mime-info.xml
 Source24:       scala.ant.d
+
+Source31:	scala-bootstript.xml
 
 # Force build with openjdk/icedtea because gij is horribly slow and I haven't
 # been successful at integrating aot compilation with the build process
@@ -92,7 +94,7 @@ the Scala programming language
 %setup -q -n scala-%{fullversion}-sources
 %patch1 -p1 -b .tool
 %patch2 -p1 -b .sysjline
-%patch3 -p0 -b .compiler-pom
+# %patch3 -p0 -b .compiler-pom
 %patch4 -p1 -b .jdk7
 
 pushd src
@@ -102,7 +104,9 @@ popd
 pushd lib
 #  fjbg.jar ch.epfl.lamp
 #  forkjoin.jar scala.concurrent.forkjoin available @ https://bugzilla.redhat.com/show_bug.cgi?id=854234 as jsr166y
-  rm -rf jline.jar
+#  find -not \( -name 'scala-compiler.jar' -or -name 'scala-library.jar' -or -name 'midpapi10.jar' -or \
+#       -name 'msil.jar' -or -name 'fjbg.jar' -or -name 'forkjoin.jar' \) -and -name '*.jar' -delete
+
 #  midpapi10.jar https://bugzilla.redhat.com/show_bug.cgi?id=807242 ?
 #  msil.jar ch.epfl.lamp.compiler
 #  scala-compiler.jar
@@ -119,11 +123,13 @@ pushd lib
   popd
 popd
 
+cp -rf %{SOURCE31} .
+
 %build
 
 export ANT_OPTS="-Xms1024m -Xmx1024m"
-ant build docs
-
+# ant -f scala-bootstript.xml
+ant build docs || exit 1
 pushd build/pack/lib
 cp %{SOURCE1} bnd.properties
 java -jar $(build-classpath aqute-bnd) wrap -properties \
@@ -131,6 +137,10 @@ java -jar $(build-classpath aqute-bnd) wrap -properties \
 mv scala-library.jar scala-library.jar.no
 mv scala-library.bar scala-library.jar
 popd
+
+%check
+
+ant test-opt
 
 %install
 
@@ -205,6 +215,12 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %doc docs/LICENSE
 
 %changelog
+* Mon Jan  7 2013 Jochen Schmitt <Jochen herr-schmitt de> - 2.10.0-1
+- New upstream release
+
+* Thu Dec 13 2012 Jochen Schmitt <s4504kr@omega.in.herr-schmitt.de> - 2.10.0-0.5
+- New upstream release
+
 * Fri Dec  7 2012 Jochen Schmitt <Jochen herr-schmitt de> - 2.10.0-0.3
 - New upstream release
 
@@ -216,7 +232,7 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 - removed ant-nodeps from buildrequires
 - disabled swing module
 
-* Sat Jul 21 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.9.1-4
+* Sat Jul 21 2012 Fedora Release Engineering <JOchen herr-schmitt de> - 2.9.1-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
 
 * Sat Jan 14 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.9.1-3
