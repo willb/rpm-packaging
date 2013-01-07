@@ -29,7 +29,7 @@ Patch3:	        scala-2.10.0-compiler-pom.patch
 # Patch Swing module for JDK 1.7
 Patch4:	        scala-2.10.0-java7.patch
 # Fix aQuate issue
-Patch5          scala-2.10.0-bnd.patch
+Patch5:         scala-2.10.0-bnd.patch
  
 Source21:       scala.keys
 Source22:       scala.mime
