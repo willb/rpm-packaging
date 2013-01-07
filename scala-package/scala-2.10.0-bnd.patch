@@ -1,0 +1,12 @@
+diff -up scala-2.10.0-sources/build.xml.bndx scala-2.10.0-sources/build.xml
+--- scala-2.10.0-sources/build.xml.bndx	2013-01-07 22:11:58.642144310 +0100
++++ scala-2.10.0-sources/build.xml	2013-01-07 22:15:24.546161818 +0100
+@@ -297,7 +297,7 @@ INITIALISATION
+       <dependency groupId="org.apache.felix" artifactId="org.apache.felix.framework" version="3.2.2"/>
+     </artifact:dependencies>
+     <!-- BND support -->
+-    <typedef resource="aQute/bnd/ant/taskdef.properties" classpathref="extra.tasks.classpath" />
++    <typedef resource="aQute/bnd/ant/taskdef.properties" classpath="/usr/share/java/aquate-bnd.jar" />
+     <property name="init.maven.tasks.finished" value="true" />
+   </target>
+ 

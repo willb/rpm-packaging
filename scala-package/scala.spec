@@ -28,7 +28,9 @@ Patch2:	        scala-2.10.0-use_system_jline.patch
 Patch3:	        scala-2.10.0-compiler-pom.patch
 # Patch Swing module for JDK 1.7
 Patch4:	        scala-2.10.0-java7.patch
-
+# Fix aQuate issue
+Patch5          scala-2.10.0-bnd.patch
+ 
 Source21:       scala.keys
 Source22:       scala.mime
 Source23:       scala-mime-info.xml
@@ -96,6 +98,7 @@ the Scala programming language
 %patch2 -p1 -b .sysjline
 # %patch3 -p0 -b .compiler-pom
 %patch4 -p1 -b .jdk7
+%patch5 -p1 -b .bndx
 
 pushd src
 rm -rf jline
@@ -217,6 +220,7 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %changelog
 * Mon Jan  7 2013 Jochen Schmitt <Jochen herr-schmitt de> - 2.10.0-1
 - New upstream release
+- Add patch to use system aQuate-bnd.jar file
 
 * Thu Dec 13 2012 Jochen Schmitt <s4504kr@omega.in.herr-schmitt.de> - 2.10.0-0.5
 - New upstream release
