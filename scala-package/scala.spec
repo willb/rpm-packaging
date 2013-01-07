@@ -51,6 +51,7 @@ BuildRequires:  shtool
 BuildRequires:	aqute-bnd
 BuildRequires:  junit4
 BuildRequires:  felix-framework
+BuildRequires:  pax-logging
 Requires:       java
 Requires:       jline2
 Requires:       jpackage-utils
