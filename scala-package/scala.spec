@@ -50,6 +50,7 @@ BuildRequires:  jpackage-utils
 BuildRequires:  shtool
 BuildRequires:	aqute-bnd
 BuildRequires:  junit4
+BuildRequires:  felix-framework
 Requires:       java
 Requires:       jline2
 Requires:       jpackage-utils
