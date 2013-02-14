@@ -8,7 +8,7 @@
 
 Name:           scala
 Version:        2.10.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        A hybrid functional/object-oriented language for the JVM
 BuildArch:      noarch
 Group:          Development/Languages
@@ -221,6 +221,9 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %doc docs/LICENSE
 
 %changelog
+* Thu Feb 14 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.10.0-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
+
 * Mon Jan  7 2013 Jochen Schmitt <Jochen herr-schmitt de> - 2.10.0-1
 - New upstream release
 - Add patch to use system aQuate-bnd.jar file
