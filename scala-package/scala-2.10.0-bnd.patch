@@ -16,7 +16,7 @@ diff -up scala-2.10.0-sources/build.xml.bndx scala-2.10.0-sources/build.xml
      </artifact:dependencies>
      <!-- BND support -->
 -    <typedef resource="aQute/bnd/ant/taskdef.properties" classpathref="extra.tasks.classpath" />
-+    <typedef resource="aQute/bnd/ant/taskdef.properties" classpath="/usr/share/java/aquate-bnd.jar" />
++    <typedef resource="aQute/bnd/ant/taskdef.properties" classpath="/usr/share/java/aqute-bnd.jar" />
      <property name="init.maven.tasks.finished" value="true" />
    </target>
  
