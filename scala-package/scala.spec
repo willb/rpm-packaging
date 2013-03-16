@@ -5,10 +5,9 @@
 %global jansi_jar /usr/share/java/jansi.jar
 %global scaladir %{_datadir}/scala
 
-
 Name:           scala
-Version:        2.10.0
-Release:        2%{?dist}
+Version:        2.10.1
+Release:        1%{?dist}
 Summary:        A hybrid functional/object-oriented language for the JVM
 BuildArch:      noarch
 Group:          Development/Languages
@@ -221,6 +220,9 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %doc docs/LICENSE
 
 %changelog
+* Sat Mar 16 2013 Jochen Schmitt <Jochen herr-schmitt de> - 2.10.1-1
+- New upstream releae
+
 * Thu Feb 14 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.10.0-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
 
