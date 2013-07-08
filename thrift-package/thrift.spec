@@ -1,37 +1,205 @@
 %global pkg_version 0.9.0
+%global pkg_rel 1
 
-Name:           thrift
-Version:        %{pkg_version}
-Release:        1%{?dist}
-Summary:        Software framework for scalable cross-language services development
+%global py_version 2.7
 
-License:        Apache 2.0
-URL:            http://thrift.apache.org/
-Source0:        http://archive.apache.org/dist/%{name}/%{pkg_version}/%{name}-%{pkg_version}.tar.gz
+%global php_extdir  %(php-config --extension-dir 2>/dev/null || echo "undefined")
 
-BuildRequires:  
-Requires:       
+%global __provides_exclude_from ^(%{python_sitearch}/.*\\.so|%{php_extdir}/.*\\.so)$
+
+%global have_mongrel 0
+%global have_jsx 0
+
+# Thrift's Ruby support depends on Mongrel.  Since Mongrel is
+# deprecated in Fedora, we can't support Ruby bindings for Thrift
+# unless and until Thrift is patched to use a different HTTP server.
+
+%if 0%{?have_mongrel} == 0
+%global ruby_configure --without-ruby
+%global with_ruby 0
+%else
+%global ruby_configure --with-ruby
+%global want_ruby 1
+%endif
+
+# Thrift's Erlang support depends on the JSX library, which is not
+# currently available in Fedora.
+
+%if 0%{?have_jsx} == 0
+%global erlang_configure --without-erlang
+%global want_erlang 0
+%else
+%global erlang_configure --with-erlang
+%global want_erlang 1
+%endif
+
+# Thrift's GO support doesn't build under Fedora
+%global want_golang 0
+%global golang_configure --without-go
+
+Name:		thrift
+Version:	%{pkg_version}
+Release:	%{pkg_rel}%{?dist}
+Summary:	Software framework for cross-language services development
+
+License:	ASL 2.0
+URL:		http://thrift.apache.org/
+Source0:	http://archive.apache.org/dist/%{name}/%{version}/%{name}-%{version}.tar.gz
+Patch0:		0001-build-xml.patch
+
+Group:		Development/Libraries
+
+BuildRequires:	gcc-c++
+BuildRequires:	libstdc++-devel
+BuildRequires:	boost-devel
+BuildRequires:	openssl-devel
+BuildRequires:	zlib-devel
+BuildRequires:	python2-devel
+BuildRequires:	perl(Bit::Vector)
+BuildRequires:	perl(ExtUtils::MakeMaker)
+BuildRequires:	bison-devel
+BuildRequires:	flex-devel
+BuildRequires:	mono-devel
+BuildRequires:	php-devel
+BuildRequires:	erlang
+BuildRequires:	java-devel
+BuildRequires:	glib2-devel
+BuildRequires:	texlive
+
+BuildRequires:	java-devel
+BuildRequires:	jpackage-utils
+BuildRequires:	ant
+BuildRequires:	apache-commons-codec
+BuildRequires:	apache-commons-lang
+BuildRequires:	apache-commons-logging
+BuildRequires:	httpcomponents-client
+BuildRequires:	httpcomponents-core
+BuildRequires:	junit
+BuildRequires:	log4j
+BuildRequires:	slf4j
+BuildRequires:	tomcat-servlet-3.0-api
+
+
+%if 0%{?want_golang} > 0
+BuildRequires:	golang
+%endif
+
+%if 0%{?want_ruby} > 0
+BuildRequires:	ruby-devel
+%endif
+
+%if 0%{?want_erlang} > 0
+BuildRequires:	erlang
+%endif
+
+Requires:	gcc-c++
+Requires:	openssl
+Requires:	boost
+Requires:	bison
+Requires:	flex
+Requires:	mono
+%if 0%{?want_golang} > 0
+Requires:	golang
+%endif
 
 %description
 
-The Apache Thrift software framework, for scalable cross-language services development, combines a software stack with a code generation engine to build services that work efficiently and seamlessly between C++, Java, Python, PHP, Ruby, Erlang, Perl, Haskell, C\#, Cocoa, JavaScript, Node.js, Smalltalk, OCaml and Delphi and other languages. 
+The Apache Thrift software framework for cross-language services
+development combines a software stack with a code generation engine to
+build services that work efficiently and seamlessly between C++, Java,
+Python, PHP, and other languages.
 
-%package        devel
-Summary:        Development files for %{name}
-Requires:       %{name}%{?_isa} = %{version}-%{release}
+%package	 devel
+Summary:	Development files for %{name}
+Requires:	%{name}%{?_isa} = %{version}-%{release}
+Requires:	pkgconfig
 
-%description    devel
+%description	devel
 The %{name}-devel package contains libraries and header files for
 developing applications that use %{name}.
+
+%package -n	python-%{name}
+Summary:	Python support for %{name}
+Requires:	%{name}%{?_isa} = %{version}-%{release}
+Requires:	python2
+
+%description -n python-%{name}
+The python-%{name} package contains Python bindings for %{name}.
+
+%package -n	perl-%{name}
+Summary:		Perl support for %{name}
+Requires:	%{name}%{?_isa} = %{version}-%{release}
+Requires:	perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
+Requires:	perl(Bit::Vector)
+
+
+%description -n perl-%{name}
+The perl-%{name} package contains Perl bindings for %{name}.
+
+%package -n	php-%{name}
+Summary:		PHP support for %{name}
+Requires:	%{name}%{?_isa} = %{version}-%{release}
+Requires:	php
+Requires:	php(zend-abi) = %{php_zend_api}
+Requires:	php(api) = %{php_core_api}
+
+%description -n php-%{name}
+The php-%{name} package contains PHP bindings for %{name}.
+
+%package -n	java-%{name}-javadoc
+Summary:		API documentation for java-%{name}
+Requires:	java-%{name} = %{version}-%{release}
+
+%description -n java-%{name}-javadoc 
+The java-%{name}-javadoc package contains API documentation for the
+Java bindings for %{name}.
+
+%package -n	java-%{name}
+Summary:		Java support for %{name}
+Requires:	%{name}%{?_isa} = %{version}-%{release}
+Requires:	java >= 1:1.6.0
+Requires:	jpackage-utils
+
+
+%description -n java-%{name}
+The java-%{name} package contains Java bindings for %{name}.
+
+%if 0%{?want_ruby} > 0
+%package -n	ruby-%{name}
+Summary:	Ruby support for %{name}
+Requires:	%{name}%{?_isa} = %{version}-%{release}
+Requires:	ruby(release)
+
+%description -n ruby-%{name}
+The ruby-%{name} package contains Ruby bindings for %{name}.
+%endif
+
+%if 0%{?want_erlang} > 0
+%package -n	erlang-%{name}
+Summary:	Erlang support for %{name}
+Requires:	%{name}%{?_isa} = %{version}-%{release}
+Requires:	erlang
+Requires:	erlang-jsx
+
+%description -n erlang-%{name}
+The erlang-%{name} package contains Erlang bindings for %{name}.
+%endif
+
 
 
 %prep
 %setup -q
-
+%patch0 -p1
 
 %build
-%configure --disable-static
-make %{?_smp_mflags}
+export PY_PREFIX=%{python_sitelib}
+export PERL_PREFIX=%{_prefix}
+export PHP_PREFIX=%{php_extdir}
+export JAVA_PREFIX=%{_javadir}
+export RUBY_PREFIX=%{_prefix}
+
+%configure --disable-static --without-libevent --with-boost=/usr %{ruby_configure} %{erlang_configure} %{golang_configure} --docdir=%{_docdir}/%{name}-%{version}
+make
 
 
 %install
@@ -39,6 +207,27 @@ rm -rf %{buildroot}
 %make_install
 find %{buildroot} -name '*.la' -exec rm -f {} ';'
 
+# Thrift doesn't properly handle the Python prefix
+mkdir -p %{buildroot}/%{python_sitearch}
+mv $(find %{buildroot}/%{python_sitelib} -name %{name}) %{buildroot}/%{python_sitearch}
+rm -rf %{buildroot}/%{python_sitelib}/
+
+# All installed docs are for the Java package
+mkdir %{buildroot}/%{_javadocdir}
+mv %{buildroot}/%{_docdir}/%{name}-%{version}/java %{buildroot}/%{_javadocdir}/%{name}
+
+# Remove bundled jar files
+find %{buildroot} -name \*.jar -a \! -name \*thrift\* -exec rm -f '{}' \;
+
+# Move perl files into appropriate places
+find %{buildroot} -name \*.pod -exec rm -f '{}' \;
+find %{buildroot} -name .packlist -exec rm -f '{}' \;
+find %{buildroot}/usr/lib/perl5 -type d -empty -delete
+mkdir -p %{buildroot}/%{perl_vendorlib}/
+mv %{buildroot}/usr/lib/perl5/* %{buildroot}/%{perl_vendorlib}
+
+# Fix permissions on Thread.h
+find %{buildroot} -name Thread.h -exec chmod a-x '{}' \;
 
 %post -p /sbin/ldconfig
 
@@ -47,12 +236,42 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 
 %files
 %doc
+/usr/bin/thrift
 %{_libdir}/*.so.*
 
 %files devel
 %doc
 %{_includedir}/*
 %{_libdir}/*.so
+%{_libdir}/pkgconfig/thrift-z.pc
+%{_libdir}/pkgconfig/thrift.pc
+%{_libdir}/pkgconfig/thrift_c_glib.pc
 
+%files -n perl-%{name}
+%{perl_vendorlib}/*
+
+%files -n php-%{name}
+%config(noreplace) /etc/php.d/thrift_protocol.ini
+%{php_extdir}/Thrift/
+%{php_extdir}/thrift_protocol.so
+
+%if %{?want_erlang} > 0
+%files -n erlang-%{name}
+%dir /usr/lib64/erlang/lib/%{name}-%{version}/
+%endif
+
+%files -n python-%{name}
+%{python_sitearch}/%{name}
+
+%files -n java-%{name}-javadoc
+%docdir %{_javadocdir}/%{name}
+%{_javadocdir}/%{name}
+
+%files -n java-%{name}
+%{_javadir}/lib%{name}-%{version}.jar
+%{_javadir}/lib%{name}-%{version}-javadoc.jar
 
 %changelog
+
+* Mon Jul 1 2013 willb <willb@redhat> - 0.9.0-1
+- Initial package
