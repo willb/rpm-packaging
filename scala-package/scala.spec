@@ -7,7 +7,7 @@
 
 Name:           scala
 Version:        2.10.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        A hybrid functional/object-oriented language for the JVM
 BuildArch:      noarch
 Group:          Development/Languages
@@ -220,6 +220,9 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %doc docs/LICENSE
 
 %changelog
+* Sun Aug 04 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.10.1-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
+
 * Sat Mar 16 2013 Jochen Schmitt <Jochen herr-schmitt de> - 2.10.1-1
 - New upstream releae
 
