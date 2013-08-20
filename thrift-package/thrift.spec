@@ -1,19 +1,28 @@
 %global pkg_version 0.9.0
-%global pkg_rel 1
+%global pkg_rel 2
 
 %global py_version 2.7
 
 %global php_extdir  %(php-config --extension-dir 2>/dev/null || echo "undefined")
 
+%{?perl_default_filter}
 %global __provides_exclude_from ^(%{python_sitearch}/.*\\.so|%{php_extdir}/.*\\.so)$
 
 %global have_mongrel 0
+
+%if 0%{?fedora} >= 19
+# erlang-jsx is available in F19
+%global have_jsx 1
+%else
 %global have_jsx 0
+%endif
+
+# We should be able to enable this in the future
+%global want_d 0
 
 # Thrift's Ruby support depends on Mongrel.  Since Mongrel is
 # deprecated in Fedora, we can't support Ruby bindings for Thrift
 # unless and until Thrift is patched to use a different HTTP server.
-
 %if 0%{?have_mongrel} == 0
 %global ruby_configure --without-ruby
 %global with_ruby 0
@@ -45,6 +54,8 @@ Summary:	Software framework for cross-language services development
 License:	ASL 2.0
 URL:		http://thrift.apache.org/
 Source0:	http://archive.apache.org/dist/%{name}/%{version}/%{name}-%{version}.tar.gz
+Source1:       http://repo1.maven.org/maven2/org/apache/thrift/lib%{name}/%{version}/lib%{name}-%{version}.pom
+# this patch is adapted from Gil Cattaneo's thrift-0.7.0 package
 Patch0:		0001-build-xml.patch
 
 Group:		Development/Libraries
@@ -54,14 +65,9 @@ BuildRequires:	libstdc++-devel
 BuildRequires:	boost-devel
 BuildRequires:	openssl-devel
 BuildRequires:	zlib-devel
-BuildRequires:	python2-devel
-BuildRequires:	perl(Bit::Vector)
-BuildRequires:	perl(ExtUtils::MakeMaker)
 BuildRequires:	bison-devel
 BuildRequires:	flex-devel
 BuildRequires:	mono-devel
-BuildRequires:	php-devel
-BuildRequires:	erlang
 BuildRequires:	java-devel
 BuildRequires:	glib2-devel
 BuildRequires:	texlive
@@ -79,26 +85,14 @@ BuildRequires:	log4j
 BuildRequires:	slf4j
 BuildRequires:	tomcat-servlet-3.0-api
 
-
-%if 0%{?want_golang} > 0
-BuildRequires:	golang
-%endif
-
-%if 0%{?want_ruby} > 0
-BuildRequires:	ruby-devel
-%endif
-
-%if 0%{?want_erlang} > 0
-BuildRequires:	erlang
-%endif
-
-Requires:	gcc-c++
 Requires:	openssl
 Requires:	boost
 Requires:	bison
 Requires:	flex
-Requires:	mono
+Requires:	mono-core
+
 %if 0%{?want_golang} > 0
+BuildRequires:	golang
 Requires:	golang
 %endif
 
@@ -122,53 +116,88 @@ developing applications that use %{name}.
 Summary:	Python support for %{name}
 Requires:	%{name}%{?_isa} = %{version}-%{release}
 Requires:	python2
+BuildRequires:	python2-devel
 
 %description -n python-%{name}
 The python-%{name} package contains Python bindings for %{name}.
 
 %package -n	perl-%{name}
-Summary:		Perl support for %{name}
+Summary:	Perl support for %{name}
+Provides:	perl(Thrift)
 Requires:	%{name}%{?_isa} = %{version}-%{release}
 Requires:	perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 Requires:	perl(Bit::Vector)
-
+Requires:	perl(Encode)
+Requires:	perl(HTTP::Request)
+Requires:	perl(IO::Select)
+Requires:	perl(IO::Socket::INET)
+Requires:	perl(IO::String)
+Requires:	perl(LWP::UserAgent)
+Requires:	perl(POSIX)
+Requires:	perl(base)
+Requires:	perl(constant)
+Requires:	perl(strict)
+Requires:	perl(utf8)
+Requires:	perl(warnings)
+BuildRequires:	perl(Bit::Vector)
+BuildRequires:	perl(ExtUtils::MakeMaker)
+BuildArch:	noarch
 
 %description -n perl-%{name}
 The perl-%{name} package contains Perl bindings for %{name}.
 
+%if %{?want_d}
+%package -n	d-%{name}
+Summary: 	D support for %{name}
+BuildRequires:	ldc
+
+%description -n d-%{name}
+The d-%{name} package contains D bindings for %{name}.
+%endif
+
 %package -n	php-%{name}
 Summary:		PHP support for %{name}
 Requires:	%{name}%{?_isa} = %{version}-%{release}
-Requires:	php
 Requires:	php(zend-abi) = %{php_zend_api}
 Requires:	php(api) = %{php_core_api}
+Requires:	php(language) >= 5.3.0
+Requires:	php-date
+Requires:	php-json
+BuildRequires:	php-devel
 
 %description -n php-%{name}
 The php-%{name} package contains PHP bindings for %{name}.
 
-%package -n	java-%{name}-javadoc
+%package -n	java-lib%{name}-javadoc
 Summary:		API documentation for java-%{name}
-Requires:	java-%{name} = %{version}-%{release}
+Requires:	java-lib%{name} = %{version}-%{release}
+BuildArch:	noarch
 
-%description -n java-%{name}-javadoc 
-The java-%{name}-javadoc package contains API documentation for the
+%description -n java-lib%{name}-javadoc 
+The java-lib%{name}-javadoc package contains API documentation for the
 Java bindings for %{name}.
 
-%package -n	java-%{name}
+%package -n	java-lib%{name}
 Summary:		Java support for %{name}
 Requires:	%{name}%{?_isa} = %{version}-%{release}
 Requires:	java >= 1:1.6.0
 Requires:	jpackage-utils
+Requires:	mvn(org.slf4j:slf4j-api)
+Requires:	mvn(commons-lang:commons-lang)
+Requires:	mvn(org.apache.httpcomponents:httpclient)
+Requires:	mvn(org.apache.httpcomponents:httpcore)
+BuildArch:	noarch
 
 
-%description -n java-%{name}
-The java-%{name} package contains Java bindings for %{name}.
+%description -n java-lib%{name}
+The java-lib%{name} package contains Java bindings for %{name}.
 
 %if 0%{?want_ruby} > 0
 %package -n	ruby-%{name}
 Summary:	Ruby support for %{name}
 Requires:	%{name}%{?_isa} = %{version}-%{release}
 Requires:	ruby(release)
+BuildRequires:	ruby-devel
 
 %description -n ruby-%{name}
 The ruby-%{name} package contains Ruby bindings for %{name}.
@@ -180,6 +209,7 @@ Summary:	Erlang support for %{name}
 Requires:	%{name}%{?_isa} = %{version}-%{release}
 Requires:	erlang
 Requires:	erlang-jsx
+BuildRequires:	erlang
 
 %description -n erlang-%{name}
 The erlang-%{name} package contains Erlang bindings for %{name}.
@@ -213,8 +243,14 @@ mv $(find %{buildroot}/%{python_sitelib} -name %{name}) %{buildroot}/%{python_si
 rm -rf %{buildroot}/%{python_sitelib}/
 
 # All installed docs are for the Java package
-mkdir %{buildroot}/%{_javadocdir}
+mkdir -p %{buildroot}/%{_javadocdir}
 mv %{buildroot}/%{_docdir}/%{name}-%{version}/java %{buildroot}/%{_javadocdir}/%{name}
+find %{buildroot}/%{_javadir} -name lib%{name}-%{version}-javadoc.jar -exec rm -f '{}' \;
+
+# Add POM file and depmap
+mkdir -p %{buildroot}%{_mavenpomdir}
+install -pm 644 %{SOURCE1} %{buildroot}%{_mavenpomdir}/JPP-lib%{name}.pom
+%add_maven_depmap JPP-lib%{name}.pom lib%{name}.jar
 
 # Remove bundled jar files
 find %{buildroot} -name \*.jar -a \! -name \*thrift\* -exec rm -f '{}' \;
@@ -226,6 +262,10 @@ find %{buildroot}/usr/lib/perl5 -type d -empty -delete
 mkdir -p %{buildroot}/%{perl_vendorlib}/
 mv %{buildroot}/usr/lib/perl5/* %{buildroot}/%{perl_vendorlib}
 
+# Move arch-independent php files into the appropriate place
+mkdir -p %{buildroot}/%{_datadir}/php/
+mv %{buildroot}/%{php_extdir}/Thrift %{buildroot}/%{_datadir}/php/
+
 # Fix permissions on Thread.h
 find %{buildroot} -name Thread.h -exec chmod a-x '{}' \;
 
@@ -235,7 +275,7 @@ find %{buildroot} -name Thread.h -exec chmod a-x '{}' \;
 
 
 %files
-%doc
+%doc LICENSE NOTICE
 /usr/bin/thrift
 %{_libdir}/*.so.*
 
@@ -246,32 +286,43 @@ find %{buildroot} -name Thread.h -exec chmod a-x '{}' \;
 %{_libdir}/pkgconfig/thrift-z.pc
 %{_libdir}/pkgconfig/thrift.pc
 %{_libdir}/pkgconfig/thrift_c_glib.pc
+%doc LICENSE NOTICE
 
 %files -n perl-%{name}
 %{perl_vendorlib}/*
+%doc LICENSE NOTICE
 
 %files -n php-%{name}
 %config(noreplace) /etc/php.d/thrift_protocol.ini
-%{php_extdir}/Thrift/
+%{_datadir}/php/Thrift/
 %{php_extdir}/thrift_protocol.so
+%doc LICENSE NOTICE
 
 %if %{?want_erlang} > 0
 %files -n erlang-%{name}
 %dir /usr/lib64/erlang/lib/%{name}-%{version}/
 %endif
+%doc LICENSE NOTICE
 
 %files -n python-%{name}
 %{python_sitearch}/%{name}
+%doc LICENSE NOTICE
 
-%files -n java-%{name}-javadoc
-%docdir %{_javadocdir}/%{name}
+%files -n java-lib%{name}-javadoc
 %{_javadocdir}/%{name}
+%doc LICENSE NOTICE
 
-%files -n java-%{name}
+%files -n java-lib%{name}
 %{_javadir}/lib%{name}-%{version}.jar
-%{_javadir}/lib%{name}-%{version}-javadoc.jar
+%{_mavenpomdir}/JPP-lib%{name}.pom
+%{_mavendepmapfragdir}/%{name}
+%doc LICENSE NOTICE
 
 %changelog
+
+* Thu Aug 15 2013 willb <willb@redhat> - 0.9.0-2
+- Incorporates feedback from comments on review request
+- 
 
 * Mon Jul 1 2013 willb <willb@redhat> - 0.9.0-1
 - Initial package
