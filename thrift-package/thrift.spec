@@ -1,5 +1,5 @@
 %global pkg_version 0.9.0
-%global pkg_rel 2
+%global pkg_rel 3
 
 %global py_version 2.7
 
@@ -57,12 +57,15 @@ Source0:	http://archive.apache.org/dist/%{name}/%{version}/%{name}-%{version}.ta
 Source1:       http://repo1.maven.org/maven2/org/apache/thrift/lib%{name}/%{version}/lib%{name}-%{version}.pom
 # this patch is adapted from Gil Cattaneo's thrift-0.7.0 package
 Patch0:		0001-build-xml.patch
+Patch1:		rebar.patch
 
 Group:		Development/Libraries
 
 BuildRequires:	gcc-c++
 BuildRequires:	libstdc++-devel
 BuildRequires:	boost-devel
+BuildRequires:	automake
+BuildRequires:	autoconf
 BuildRequires:	openssl-devel
 BuildRequires:	zlib-devel
 BuildRequires:	bison-devel
@@ -169,7 +172,7 @@ BuildRequires:	php-devel
 The php-%{name} package contains PHP bindings for %{name}.
 
 %package -n	java-lib%{name}-javadoc
-Summary:		API documentation for java-%{name}
+Summary:	API documentation for java-%{name}
 Requires:	java-lib%{name} = %{version}-%{release}
 BuildArch:	noarch
 
@@ -210,16 +213,16 @@ Requires:	%{name}%{?_isa} = %{version}-%{release}
 Requires:	erlang
 Requires:	erlang-jsx
 BuildRequires:	erlang
+BuildRequires:	erlang-rebar
 
 %description -n erlang-%{name}
 The erlang-%{name} package contains Erlang bindings for %{name}.
 %endif
 
-
-
 %prep
 %setup -q
 %patch0 -p1
+%patch1 -p1
 
 %build
 export PY_PREFIX=%{python_sitelib}
@@ -228,12 +231,13 @@ export PHP_PREFIX=%{php_extdir}
 export JAVA_PREFIX=%{_javadir}
 export RUBY_PREFIX=%{_prefix}
 
+find %{_builddir} -name rebar -exec rm -f '{}' \;
+find . -name Makefile\* -exec sed -i -e 's/[.][/]rebar/rebar/g' {} \;
+
 %configure --disable-static --without-libevent --with-boost=/usr %{ruby_configure} %{erlang_configure} %{golang_configure} --docdir=%{_docdir}/%{name}-%{version}
 make
 
-
 %install
-rm -rf %{buildroot}
 %make_install
 find %{buildroot} -name '*.la' -exec rm -f {} ';'
 
@@ -300,9 +304,9 @@ find %{buildroot} -name Thread.h -exec chmod a-x '{}' \;
 
 %if %{?want_erlang} > 0
 %files -n erlang-%{name}
-%dir /usr/lib64/erlang/lib/%{name}-%{version}/
-%endif
+/usr/lib64/erlang/lib/%{name}-%{version}/
 %doc LICENSE NOTICE
+%endif
 
 %files -n python-%{name}
 %{python_sitearch}/%{name}
@@ -320,9 +324,11 @@ find %{buildroot} -name Thread.h -exec chmod a-x '{}' \;
 
 %changelog
 
+* Thu Aug 22 2013 willb <willb@redhat> - 0.9.0-3
+- Fixes for F19 and Erlang support
+
 * Thu Aug 15 2013 willb <willb@redhat> - 0.9.0-2
 - Incorporates feedback from comments on review request
-- 
 
 * Mon Jul 1 2013 willb <willb@redhat> - 0.9.0-1
 - Initial package
