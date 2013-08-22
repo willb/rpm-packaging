@@ -126,7 +126,7 @@ The python-%{name} package contains Python bindings for %{name}.
 
 %package -n	perl-%{name}
 Summary:	Perl support for %{name}
-Provides:	perl(Thrift)
+Provides:	perl(Thrift) = %{version}-%{release}
 Requires:	%{name}%{?_isa} = %{version}-%{release}
 Requires:	perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 Requires:	perl(Bit::Vector)
