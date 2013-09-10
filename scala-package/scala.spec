@@ -136,7 +136,7 @@ cp -rf %{SOURCE31} .
 
 export ANT_OPTS="-Xms1024m -Xmx1024m"
 # ant -f scala-bootstript.xml
-ant build docs || exit 1
+ant build-opt docs || exit 1
 pushd build/pack/lib
 cp %{SOURCE1} bnd.properties
 java -jar $(build-classpath aqute-bnd) wrap -properties \
@@ -158,7 +158,7 @@ rm -rf test/files/presentation/ide-bug-1000531
 rm -rf test/files/presentation/visibility
 rm -rf test/files/presentation/ping-pong
 
-ant -Dfile.encoding=UTF-8 test-opt
+ant test-opt
 
 %install
 
@@ -317,7 +317,7 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 * Mon Nov 03 2008 Geoff Reedy <geoff@programmer-monk.net> - 2.7.2-0.3.RC6
 - bump release to fix upgrade path
 
-* Thu Nov 01 2008 Geoff Reedy <geoff@programmer-monk.net> - 2.7.2-0.1.RC6
+* Sat Nov 01 2008 Geoff Reedy <geoff@programmer-monk.net> - 2.7.2-0.1.RC6
 - update to 2.7.2-RC6
 
 * Thu Oct 30 2008 Geoff Reedy <geoff@programmer-monk.net> - 2.7.2-0.1.RC5
