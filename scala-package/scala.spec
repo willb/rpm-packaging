@@ -31,7 +31,12 @@ Patch4:	        scala-2.10.0-java7.patch
 Patch5:         scala-2.10.0-bnd.patch
 # fix incompatibilities with JLine 2.7
 Patch6:         scala-2.10-jline.patch
+# work around a known bug when running binary-compatibility tests against
+# non-optimized builds (we can't do optimized builds due to another bug):
+# http://grokbase.com/t/gg/scala-internals/1347g1jahq/2-10-x-bc-test-fails
+Patch7:         scala-2.10.1-bc.patch
  
+
 Source21:       scala.keys
 Source22:       scala.mime
 Source23:       scala-mime-info.xml
@@ -104,6 +109,7 @@ the Scala programming language
 %patch4 -p1 -b .jdk7
 %patch5 -p1 -b .bndx
 %patch6 -p1 -b .rvk
+%patch7 -p1 -b .bc
 
 pushd src
 rm -rf jline
@@ -162,6 +168,8 @@ rm -rf test/files/presentation/callcc-interpreter
 rm -rf test/files/presentation/ide-bug-1000531
 rm -rf test/files/presentation/visibility
 rm -rf test/files/presentation/ping-pong
+
+rm -f test/osgi/src/ReflectionToolboxTest.scala
 
 ant test
 

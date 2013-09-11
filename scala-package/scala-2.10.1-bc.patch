@@ -1,0 +1,28 @@
+diff -u orig/bincompat-backward.whitelist.conf new/bincompat-backward.whitelist.conf
+--- orig/bincompat-backward.whitelist.conf	2013-09-11 12:59:13.684010082 -0500
++++ new/bincompat-backward.whitelist.conf	2013-09-11 12:59:08.751002599 -0500
+@@ -1,6 +1,10 @@
+ filter {
+     problems=[
+         # Scala library
++	{
++     	    matchName="scala.xml.dtd.ElementValidator.scala$xml$dtd$ElementValidator$$find$2"
++            problemName=IncompatibleMethTypeProblem
++        },
+         {
+             # can only be called from Stream::distinct, which cannot itself be inlined, so distinct is the only feasible call-site
+             matchName="scala.collection.immutable.Stream.scala$collection$immutable$Stream$$loop$4"
+diff -u orig/bincompat-forward.whitelist.conf new/bincompat-forward.whitelist.conf
+--- orig/bincompat-forward.whitelist.conf	2013-09-11 12:59:13.684010082 -0500
++++ new/bincompat-forward.whitelist.conf	2013-09-11 12:59:08.751002599 -0500
+@@ -5,6 +5,10 @@
+         #     matchName="scala.collection.mutable.MutableList.tailImpl"
+         #     problemName=MissingMethodProblem
+         # },
++	{
++     	    matchName="scala.xml.dtd.ElementValidator.scala$xml$dtd$ElementValidator$$find$2"
++            problemName=IncompatibleMethTypeProblem
++        },
+         {
+             # can only be called from Stream::distinct, which cannot itself be inlined, so distinct is the only feasible call-site
+             matchName="scala.collection.immutable.Stream.scala$collection$immutable$Stream$$loop$6"
