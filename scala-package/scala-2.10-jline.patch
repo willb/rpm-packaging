@@ -25,33 +25,40 @@ index dddfb1b..e598ac5 100644
    private var isPersistent = true
  
 diff --git a/src/compiler/scala/tools/nsc/interpreter/session/JLineHistory.scala b/src/compiler/scala/tools/nsc/interpreter/session/JLineHistory.scala
-index 18e0ee7..00de026 100644
+index 18e0ee7..fc33192 100644
 --- a/src/compiler/scala/tools/nsc/interpreter/session/JLineHistory.scala
 +++ b/src/compiler/scala/tools/nsc/interpreter/session/JLineHistory.scala
-@@ -10,10 +10,9 @@ package session
- /** A straight scalification of the jline interface which mixes
-  *  in the sparse jline-independent one too.
-  */
--trait JLineHistory extends JHistory with History {
-+trait JLineHistory extends JMemoryHistory with History {
+@@ -13,7 +13,6 @@ package session
+ trait JLineHistory extends JHistory with History {
    def size: Int
    def isEmpty: Boolean
 -  def index: Int
    def clear(): Unit
    def get(index: Int): CharSequence
    def add(line: CharSequence): Unit
-@@ -43,6 +42,7 @@ object JLineHistory {
+@@ -42,7 +41,8 @@ object JLineHistory {
+         addLineToFile(item)
        }
      }
-     override def toString = "History(size = " + size + ", index = " + index + ")"
+-    override def toString = "History(size = " + size + ", index = " + index + ")"
++    override def toString = "History(size = " + size + ", _index = " + index + ")"
 +    override def maxSize: Int = 2500
    }
  
    def apply(): JLineHistory = try new JLineFileHistory catch { case x: Exception => new SimpleHistory() }
 diff --git a/src/compiler/scala/tools/nsc/interpreter/session/SimpleHistory.scala b/src/compiler/scala/tools/nsc/interpreter/session/SimpleHistory.scala
-index 9f4e2b9..a00dabc 100644
+index 9f4e2b9..8933849 100644
 --- a/src/compiler/scala/tools/nsc/interpreter/session/SimpleHistory.scala
 +++ b/src/compiler/scala/tools/nsc/interpreter/session/SimpleHistory.scala
+@@ -10,7 +10,7 @@ package session
+ import scala.collection.mutable.{ Buffer, ListBuffer }
+ import scala.collection.JavaConverters._
+ 
+-class SimpleHistory extends JLineHistory {
++class SimpleHistory extends JMemoryHistory with JLineHistory {
+   private var _index: Int = 0
+   private val buf: Buffer[String] = new ListBuffer[String]
+   private def toEntries(): Seq[JEntry] = buf.zipWithIndex map { case (x, i) => Entry(i, x) }
 @@ -32,27 +32,27 @@ class SimpleHistory extends JLineHistory {
    def maxSize: Int = 2500
    def last = if (isEmpty) fail("last") else buf.last

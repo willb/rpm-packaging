@@ -29,7 +29,8 @@ Patch3:	        scala-2.10.0-compiler-pom.patch
 Patch4:	        scala-2.10.0-java7.patch
 # Fix aQuate issue
 Patch5:         scala-2.10.0-bnd.patch
-Patch6:         rvk.patch
+# fix incompatibilities with JLine 2.7
+Patch6:         scala-2.10-jline.patch
  
 Source21:       scala.keys
 Source22:       scala.mime
@@ -136,7 +137,11 @@ cp -rf %{SOURCE31} .
 
 export ANT_OPTS="-Xms1024m -Xmx1024m"
 # ant -f scala-bootstript.xml
-ant build-opt docs || exit 1
+
+# NB:  the "build" task is (unfortunately) necessary
+#  build-opt will fail due to a scala optimizer bug
+#  and its interaction with the system jline
+ant replacelocker build docs || exit 1
 pushd build/pack/lib
 cp %{SOURCE1} bnd.properties
 java -jar $(build-classpath aqute-bnd) wrap -properties \
