@@ -163,7 +163,7 @@ rm -rf test/files/presentation/ide-bug-1000531
 rm -rf test/files/presentation/visibility
 rm -rf test/files/presentation/ping-pong
 
-ant test-opt
+ant test
 
 %install
 
