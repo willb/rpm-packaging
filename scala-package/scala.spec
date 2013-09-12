@@ -49,6 +49,7 @@ Source31:	scala-bootstript.xml
 # BuildRequires:  java-1.6.0-openjdk-devel
 BuildRequires:  java-devel
 BuildRequires:  ant
+BuildRequires:  ant-junit
 BuildRequires:  ant-contrib
 BuildRequires:  jline2
 BuildRequires:  jpackage-utils
