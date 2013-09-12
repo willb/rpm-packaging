@@ -7,7 +7,7 @@
 
 Name:           scala
 Version:        2.10.1
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        A hybrid functional/object-oriented language for the JVM
 BuildArch:      noarch
 Group:          Development/Languages
@@ -16,7 +16,7 @@ Group:          Development/Languages
 License:        BSD
 URL:            http://www.scala-lang.org/
 # Source
-Source0:	http://www.scala-lang.org/downloads/distrib/files/scala-sources-%{fullversion}.tgz
+Source0:	http://www.scala-lang.org/files/archive/scala-sources-%{fullversion}.tgz
 Source1:	scala-library-2.10.0-bnd.properties
 # Source0:        http://www.scala-lang.org/downloads/distrib/files/scala-sources-%{fullversion}.tgz
 # Change the default classpath (SCALA_HOME)
@@ -250,6 +250,9 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %doc docs/LICENSE
 
 %changelog
+* Thu Sep 12 2013 William Benton <willb@redhat.com> - 2.10.1-4
+- updated upstream source location (thanks to Antoine Gourlay for the observation)
+
 * Wed Sep 11 2013 William Benton <willb@redhat.com> - 2.10.1-3
 - Fixes to build and install on F19
 
