@@ -1,5 +1,5 @@
 %global pkg_version 0.9.0
-%global pkg_rel 3
+%global pkg_rel 4
 
 %global py_version 2.7
 
@@ -250,6 +250,7 @@ rm -rf %{buildroot}/%{python_sitelib}/
 mkdir -p %{buildroot}/%{_javadocdir}
 mv %{buildroot}/%{_docdir}/%{name}-%{version}/java %{buildroot}/%{_javadocdir}/%{name}
 find %{buildroot}/%{_javadir} -name lib%{name}-%{version}-javadoc.jar -exec rm -f '{}' \;
+mv %{buildroot}/%{_javadir}/lib%{name}-%{version}.jar %{buildroot}/%{_javadir}/lib%{name}.jar 
 
 # Add POM file and depmap
 mkdir -p %{buildroot}%{_mavenpomdir}
@@ -317,12 +318,15 @@ find %{buildroot} -name Thread.h -exec chmod a-x '{}' \;
 %doc LICENSE NOTICE
 
 %files -n java-lib%{name}
-%{_javadir}/lib%{name}-%{version}.jar
+%{_javadir}/lib%{name}.jar
 %{_mavenpomdir}/JPP-lib%{name}.pom
 %{_mavendepmapfragdir}/%{name}
 %doc LICENSE NOTICE
 
 %changelog
+
+* Thu Aug 22 2013 willb <willb@redhat> - 0.9.0-4
+- removed version number from jar name (obs pmackinn)
 
 * Thu Aug 22 2013 willb <willb@redhat> - 0.9.0-3
 - Fixes for F19 and Erlang support
