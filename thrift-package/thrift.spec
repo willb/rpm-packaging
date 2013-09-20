@@ -1,5 +1,5 @@
 %global pkg_version 0.9.0
-%global pkg_rel 4
+%global pkg_rel 5
 
 %global py_version 2.7
 
@@ -231,10 +231,19 @@ export PHP_PREFIX=%{php_extdir}
 export JAVA_PREFIX=%{_javadir}
 export RUBY_PREFIX=%{_prefix}
 
+
+
 find %{_builddir} -name rebar -exec rm -f '{}' \;
 find . -name Makefile\* -exec sed -i -e 's/[.][/]rebar/rebar/g' {} \;
 
-%configure --disable-static --without-libevent --with-boost=/usr %{ruby_configure} %{erlang_configure} %{golang_configure} --docdir=%{_docdir}/%{name}-%{version}
+# install javadocs in proper places
+sed -i 's|-Dinstall.javadoc.path=$(DESTDIR)$(docdir)/java|-Dinstall.javadoc.path=$(DESTDIR)%{_javadocdir}/%{name}|' lib/java/Makefile.*
+
+# build a jar without a version number
+sed -i 's|${thrift.artifactid}-${version}|${thrift.artifactid}|' lib/java/build.xml
+
+# use unversioned doc dirs where appropriate (via _pkgdocdir macro)
+%configure --disable-static --without-libevent --with-boost=/usr %{ruby_configure} %{erlang_configure} %{golang_configure} --docdir=%{?_pkgdocdir}%{!?_pkgdocdir:%{_docdir}/%{name}-%{version}}
 make
 
 %install
@@ -246,11 +255,8 @@ mkdir -p %{buildroot}/%{python_sitearch}
 mv $(find %{buildroot}/%{python_sitelib} -name %{name}) %{buildroot}/%{python_sitearch}
 rm -rf %{buildroot}/%{python_sitelib}/
 
-# All installed docs are for the Java package
-mkdir -p %{buildroot}/%{_javadocdir}
-mv %{buildroot}/%{_docdir}/%{name}-%{version}/java %{buildroot}/%{_javadocdir}/%{name}
-find %{buildroot}/%{_javadir} -name lib%{name}-%{version}-javadoc.jar -exec rm -f '{}' \;
-mv %{buildroot}/%{_javadir}/lib%{name}-%{version}.jar %{buildroot}/%{_javadir}/lib%{name}.jar 
+# Remove javadocs jar
+find %{buildroot}/%{_javadir} -name lib%{name}-javadoc.jar -exec rm -f '{}' \;
 
 # Add POM file and depmap
 mkdir -p %{buildroot}%{_mavenpomdir}
@@ -281,7 +287,7 @@ find %{buildroot} -name Thread.h -exec chmod a-x '{}' \;
 
 %files
 %doc LICENSE NOTICE
-/usr/bin/thrift
+%{_bindir}/thrift
 %{_libdir}/*.so.*
 
 %files devel
@@ -305,7 +311,7 @@ find %{buildroot} -name Thread.h -exec chmod a-x '{}' \;
 
 %if %{?want_erlang} > 0
 %files -n erlang-%{name}
-/usr/lib64/erlang/lib/%{name}-%{version}/
+%{_libdir}/erlang/lib/%{name}-%{version}/
 %doc LICENSE NOTICE
 %endif
 
@@ -324,6 +330,12 @@ find %{buildroot} -name Thread.h -exec chmod a-x '{}' \;
 %doc LICENSE NOTICE
 
 %changelog
+
+* Fri Sep 20 2013 willb <willb@redhat> - 0.9.0-5
+- patch build xml to generate unversioned jars instead of moving after the fact
+- unversioned doc dirs on Fedora versions where this is appropriate
+- replaced some stray hardcoded paths with macros
+- thanks to Gil for the above observations and suggestions for fixes
 
 * Thu Aug 22 2013 willb <willb@redhat> - 0.9.0-4
 - removed version number from jar name (obs pmackinn)
