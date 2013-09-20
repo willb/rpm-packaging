@@ -1,5 +1,5 @@
-%global pkg_version 0.9.0
-%global pkg_rel 5
+%global pkg_version 0.9.1
+%global pkg_rel 1
 
 %global py_version 2.7
 
@@ -42,6 +42,17 @@
 %global want_erlang 1
 %endif
 
+# PHP appears broken in Thrift 0.9.1
+%global want_php 0
+
+%if 0%{?want_php} == 0
+%global php_langname %{nil}
+%global php_configure --without-php
+%else
+%global php_langname PHP,\ 
+%global php_configure --with-php
+%endif
+
 # Thrift's GO support doesn't build under Fedora
 %global want_golang 0
 %global golang_configure --without-go
@@ -56,7 +67,7 @@ URL:		http://thrift.apache.org/
 Source0:	http://archive.apache.org/dist/%{name}/%{version}/%{name}-%{version}.tar.gz
 Source1:       http://repo1.maven.org/maven2/org/apache/thrift/lib%{name}/%{version}/lib%{name}-%{version}.pom
 # this patch is adapted from Gil Cattaneo's thrift-0.7.0 package
-Patch0:		0001-build-xml.patch
+Patch0:		thrift-0.9.1-buildxml.patch
 Patch1:		rebar.patch
 
 Group:		Development/Libraries
@@ -104,7 +115,7 @@ Requires:	golang
 The Apache Thrift software framework for cross-language services
 development combines a software stack with a code generation engine to
 build services that work efficiently and seamlessly between C++, Java,
-Python, PHP, and other languages.
+Python, %{?php_langname}and other languages.
 
 %package	 devel
 Summary:	Development files for %{name}
@@ -158,6 +169,7 @@ BuildRequires:	ldc
 The d-%{name} package contains D bindings for %{name}.
 %endif
 
+%if 0%{?want_php} != 0
 %package -n	php-%{name}
 Summary:		PHP support for %{name}
 Requires:	%{name}%{?_isa} = %{version}-%{release}
@@ -170,6 +182,7 @@ BuildRequires:	php-devel
 
 %description -n php-%{name}
 The php-%{name} package contains PHP bindings for %{name}.
+%endif
 
 %package -n	java-lib%{name}-javadoc
 Summary:	API documentation for java-%{name}
@@ -243,7 +256,7 @@ sed -i 's|-Dinstall.javadoc.path=$(DESTDIR)$(docdir)/java|-Dinstall.javadoc.path
 sed -i 's|${thrift.artifactid}-${version}|${thrift.artifactid}|' lib/java/build.xml
 
 # use unversioned doc dirs where appropriate (via _pkgdocdir macro)
-%configure --disable-static --without-libevent --with-boost=/usr %{ruby_configure} %{erlang_configure} %{golang_configure} --docdir=%{?_pkgdocdir}%{!?_pkgdocdir:%{_docdir}/%{name}-%{version}}
+%configure --disable-static --without-libevent --with-boost=/usr %{ruby_configure} %{erlang_configure} %{golang_configure} %{php_configure} --docdir=%{?_pkgdocdir}%{!?_pkgdocdir:%{_docdir}/%{name}-%{version}}
 make
 
 %install
@@ -273,9 +286,11 @@ find %{buildroot}/usr/lib/perl5 -type d -empty -delete
 mkdir -p %{buildroot}/%{perl_vendorlib}/
 mv %{buildroot}/usr/lib/perl5/* %{buildroot}/%{perl_vendorlib}
 
+%if 0%{?want_php} != 0
 # Move arch-independent php files into the appropriate place
 mkdir -p %{buildroot}/%{_datadir}/php/
 mv %{buildroot}/%{php_extdir}/Thrift %{buildroot}/%{_datadir}/php/
+%endif
 
 # Fix permissions on Thread.h
 find %{buildroot} -name Thread.h -exec chmod a-x '{}' \;
@@ -303,11 +318,13 @@ find %{buildroot} -name Thread.h -exec chmod a-x '{}' \;
 %{perl_vendorlib}/*
 %doc LICENSE NOTICE
 
+%if 0%{?want_php} != 0
 %files -n php-%{name}
 %config(noreplace) /etc/php.d/thrift_protocol.ini
 %{_datadir}/php/Thrift/
 %{php_extdir}/thrift_protocol.so
 %doc LICENSE NOTICE
+%endif
 
 %if %{?want_erlang} > 0
 %files -n erlang-%{name}
@@ -330,6 +347,10 @@ find %{buildroot} -name Thread.h -exec chmod a-x '{}' \;
 %doc LICENSE NOTICE
 
 %changelog
+
+* Fri Sep 20 2013 willb <willb@redhat> - 0.9.1-1
+- updated to upstream version 0.9.1
+- disables PHP support, which FTBFS in this version
 
 * Fri Sep 20 2013 willb <willb@redhat> - 0.9.0-5
 - patch build xml to generate unversioned jars instead of moving after the fact
