@@ -1,5 +1,5 @@
 %global pkg_version 0.9.1
-%global pkg_rel 1
+%global pkg_rel 2
 
 %global py_version 2.7
 
@@ -64,11 +64,25 @@ Summary:	Software framework for cross-language services development
 
 License:	ASL 2.0
 URL:		http://thrift.apache.org/
-Source0:	http://archive.apache.org/dist/%{name}/%{version}/%{name}-%{version}.tar.gz
-Source1:       http://repo1.maven.org/maven2/org/apache/thrift/lib%{name}/%{version}/lib%{name}-%{version}.pom
+# Source0:	http://archive.apache.org/dist/%{name}/%{version}/%{name}-%{version}.tar.gz
+
+# Unfortunately, the distribution tarball for thrift-0.9.1 is broken, so we're
+# using a more recent version from git.  This should change in later versions.
+#
+#   git clone http://github.com/apache/thrift
+#   cd thrift
+#   git archive --prefix=thrift-0.9.1/ ff980c1 --format tar | gzip -9c > ../thrift-0.9.1-ff980c1.tar.gz
+Source0:	http://archive.apache.org/dist/%{name}/%{version}/%{name}-%{version}-ff980c1.tar.gz
+
+Source1:        http://repo1.maven.org/maven2/org/apache/thrift/lib%{name}/%{version}/lib%{name}-%{version}.pom
+Source2:        thrift-0.9.1-bootstrap.sh
+
 # this patch is adapted from Gil Cattaneo's thrift-0.7.0 package
 Patch0:		thrift-0.9.1-buildxml.patch
+# don't use bundled rebar executable
 Patch1:		rebar.patch
+# post-0.9.1 patch from upstream to build tutorials cleanly
+Patch2:		thrift-0.9.1-distbuild-issues.patch
 
 Group:		Development/Libraries
 
@@ -98,6 +112,15 @@ BuildRequires:	junit
 BuildRequires:	log4j
 BuildRequires:	slf4j
 BuildRequires:	tomcat-servlet-3.0-api
+
+BuildRequires:  libtool
+BuildRequires:  autoconf
+BuildRequires:  automake
+
+BuildRequires:  bison
+BuildRequires:  flex
+BuildRequires:  bison-devel
+BuildRequires:  flex-devel
 
 Requires:	openssl
 Requires:	boost
@@ -237,14 +260,14 @@ The erlang-%{name} package contains Erlang bindings for %{name}.
 %patch0 -p1
 %patch1 -p1
 
+cp -p %{SOURCE2} bootstrap.sh
+
 %build
-export PY_PREFIX=%{python_sitelib}
+export PY_PREFIX=%{_prefix}
 export PERL_PREFIX=%{_prefix}
 export PHP_PREFIX=%{php_extdir}
 export JAVA_PREFIX=%{_javadir}
 export RUBY_PREFIX=%{_prefix}
-
-
 
 find %{_builddir} -name rebar -exec rm -f '{}' \;
 find . -name Makefile\* -exec sed -i -e 's/[.][/]rebar/rebar/g' {} \;
@@ -255,18 +278,32 @@ sed -i 's|-Dinstall.javadoc.path=$(DESTDIR)$(docdir)/java|-Dinstall.javadoc.path
 # build a jar without a version number
 sed -i 's|${thrift.artifactid}-${version}|${thrift.artifactid}|' lib/java/build.xml
 
+
+./bootstrap.sh
+
 # use unversioned doc dirs where appropriate (via _pkgdocdir macro)
-%configure --disable-static --without-libevent --with-boost=/usr %{ruby_configure} %{erlang_configure} %{golang_configure} %{php_configure} --docdir=%{?_pkgdocdir}%{!?_pkgdocdir:%{_docdir}/%{name}-%{version}}
+%configure --disable-dependency-tracking --disable-static --without-libevent --with-boost=/usr %{ruby_configure} %{erlang_configure} %{golang_configure} %{php_configure} --docdir=%{?_pkgdocdir}%{!?_pkgdocdir:%{_docdir}/%{name}-%{version}}
 make
 
 %install
 %make_install
 find %{buildroot} -name '*.la' -exec rm -f {} ';'
 
+# echo DEBUG MESSAGE 1
+
+# find %{buildroot} -print
+
 # Thrift doesn't properly handle the Python prefix
-mkdir -p %{buildroot}/%{python_sitearch}
-mv $(find %{buildroot}/%{python_sitelib} -name %{name}) %{buildroot}/%{python_sitearch}
-rm -rf %{buildroot}/%{python_sitelib}/
+# if [ "%{python_sitearch}" \!= "%{python_sitelib}" ]
+# then
+#    mkdir -p %{buildroot}/%{python_sitearch}/%{name}
+#    mv $(find %{buildroot}/%{python_sitelib} -name %{name}) %{buildroot}/%{python_sitearch}
+#    rm -rf %{buildroot}/%{python_sitelib}/
+# fi
+
+# echo DEBUG MESSAGE 2
+
+# find %{buildroot} -print
 
 # Remove javadocs jar
 find %{buildroot}/%{_javadir} -name lib%{name}-javadoc.jar -exec rm -f '{}' \;
@@ -334,6 +371,7 @@ find %{buildroot} -name Thread.h -exec chmod a-x '{}' \;
 
 %files -n python-%{name}
 %{python_sitearch}/%{name}
+%{python_sitearch}/%{name}-%{version}-py%{py_version}.egg-info
 %doc LICENSE NOTICE
 
 %files -n java-lib%{name}-javadoc
@@ -347,6 +385,9 @@ find %{buildroot} -name Thread.h -exec chmod a-x '{}' \;
 %doc LICENSE NOTICE
 
 %changelog
+
+* Tue Sep 24 2013 willb <willb@redhat> - 0.9.1-2
+- fixes for i386
 
 * Fri Sep 20 2013 willb <willb@redhat> - 0.9.1-1
 - updated to upstream version 0.9.1
