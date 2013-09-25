@@ -1,5 +1,5 @@
 %global pkg_version 0.9.1
-%global pkg_rel 3
+%global pkg_rel 2
 
 Name:		fb303
 Version:	%{pkg_version}
