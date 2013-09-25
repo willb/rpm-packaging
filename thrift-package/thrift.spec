@@ -161,7 +161,6 @@ The python-%{name} package contains Python bindings for %{name}.
 %package -n	perl-%{name}
 Summary:	Perl support for %{name}
 Provides:	perl(Thrift) = %{version}-%{release}
-Requires:	%{name}%{?_isa} = %{version}-%{release}
 Requires:	perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 Requires:	perl(Bit::Vector)
 Requires:	perl(Encode)
@@ -218,7 +217,6 @@ Java bindings for %{name}.
 
 %package -n	java-lib%{name}
 Summary:		Java support for %{name}
-Requires:	%{name}%{?_isa} = %{version}-%{release}
 Requires:	java >= 1:1.6.0
 Requires:	jpackage-utils
 Requires:	mvn(org.slf4j:slf4j-api)
@@ -387,7 +385,8 @@ find %{buildroot} -name Thread.h -exec chmod a-x '{}' \;
 %changelog
 
 * Tue Sep 24 2013 willb <willb@redhat> - 0.9.1-2
-- fixes for i386
+- fixes for i686
+- fixes bogus requires for Java package
 
 * Fri Sep 20 2013 willb <willb@redhat> - 0.9.1-1
 - updated to upstream version 0.9.1
