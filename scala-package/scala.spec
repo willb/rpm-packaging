@@ -6,8 +6,8 @@
 %global scaladir %{_datadir}/scala
 
 Name:           scala
-Version:        2.10.1
-Release:        4%{?dist}
+Version:        2.10.2
+Release:        1%{?dist}
 Summary:        A hybrid functional/object-oriented language for the JVM
 BuildArch:      noarch
 Group:          Development/Languages
@@ -35,7 +35,10 @@ Patch6:         scala-2.10-jline.patch
 # non-optimized builds (we can't do optimized builds due to another bug):
 # http://grokbase.com/t/gg/scala-internals/1347g1jahq/2-10-x-bc-test-fails
 Patch7:         scala-2.10.1-bc.patch
- 
+# bypass maven-ant-tasks (in order to compile against system libraries
+# and in koji)
+Patch8:         scala-2.10.1-ant-tasks.patch 
+
 
 Source21:       scala.keys
 Source22:       scala.mime
@@ -108,9 +111,11 @@ the Scala programming language
 %patch2 -p1 -b .sysjline
 # %patch3 -p0 -b .compiler-pom
 %patch4 -p1 -b .jdk7
-%patch5 -p1 -b .bndx
+# %patch5 -p1 -b .bndx
 %patch6 -p1 -b .rvk
 %patch7 -p1 -b .bc
+%patch8 -p1 -b .ant
+
 
 pushd src
 rm -rf jline
@@ -250,6 +255,9 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %doc docs/LICENSE
 
 %changelog
+* Thu Sep 26 2013 William Benton <willb@redhat.com> - 2.10.2-1
+- upstream version 2.10.2
+
 * Thu Sep 12 2013 William Benton <willb@redhat.com> - 2.10.1-4
 - updated upstream source location (thanks to Antoine Gourlay for the observation)
 
