@@ -22,23 +22,18 @@ Source1:	scala-library-2.10.0-bnd.properties
 # Change the default classpath (SCALA_HOME)
 Patch1:		scala-2.10.0-tooltemplate.patch
 # Use system jline2 instead of bundled jline2
-Patch2:	        scala-2.10.0-use_system_jline.patch
+Patch2:	        scala-2.10.2-use_system_jline.patch
 # change org.scala-lang jline in org.sonatype.jline jline
 Patch3:	        scala-2.10.0-compiler-pom.patch
 # Patch Swing module for JDK 1.7
-Patch4:	        scala-2.10.0-java7.patch
-# Fix aQuate issue
-Patch5:         scala-2.10.0-bnd.patch
+Patch4:	        scala-2.10.2-java7.patch
 # fix incompatibilities with JLine 2.7
 Patch6:         scala-2.10-jline.patch
 # work around a known bug when running binary-compatibility tests against
 # non-optimized builds (we can't do optimized builds due to another bug):
 # http://grokbase.com/t/gg/scala-internals/1347g1jahq/2-10-x-bc-test-fails
 Patch7:         scala-2.10.1-bc.patch
-# bypass maven-ant-tasks (in order to compile against system libraries
-# and in koji)
-Patch8:         scala-2.10.1-ant-tasks.patch 
-
+Patch8:         scala-2.10.2-build_xml_moby.patch
 
 Source21:       scala.keys
 Source22:       scala.mime
@@ -114,8 +109,7 @@ the Scala programming language
 # %patch5 -p1 -b .bndx
 %patch6 -p1 -b .rvk
 %patch7 -p1 -b .bc
-%patch8 -p1 -b .ant
-
+%patch8 -p1
 
 pushd src
 rm -rf jline
@@ -153,7 +147,7 @@ export ANT_OPTS="-Xms1024m -Xmx1024m"
 # NB:  the "build" task is (unfortunately) necessary
 #  build-opt will fail due to a scala optimizer bug
 #  and its interaction with the system jline
-ant replacelocker build docs || exit 1
+ant -d replacelocker build docs || exit 1
 pushd build/pack/lib
 cp %{SOURCE1} bnd.properties
 java -jar $(build-classpath aqute-bnd) wrap -properties \
