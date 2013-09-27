@@ -1,9 +1,9 @@
-Name:           java-diff-utils
+Name:           java-diffutils
 Version:        1.3.0
 Release:        1%{?dist}
 Summary:        The DiffUtils library for computing diffs, applying patches, generating side-by-side view in Java.
 License:        Apache 2.0
-Group:          Development/Libraries
+%{?el5:Group:          Development/Libraries}
 URL:            http://code.google.com/p/java-diff-utils/
 # svn export http://java-diff-utils.googlecode.com/svn/branches/%{version} %{name}-%{version} ; tar -czvf %{name}-%{version}.tar.gz %{name}-%{version}
 Source0:        %{name}-%{version}.tar.gz
@@ -18,7 +18,7 @@ patches, and generating side-by-side view in Java.
 
 %package javadoc
 Summary:        API documentation for %{name}
-Group:          Documentation
+%{?el5:Group:          Documentation}
 
 %description javadoc
 This package provides %{summary}.
@@ -28,6 +28,7 @@ This package provides %{summary}.
 cp %{SOURCE1} LICENSE
 
 %build
+%mvn_file com.googlecode.java-diff-utils:diffutils diffutils
 %mvn_build
 
 %install
@@ -41,5 +42,8 @@ cp %{SOURCE1} LICENSE
 %doc LICENSE
 
 %changelog
+* Fri Sep 27 2013 William Benton <willb@redhat.com> - 1.3.0-2
+- Incorporated suggestions from Gil
+
 * Fri Sep 27 2013 William Benton <willb@redhat.com> - 1.3.0-1
 - Initial package
