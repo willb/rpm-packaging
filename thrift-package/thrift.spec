@@ -1,5 +1,5 @@
 %global pkg_version 0.9.1
-%global pkg_rel 2
+%global pkg_rel 3
 
 %global py_version 2.7
 
@@ -62,7 +62,14 @@ Version:	%{pkg_version}
 Release:	%{pkg_rel}%{?dist}
 Summary:	Software framework for cross-language services development
 
-License:	ASL 2.0
+# Parts of the source are used under the BSD and zlib licenses, but
+# these are OK for inclusion in an Apache 2.0-licensed whole:
+# http://www.apache.org/legal/3party.html
+
+# Here's the breakdown:
+# 2-clause BSD:  thrift-0.9.1/lib/py/compat/win32/stdint.h
+# zlib:  thrift-0.9.1/compiler/cpp/src/md5.[ch]
+License:	ASL 2.0 and BSD and zlib
 URL:		http://thrift.apache.org/
 
 %if "%{version}" != "0.9.1"
@@ -78,7 +85,7 @@ Source0:	https://github.com/apache/thrift/archive/0.9.1.tar.gz
 %endif
 
 Source1:        http://repo1.maven.org/maven2/org/apache/thrift/lib%{name}/%{version}/lib%{name}-%{version}.pom
-Source2:        thrift-0.9.1-bootstrap.sh
+Source2:        https://raw.github.com/apache/%{name}/%{version}/bootstrap.sh
 
 # this patch is adapted from Gil Cattaneo's thrift-0.7.0 package
 Patch0:		thrift-0.9.1-buildxml.patch
@@ -261,6 +268,8 @@ The erlang-%{name} package contains Erlang bindings for %{name}.
 %patch0 -p1
 %patch1 -p1
 
+%{?!el5:sed -i -e 's/^AC_PROG_LIBTOOL/LT_INIT/g' configure.ac}
+
 cp -p %{SOURCE2} bootstrap.sh
 
 %build
@@ -284,11 +293,13 @@ sed -i 's|${thrift.artifactid}-${version}|${thrift.artifactid}|' lib/java/build.
 
 # use unversioned doc dirs where appropriate (via _pkgdocdir macro)
 %configure --disable-dependency-tracking --disable-static --without-libevent --with-boost=/usr %{ruby_configure} %{erlang_configure} %{golang_configure} %{php_configure} --docdir=%{?_pkgdocdir}%{!?_pkgdocdir:%{_docdir}/%{name}-%{version}}
-make
+make %{?_smp_mflags}
 
 %install
 %make_install
 find %{buildroot} -name '*.la' -exec rm -f {} ';'
+find %{buildroot} -name fastbinary.so | xargs chmod 755
+find %{buildroot} -name \*.erl -or -name \*.hrl -or -name \*.app | xargs chmod 755
 
 # echo DEBUG MESSAGE 1
 
@@ -348,6 +359,7 @@ find %{buildroot} -name Thread.h -exec chmod a-x '{}' \;
 %{_includedir}/*
 %{_libdir}/*.so
 %{_libdir}/pkgconfig/thrift-z.pc
+%{_libdir}/pkgconfig/thrift-qt.pc
 %{_libdir}/pkgconfig/thrift.pc
 %{_libdir}/pkgconfig/thrift_c_glib.pc
 %doc LICENSE NOTICE
@@ -367,16 +379,12 @@ find %{buildroot} -name Thread.h -exec chmod a-x '{}' \;
 %if %{?want_erlang} > 0
 %files -n erlang-%{name}
 %{_libdir}/erlang/lib/%{name}-%{version}/
-%attr(644, root, root) %{_libdir}/erlang/lib/%{name}-%{version}/src/*.erl
-%attr(644, root, root) %{_libdir}/erlang/lib/%{name}-%{version}/include/*.hrl
-%attr(644, root, root) %{_libdir}/erlang/lib/%{name}-%{version}/ebin/*.app
 %doc LICENSE NOTICE
 %endif
 
 %files -n python-%{name}
 %{python_sitearch}/%{name}
 %{python_sitearch}/%{name}-%{version}-py%{py_version}.egg-info
-%attr(755, root, root) %{python_sitearch}/%{name}/protocol/fastbinary.so
 %doc LICENSE NOTICE
 
 %files -n java-lib%{name}-javadoc
@@ -390,6 +398,13 @@ find %{buildroot} -name Thread.h -exec chmod a-x '{}' \;
 %doc LICENSE NOTICE
 
 %changelog
+
+* Mon Sep 30 2013 willb <willb@redhat> - 0.9.1-3
+- adds QT support
+- clarified multiple licensing
+- uses parallel make
+- removes obsolete M4 macros
+- specifies canonical location for source archive
 
 * Tue Sep 24 2013 willb <willb@redhat> - 0.9.1-2
 - fixes for i686
