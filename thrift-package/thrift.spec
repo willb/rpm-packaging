@@ -64,15 +64,18 @@ Summary:	Software framework for cross-language services development
 
 License:	ASL 2.0
 URL:		http://thrift.apache.org/
-# Source0:	http://archive.apache.org/dist/%{name}/%{version}/%{name}-%{version}.tar.gz
 
+%if "%{version}" != "0.9.1"
+Source0:	http://archive.apache.org/dist/%{name}/%{version}/%{name}-%{version}.tar.gz
+%else
 # Unfortunately, the distribution tarball for thrift-0.9.1 is broken, so we're
 # using a more recent version from git.  This should change in later versions.
 #
 #   git clone http://github.com/apache/thrift
 #   cd thrift
 #   git archive --prefix=thrift-0.9.1/ ff980c1 --format tar | gzip -9c > ../thrift-0.9.1-ff980c1.tar.gz
-Source0:	http://archive.apache.org/dist/%{name}/%{version}/%{name}-%{version}-ff980c1.tar.gz
+Source0:	https://github.com/apache/thrift/archive/0.9.1.tar.gz
+%endif
 
 Source1:        http://repo1.maven.org/maven2/org/apache/thrift/lib%{name}/%{version}/lib%{name}-%{version}.pom
 Source2:        thrift-0.9.1-bootstrap.sh
@@ -80,7 +83,7 @@ Source2:        thrift-0.9.1-bootstrap.sh
 # this patch is adapted from Gil Cattaneo's thrift-0.7.0 package
 Patch0:		thrift-0.9.1-buildxml.patch
 # don't use bundled rebar executable
-Patch1:		rebar.patch
+Patch1:		thrift-0.9.1-rebar.patch
 # post-0.9.1 patch from upstream to build tutorials cleanly
 Patch2:		thrift-0.9.1-distbuild-issues.patch
 
@@ -364,12 +367,16 @@ find %{buildroot} -name Thread.h -exec chmod a-x '{}' \;
 %if %{?want_erlang} > 0
 %files -n erlang-%{name}
 %{_libdir}/erlang/lib/%{name}-%{version}/
+%attr(644, root, root) %{_libdir}/erlang/lib/%{name}-%{version}/src/*.erl
+%attr(644, root, root) %{_libdir}/erlang/lib/%{name}-%{version}/include/*.hrl
+%attr(644, root, root) %{_libdir}/erlang/lib/%{name}-%{version}/ebin/*.app
 %doc LICENSE NOTICE
 %endif
 
 %files -n python-%{name}
 %{python_sitearch}/%{name}
 %{python_sitearch}/%{name}-%{version}-py%{py_version}.egg-info
+%attr(755, root, root) %{python_sitearch}/%{name}/protocol/fastbinary.so
 %doc LICENSE NOTICE
 
 %files -n java-lib%{name}-javadoc

@@ -1,0 +1,9 @@
+--- a/lib/erl/rebar.config	2013-08-21 15:39:39.121081905 -0500
++++ b/lib/erl/rebar.config	2013-08-21 15:43:19.351633734 -0500
+@@ -1,5 +1,4 @@
+ {erl_opts, [debug_info]}.
+ {lib_dirs, ["deps"]}.
+ {deps, [
+-         { jsx, "1.2.1", {git, "git://github.com/talentdeficit/jsx.git", {tag, "v1.2.1"}}}
+-       ]}.
++]}.
