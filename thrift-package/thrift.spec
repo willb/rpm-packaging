@@ -355,7 +355,6 @@ find %{buildroot} -name Thread.h -exec chmod a-x '{}' \;
 %{_libdir}/*.so.*
 
 %files devel
-%doc
 %{_includedir}/*
 %{_libdir}/*.so
 %{_libdir}/pkgconfig/thrift-z.pc
