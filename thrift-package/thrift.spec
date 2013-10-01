@@ -1,5 +1,5 @@
 %global pkg_version 0.9.1
-%global pkg_rel 3
+%global pkg_rel 4
 
 %global py_version 2.7
 
@@ -67,8 +67,8 @@ Summary:	Software framework for cross-language services development
 # http://www.apache.org/legal/3party.html
 
 # Here's the breakdown:
-# 2-clause BSD:  thrift-0.9.1/lib/py/compat/win32/stdint.h
-# zlib:  thrift-0.9.1/compiler/cpp/src/md5.[ch]
+# thrift-0.9.1/lib/py/compat/win32/stdint.h is 2-clause BSD
+# thrift-0.9.1/compiler/cpp/src/md5.[ch] are zlib
 License:	ASL 2.0 and BSD and zlib
 URL:		http://thrift.apache.org/
 
@@ -76,27 +76,25 @@ URL:		http://thrift.apache.org/
 Source0:	http://archive.apache.org/dist/%{name}/%{version}/%{name}-%{version}.tar.gz
 %else
 # Unfortunately, the distribution tarball for thrift-0.9.1 is broken, so we're
-# using a more recent version from git.  This should change in later versions.
-#
-#   git clone http://github.com/apache/thrift
-#   cd thrift
-#   git archive --prefix=thrift-0.9.1/ ff980c1 --format tar | gzip -9c > ../thrift-0.9.1-ff980c1.tar.gz
+# using an exported tarball from git.  This will change in the future.
+
 Source0:	https://github.com/apache/thrift/archive/0.9.1.tar.gz
 %endif
 
-Source1:        http://repo1.maven.org/maven2/org/apache/thrift/lib%{name}/%{version}/lib%{name}-%{version}.pom
-Source2:        https://raw.github.com/apache/%{name}/%{version}/bootstrap.sh
+Source1:	http://repo1.maven.org/maven2/org/apache/thrift/lib%{name}/%{version}/lib%{name}-%{version}.pom
+Source2:	https://raw.github.com/apache/%{name}/%{version}/bootstrap.sh
 
 # this patch is adapted from Gil Cattaneo's thrift-0.7.0 package
 Patch0:		thrift-0.9.1-buildxml.patch
 # don't use bundled rebar executable
 Patch1:		thrift-0.9.1-rebar.patch
-# post-0.9.1 patch from upstream to build tutorials cleanly
-Patch2:		thrift-0.9.1-distbuild-issues.patch
 
 Group:		Development/Libraries
 
-BuildRequires:	gcc-c++
+# BuildRequires for language-specific bindings are listed under these
+# subpackages, to facilitate enabling or disabling individual language
+# bindings in the future
+
 BuildRequires:	libstdc++-devel
 BuildRequires:	boost-devel
 BuildRequires:	automake
@@ -106,37 +104,26 @@ BuildRequires:	zlib-devel
 BuildRequires:	bison-devel
 BuildRequires:	flex-devel
 BuildRequires:	mono-devel
-BuildRequires:	java-devel
 BuildRequires:	glib2-devel
 BuildRequires:	texlive
+BuildRequires:	qt-devel
 
-BuildRequires:	java-devel
-BuildRequires:	jpackage-utils
-BuildRequires:	ant
-BuildRequires:	apache-commons-codec
-BuildRequires:	apache-commons-lang
-BuildRequires:	apache-commons-logging
-BuildRequires:	httpcomponents-client
-BuildRequires:	httpcomponents-core
-BuildRequires:	junit
-BuildRequires:	log4j
-BuildRequires:	slf4j
-BuildRequires:	tomcat-servlet-3.0-api
+BuildRequires:	libtool
+BuildRequires:	autoconf
+BuildRequires:	automake
 
-BuildRequires:  libtool
-BuildRequires:  autoconf
-BuildRequires:  automake
-
-BuildRequires:  bison
-BuildRequires:  flex
-BuildRequires:  bison-devel
-BuildRequires:  flex-devel
+BuildRequires:	bison
+BuildRequires:	flex
+BuildRequires:	bison-devel
+BuildRequires:	flex-devel
 
 Requires:	openssl
 Requires:	boost
 Requires:	bison
 Requires:	flex
 Requires:	mono-core
+
+Requires:	qt4
 
 %if 0%{?want_golang} > 0
 BuildRequires:	golang
@@ -161,9 +148,9 @@ developing applications that use %{name}.
 
 %package -n	python-%{name}
 Summary:	Python support for %{name}
+BuildRequires:	python2-devel
 Requires:	%{name}%{?_isa} = %{version}-%{release}
 Requires:	python2
-BuildRequires:	python2-devel
 
 %description -n python-%{name}
 The python-%{name} package contains Python bindings for %{name}.
@@ -171,6 +158,8 @@ The python-%{name} package contains Python bindings for %{name}.
 %package -n	perl-%{name}
 Summary:	Perl support for %{name}
 Provides:	perl(Thrift) = %{version}-%{release}
+BuildRequires:	perl(Bit::Vector)
+BuildRequires:	perl(ExtUtils::MakeMaker)
 Requires:	perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 Requires:	perl(Bit::Vector)
 Requires:	perl(Encode)
@@ -185,8 +174,6 @@ Requires:	perl(constant)
 Requires:	perl(strict)
 Requires:	perl(utf8)
 Requires:	perl(warnings)
-BuildRequires:	perl(Bit::Vector)
-BuildRequires:	perl(ExtUtils::MakeMaker)
 BuildArch:	noarch
 
 %description -n perl-%{name}
@@ -194,7 +181,7 @@ The perl-%{name} package contains Perl bindings for %{name}.
 
 %if %{?want_d}
 %package -n	d-%{name}
-Summary: 	D support for %{name}
+Summary:	D support for %{name}
 BuildRequires:	ldc
 
 %description -n d-%{name}
@@ -203,7 +190,7 @@ The d-%{name} package contains D bindings for %{name}.
 
 %if 0%{?want_php} != 0
 %package -n	php-%{name}
-Summary:		PHP support for %{name}
+Summary:	PHP support for %{name}
 Requires:	%{name}%{?_isa} = %{version}-%{release}
 Requires:	php(zend-abi) = %{php_zend_api}
 Requires:	php(api) = %{php_core_api}
@@ -226,7 +213,21 @@ The java-lib%{name}-javadoc package contains API documentation for the
 Java bindings for %{name}.
 
 %package -n	java-lib%{name}
-Summary:		Java support for %{name}
+Summary:	Java support for %{name}
+
+BuildRequires:	java-devel
+BuildRequires:	javapackages-tools
+BuildRequires:	ant
+BuildRequires:	apache-commons-codec
+BuildRequires:	apache-commons-lang
+BuildRequires:	apache-commons-logging
+BuildRequires:	httpcomponents-client
+BuildRequires:	httpcomponents-core
+BuildRequires:	junit
+BuildRequires:	log4j
+BuildRequires:	slf4j
+BuildRequires:	tomcat-servlet-3.0-api
+
 Requires:	java >= 1:1.6.0
 Requires:	jpackage-utils
 Requires:	mvn(org.slf4j:slf4j-api)
@@ -270,6 +271,9 @@ The erlang-%{name} package contains Erlang bindings for %{name}.
 
 %{?!el5:sed -i -e 's/^AC_PROG_LIBTOOL/LT_INIT/g' configure.ac}
 
+# avoid spurious executable permissions in debuginfo package
+find . -name \*.cpp -or -name \*.cc -or -name \*.h | xargs chmod 644
+
 cp -p %{SOURCE2} bootstrap.sh
 
 %build
@@ -288,34 +292,24 @@ sed -i 's|-Dinstall.javadoc.path=$(DESTDIR)$(docdir)/java|-Dinstall.javadoc.path
 # build a jar without a version number
 sed -i 's|${thrift.artifactid}-${version}|${thrift.artifactid}|' lib/java/build.xml
 
+# Proper permissions for Erlang files
+sed -i 's|$(INSTALL) $$p|$(INSTALL) --mode 644 $$p|g' lib/erl/Makefile.am
 
-./bootstrap.sh
+sh ./bootstrap.sh
 
 # use unversioned doc dirs where appropriate (via _pkgdocdir macro)
 %configure --disable-dependency-tracking --disable-static --without-libevent --with-boost=/usr %{ruby_configure} %{erlang_configure} %{golang_configure} %{php_configure} --docdir=%{?_pkgdocdir}%{!?_pkgdocdir:%{_docdir}/%{name}-%{version}}
+
+# eliminate unused direct shlib dependencies
+sed -i -e 's/ -shared / -Wl,--as-needed\0/g' libtool
+
 make %{?_smp_mflags}
 
 %install
 %make_install
 find %{buildroot} -name '*.la' -exec rm -f {} ';'
 find %{buildroot} -name fastbinary.so | xargs chmod 755
-find %{buildroot} -name \*.erl -or -name \*.hrl -or -name \*.app | xargs chmod 755
-
-# echo DEBUG MESSAGE 1
-
-# find %{buildroot} -print
-
-# Thrift doesn't properly handle the Python prefix
-# if [ "%{python_sitearch}" \!= "%{python_sitelib}" ]
-# then
-#    mkdir -p %{buildroot}/%{python_sitearch}/%{name}
-#    mv $(find %{buildroot}/%{python_sitelib} -name %{name}) %{buildroot}/%{python_sitearch}
-#    rm -rf %{buildroot}/%{python_sitelib}/
-# fi
-
-# echo DEBUG MESSAGE 2
-
-# find %{buildroot} -print
+find %{buildroot} -name \*.erl -or -name \*.hrl -or -name \*.app | xargs chmod 644
 
 # Remove javadocs jar
 find %{buildroot}/%{_javadir} -name lib%{name}-javadoc.jar -exec rm -f '{}' \;
@@ -397,6 +391,9 @@ find %{buildroot} -name Thread.h -exec chmod a-x '{}' \;
 %doc LICENSE NOTICE
 
 %changelog
+
+* Tue Oct 1 2013 willb <willb@redhat> - 0.9.1-4
+- addresses rpmlint warnings and errors
 
 * Mon Sep 30 2013 willb <willb@redhat> - 0.9.1-3
 - adds QT support
