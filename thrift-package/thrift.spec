@@ -277,9 +277,9 @@ find . -name \*.cpp -or -name \*.cc -or -name \*.h | xargs chmod 644
 cp -p %{SOURCE2} bootstrap.sh
 
 # work around linking issues
-echo 'libthrift_c_glib_la_LIBADD = $(GLIB_LIBS) $(GOBJECT_LIBS)' >> lib/c_glib/Makefile.am
-echo 'libthriftqt_la_LIBADD = $(QT_LIBS) -lthrift' >> lib/cpp/Makefile.am
-echo 'libthriftz_la_LIBADD = $(ZLIB_LIBS) -lthrift ' >> lib/cpp/Makefile.am
+echo 'libthrift_c_glib_la_LIBADD = $(GLIB_LIBS) $(GOBJECT_LIBS) -L../cpp/.libs ' >> lib/c_glib/Makefile.am
+echo 'libthriftqt_la_LIBADD = $(QT_LIBS) -lthrift -L.libs' >> lib/cpp/Makefile.am
+echo 'libthriftz_la_LIBADD = $(ZLIB_LIBS) -lthrift -L.libs' >> lib/cpp/Makefile.am
 
 %build
 export PY_PREFIX=%{_prefix}
@@ -312,7 +312,7 @@ sh ./bootstrap.sh
 # eliminate unused direct shlib dependencies
 sed -i -e 's/ -shared / -Wl,--as-needed\0/g' libtool
 
-make %{?_smp_mflags}
+make # %{?_smp_mflags}
 
 %install
 %make_install
