@@ -276,12 +276,21 @@ find . -name \*.cpp -or -name \*.cc -or -name \*.h | xargs chmod 644
 
 cp -p %{SOURCE2} bootstrap.sh
 
+# work around linking issues
+echo 'libthrift_c_glib_la_LIBADD = $(GLIB_LIBS) $(GOBJECT_LIBS)' >> lib/c_glib/Makefile.am
+echo 'libthriftqt_la_LIBADD = $(QT_LIBS) -lthrift' >> lib/cpp/Makefile.am
+echo 'libthriftz_la_LIBADD = $(ZLIB_LIBS) -lthrift ' >> lib/cpp/Makefile.am
+
 %build
 export PY_PREFIX=%{_prefix}
 export PERL_PREFIX=%{_prefix}
 export PHP_PREFIX=%{php_extdir}
 export JAVA_PREFIX=%{_javadir}
 export RUBY_PREFIX=%{_prefix}
+export GLIB_LIBS=$(pkg-config --libs glib-2.0)
+export GLIB_CFLAGS=$(pkg-config --cflags glib-2.0)
+export GOBJECT_LIBS=$(pkg-config --libs gobject-2.0)
+export GOBJECT_CFLAGS=$(pkg-config --cflags gobject-2.0)
 
 find %{_builddir} -name rebar -exec rm -f '{}' \;
 find . -name Makefile\* -exec sed -i -e 's/[.][/]rebar/rebar/g' {} \;
@@ -394,6 +403,7 @@ find %{buildroot} -name Thread.h -exec chmod a-x '{}' \;
 
 * Tue Oct 1 2013 willb <willb@redhat> - 0.9.1-4
 - addresses rpmlint warnings and errors
+- properly links glib, qt, and z extension libraries
 
 * Mon Sep 30 2013 willb <willb@redhat> - 0.9.1-3
 - adds QT support
