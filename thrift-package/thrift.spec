@@ -411,6 +411,10 @@ find %{buildroot} -name Thread.h -exec chmod a-x '{}' \;
 
 %changelog
 
+* Thu Oct 3 2013 willb <willb@redhat> - 0.9.1-6
+- added thrift man page
+- 
+
 * Tue Oct 1 2013 willb <willb@redhat> - 0.9.1-5
 - fixed extension library linking when an older thrift package is not
   already installed
