@@ -1,5 +1,5 @@
 %global pkg_version 0.9.1
-%global pkg_rel 4
+%global pkg_rel 5
 
 %global py_version 2.7
 
@@ -280,6 +280,8 @@ cp -p %{SOURCE2} bootstrap.sh
 echo 'libthrift_c_glib_la_LIBADD = $(GLIB_LIBS) $(GOBJECT_LIBS) -L../cpp/.libs ' >> lib/c_glib/Makefile.am
 echo 'libthriftqt_la_LIBADD = $(QT_LIBS) -lthrift -L.libs' >> lib/cpp/Makefile.am
 echo 'libthriftz_la_LIBADD = $(ZLIB_LIBS) -lthrift -L.libs' >> lib/cpp/Makefile.am
+echo 'EXTRA_libthriftqt_la_DEPENDENCIES = libthrift.la' >> lib/cpp/Makefile.am
+echo 'EXTRA_libthriftz_la_DEPENDENCIES = libthrift.la' >> lib/cpp/Makefile.am
 
 %build
 export PY_PREFIX=%{_prefix}
@@ -312,7 +314,7 @@ sh ./bootstrap.sh
 # eliminate unused direct shlib dependencies
 sed -i -e 's/ -shared / -Wl,--as-needed\0/g' libtool
 
-make # %{?_smp_mflags}
+make %{?_smp_mflags}
 
 %install
 %make_install
@@ -400,6 +402,11 @@ find %{buildroot} -name Thread.h -exec chmod a-x '{}' \;
 %doc LICENSE NOTICE
 
 %changelog
+
+* Tue Oct 1 2013 willb <willb@redhat> - 0.9.1-5
+- fixed extension library linking when an older thrift package is not
+  already installed
+- fixed extension library dependencies in Makefile
 
 * Tue Oct 1 2013 willb <willb@redhat> - 0.9.1-4
 - addresses rpmlint warnings and errors
