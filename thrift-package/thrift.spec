@@ -84,6 +84,8 @@ Source0:	https://github.com/apache/thrift/archive/0.9.1.tar.gz
 Source1:	http://repo1.maven.org/maven2/org/apache/thrift/lib%{name}/%{version}/lib%{name}-%{version}.pom
 Source2:	https://raw.github.com/apache/%{name}/%{version}/bootstrap.sh
 
+Source3:        https://gitorious.org/pkg-scribe/thrift-deb-pkg/raw/master:debian/manpage.1.ex
+
 # this patch is adapted from Gil Cattaneo's thrift-0.7.0 package
 Patch0:		thrift-0.9.1-buildxml.patch
 # don't use bundled rebar executable
@@ -322,6 +324,11 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 find %{buildroot} -name fastbinary.so | xargs chmod 755
 find %{buildroot} -name \*.erl -or -name \*.hrl -or -name \*.app | xargs chmod 644
 
+# install man page
+mkdir -p %{buildroot}%{_mandir}/man1
+cp %{SOURCE3} %{buildroot}%{_mandir}/man1/thrift.1
+gzip -9v %{buildroot}%{_mandir}/man1/thrift.1
+
 # Remove javadocs jar
 find %{buildroot}/%{_javadir} -name lib%{name}-javadoc.jar -exec rm -f '{}' \;
 
@@ -358,6 +365,7 @@ find %{buildroot} -name Thread.h -exec chmod a-x '{}' \;
 %doc LICENSE NOTICE
 %{_bindir}/thrift
 %{_libdir}/*.so.*
+%{_mandir}/man1/thrift.1.gz
 
 %files devel
 %{_includedir}/*
