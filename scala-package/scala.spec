@@ -4,6 +4,9 @@
 %global jline2_jar /usr/share/java/jline2.jar
 %global jansi_jar /usr/share/java/jansi.jar
 %global scaladir %{_datadir}/scala
+%global gitsha 60d462ef6e0dba5f9a7c4cc81255fcb9fba7939a
+%global gitdate 20130530
+%global bootstrap_build 1
 
 Name:           scala
 Version:        2.10.2
@@ -18,6 +21,8 @@ URL:            http://www.scala-lang.org/
 # Source
 Source0:	http://www.scala-lang.org/files/archive/scala-sources-%{fullversion}.tgz
 Source1:	scala-library-2.10.0-bnd.properties
+Source2:        scala-2.10.x-bootstrap-libs.tar.gz
+
 # Source0:        http://www.scala-lang.org/downloads/distrib/files/scala-sources-%{fullversion}.tgz
 # Change the default classpath (SCALA_HOME)
 Patch1:		scala-2.10.0-tooltemplate.patch
@@ -57,6 +62,7 @@ BuildRequires:	aqute-bnd
 BuildRequires:  junit4
 BuildRequires:  felix-framework
 BuildRequires:  pax-logging
+BuildRequires:  java-diffutils
 Requires:       java
 Requires:       jline2
 Requires:       jpackage-utils
@@ -139,6 +145,14 @@ popd
 
 cp -rf %{SOURCE31} .
 
+%if 0%{?bootstrap_build}
+tar -xzvf %{SOURCE2}
+%endif
+
+echo echo %{gitsha} > tools/get-scala-commit-sha
+echo echo %{gitdate} > tools/get-scala-commit-date
+chmod 755 tools/get-scala-*
+
 %build
 
 export ANT_OPTS="-Xms1024m -Xmx1024m"
@@ -147,7 +161,7 @@ export ANT_OPTS="-Xms1024m -Xmx1024m"
 # NB:  the "build" task is (unfortunately) necessary
 #  build-opt will fail due to a scala optimizer bug
 #  and its interaction with the system jline
-ant -d replacelocker build docs || exit 1
+ant buildlocker build docs || exit 1
 pushd build/pack/lib
 cp %{SOURCE1} bnd.properties
 java -jar $(build-classpath aqute-bnd) wrap -properties \
