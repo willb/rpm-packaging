@@ -155,12 +155,12 @@ chmod 755 tools/get-scala-*
 
 %build
 
-export ANT_OPTS="-Xms1024m -Xmx1024m"
-# ant -f scala-bootstript.xml
+export ANT_OPTS="-Xms2048m -Xmx2048m"
 
 # NB:  the "build" task is (unfortunately) necessary
 #  build-opt will fail due to a scala optimizer bug
 #  and its interaction with the system jline
+ant -f scala-bootstript.xml build
 ant buildlocker build docs || exit 1
 pushd build/pack/lib
 cp %{SOURCE1} bnd.properties
@@ -188,7 +188,8 @@ rm -f test/osgi/src/ReflectionToolboxTest.scala
 # fails under mock but not under rpmbuild
 rm -f test/files/run/t6223.scala
 
-ant test
+## Most test dependencies still aren't available in Fedora
+# ant test
 
 %install
 
