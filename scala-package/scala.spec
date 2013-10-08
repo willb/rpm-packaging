@@ -56,13 +56,10 @@ BuildRequires:  ant-junit
 BuildRequires:  ant-contrib
 BuildRequires:  jline2
 BuildRequires:  jpackage-utils
-# BuildRequires:  maven-ant-tasks
 BuildRequires:  shtool
 BuildRequires:	aqute-bnd
 BuildRequires:  junit4
 BuildRequires:  felix-framework
-BuildRequires:  pax-logging
-BuildRequires:  java-diffutils
 Requires:       java
 Requires:       jline2
 Requires:       jpackage-utils
