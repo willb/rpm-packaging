@@ -143,7 +143,10 @@ popd
 cp -rf %{SOURCE31} .
 
 %if 0%{?bootstrap_build}
+%global do_bootstrap -DdoBootstrapBuild=yes
 tar -xzvf %{SOURCE2}
+%else
+%global do_bootstrap %{nil}
 %endif
 
 echo echo %{gitsha} > tools/get-scala-commit-sha
@@ -152,7 +155,7 @@ chmod 755 tools/get-scala-*
 
 %build
 
-export ANT_OPTS="-Xms2048m -Xmx2048m"
+export ANT_OPTS="-Xms2048m -Xmx2048m %{do_bootstrap}"
 
 # NB:  the "build" task is (unfortunately) necessary
 #  build-opt will fail due to a scala optimizer bug
@@ -199,7 +202,12 @@ install -p -m 755 -d $RPM_BUILD_ROOT%{_javadir}/scala
 install -p -m 755 -d $RPM_BUILD_ROOT%{scaladir}/lib
 install -d -m 755 $RPM_BUILD_ROOT%{_mavenpomdir}
 
-for libname in scala-compiler scala-library scala-partest scala-reflect scalap scala-swing ; do
+# XXX: add scala-partest when it works again
+for libname in scala-compiler \
+    scala-library \
+    scala-reflect \
+    scalap \
+    scala-swing ; do
         install -m 644 build/pack/lib/$libname.jar $RPM_BUILD_ROOT%{_javadir}/scala/
         shtool mkln -s $RPM_BUILD_ROOT%{_javadir}/scala/$libname.jar $RPM_BUILD_ROOT%{scaladir}/lib
         sed -i "s|@VERSION@|%{fullversion}|" src/build/maven/$libname-pom.xml
