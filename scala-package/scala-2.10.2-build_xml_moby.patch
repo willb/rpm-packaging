@@ -1,5 +1,5 @@
 diff --git a/build.xml b/build.xml
-index f12b4e8..aad5aaa 100644
+index f12b4e8..92cc04a 100644
 --- a/build.xml
 +++ b/build.xml
 @@ -1,6 +1,6 @@
@@ -10,6 +10,15 @@ index f12b4e8..aad5aaa 100644
    <description>
  SuperSabbus for Scala core, builds the scala library and compiler. It can also package it as a simple distribution, tests it for stable bootstrapping and against the Scala test suite.
    </description>
+@@ -44,7 +44,7 @@ TODO:
+ <!-- ===========================================================================
+                                   END-USER TARGETS
+ ============================================================================ -->
+-  <target name="build"     depends="pack.done"      description="Builds the Scala compiler and library. Executables are in 'build/pack/bin'."/>
++  <target name="build"     depends="quick.done, pack.bin"      description="Builds the Scala compiler and library. Executables are in 'build/pack/bin'."/>
+   <target name="test"      depends="test.done"      description="Runs test suite and bootstrapping test on Scala compiler and library."/>
+   <target name="docs"      depends="docs.done"      description="Builds documentation for the Scala library. Scaladoc is in 'build/scaladoc/library'."/>
+   <target name="docscomp"  depends="docs.comp"      description="Builds documentation for the Scala compiler and library. Scaladoc is in 'build/scaladoc'."/>
 @@ -95,8 +95,6 @@ TODO:
  
    <property environment="env"/>
@@ -30,7 +39,7 @@ index f12b4e8..aad5aaa 100644
    <property name="scalacheck.jar"          value="${lib.dir}/scalacheck.jar"/>
  
    <!-- Sets location of build folders -->
-@@ -178,76 +176,13 @@ TODO:
+@@ -178,76 +176,32 @@ TODO:
  
    <target name="boot" depends="desired.jars.uptodate" unless="lib.jars.uptodate">
      <echo level="warn" message="Updating bootstrap libs.  (To do this by hand, run ./pull-binary-libs.sh)"/>
@@ -53,6 +62,25 @@ index f12b4e8..aad5aaa 100644
 -
 -    <!-- Resolve maven dependencies -->
 +    <taskdef resource="net/sf/antcontrib/antlib.xml" classpath="/usr/share/java/ant/ant-contrib.jar"/>
++
++    <taskdef name="classloadVerify"
++             classname="scala.tools.ant.ClassloadVerify"/>
++    <taskdef name="fsc"
++             classname="scala.tools.ant.FastScalac"/>
++    <taskdef name="scalac"
++             classname="scala.tools.ant.Scalac"/>
++    <taskdef name="scalascript"
++             classname="scala.tools.ant.ScalaTool"/>
++    <taskdef name="scaladoc"
++             classname="scala.tools.ant.Scaladoc"/>
++    <taskdef name="scalatool"
++             classname="scala.tools.ant.ScalaTool"/>
++    <taskdef name="same"
++             classname="scala.tools.ant.Same"/>
++    <taskdef name="pack200"
++             classname="scala.tools.ant.Pack200Task"/>
++
++    <typedef resource="aQute/bnd/ant/taskdef.properties" classpath="/usr/share/java/aqute-bnd.jar" />
  
 -    <!-- work around http://jira.codehaus.org/browse/MANTTASKS-203:
 -         java.lang.ClassCastException: org.codehaus.plexus.DefaultPlexusContainer cannot be cast to org.codehaus.plexus.PlexusContainer
@@ -108,7 +136,7 @@ index f12b4e8..aad5aaa 100644
        <property name="maven-deps-done"     value="yep!"/>
      </then></if>
  
-@@ -439,6 +374,13 @@ TODO:
+@@ -439,6 +393,13 @@ TODO:
  
        There must be a variable of the shape @{stage}.compiler.path  for all @{stage} in starr, locker, quick, strap.
      -->
@@ -122,7 +150,18 @@ index f12b4e8..aad5aaa 100644
      <path id="starr.compiler.path">
        <path refid="starr.core.path"/>
        <pathelement location="${lib.dir}/forkjoin.jar"/>
-@@ -732,7 +674,7 @@ TODO:
+@@ -552,6 +513,10 @@ TODO:
+       <pathelement location="${build-quick.dir}/classes/partest"/>
+     </path>
+ 
++    <path id="partest.extras.classpath">
++      <pathelement location="/usr/share/java/diffutils.jar"/>
++    </path>
++
+     <path id="quick.partest.build.path">
+       <path refid="quick.scalap.build.path"/>
+       <path refid="partest.extras.classpath"/>
+@@ -732,7 +697,7 @@ TODO:
        <include name="**/*.txt"/>
      </patternset>
  
@@ -131,7 +170,7 @@ index f12b4e8..aad5aaa 100644
    </target>
  
  <!-- ===========================================================================
-@@ -778,7 +720,8 @@ TODO:
+@@ -778,7 +743,8 @@ TODO:
            classpath="${@{project}-classes}"
            includes="**/*.java"
            target="1.6" source="1.5"
@@ -141,7 +180,15 @@ index f12b4e8..aad5aaa 100644
              <compilerarg line="${javac.args} @{args}"/>
          </javac>
          <if><equals arg1="@{jar}" arg2="yes"/><then>
-@@ -1153,7 +1096,7 @@ TODO:
+@@ -811,6 +777,7 @@ TODO:
+         destdir="${build-@{stage}.dir}/classes/@{destproject}"
+         includes="**/*.java"
+         excludes="@{excludes}"
++	includeantruntime="false"
+         target="1.6" source="1.5">
+           <compilerarg line="${javac.args} @{args}"/>
+           <classpath refid="@{stage}.@{destproject}.build.path"/>
+@@ -1153,7 +1120,7 @@ TODO:
    <target name="quick.partest"    depends="quick.scalap, quick.comp, asm.done">
      <staged-build with="locker"   stage="quick" project="partest" version="partest"/> </target>
  
@@ -150,7 +197,7 @@ index f12b4e8..aad5aaa 100644
      <staged-build with="locker"   stage="quick" project="swing"/> </target>
  
    <target name="quick.plugins"    depends="quick.comp">
-@@ -1204,7 +1147,7 @@ TODO:
+@@ -1204,7 +1171,7 @@ TODO:
      <staged-pack project="library"/></target>
  
    <target name="pack.actors"  depends="quick.lib">                <staged-pack project="actors"/> </target>
@@ -159,7 +206,50 @@ index f12b4e8..aad5aaa 100644
    <target name="pack.reflect" depends="quick.reflect">            <staged-pack project="reflect"/> </target>
  
    <target name="pack.comp"    depends="quick.comp, asm.done">
-@@ -1351,10 +1294,8 @@ TODO:
+@@ -1244,24 +1211,10 @@ TODO:
+     <staged-bin stage="pack"/>
+   </target>
+ 
+-  <!-- depend on quick.done so quick.bin is run when pack.done is -->
+-  <target name="pack.done" depends="quick.done, pack.bin">
+-    <!-- copy dependencies to build/pack/lib, it only takes a second so don't bother with uptodate checks -->
+-    <copy todir="${build-pack.dir}/lib">
+-      <resources refid="partest.extras.fileset"/>
+-      <mapper classpathref="maven-ant-tasks.classpath" classname="org.apache.maven.artifact.ant.VersionMapper"
+-              from="${partest.extras.versions}" to="flatten"/>
+-    </copy>
+-
+-    <taskdef resource="scala/tools/ant/antlib.xml" classpathref="pack.compiler.path"/>
+-    <taskdef resource="scala/tools/partest/antlib.xml" classpathref="partest.classpath"/>
+-  </target>
+-
+-
+ <!-- ===========================================================================
+                                   BOOTSTRAPPING BUILD (STRAP)
+ ============================================================================ -->
+-  <target name="strap.done" depends="pack.done">
++  <target name="strap.done" depends="quick.done, pack.bin">
+     <staged-build with="pack" stage="strap" project="library" srcpath="${src.dir}/library" includes="lib.rootdoc.includes"/>
+     <staged-build with="pack" stage="strap" project="msil" java-excludes="**/tests/**"/>
+     <staged-build with="pack" stage="strap" project="reflect"/>
+@@ -1296,7 +1249,7 @@ TODO:
+ <!-- ===========================================================================
+                                   OSGi Artifacts
+ ============================================================================ -->
+-  <target name="osgi.done" depends="pack.done">
++  <target name="osgi.done" depends="quick.done, pack.bin">
+     <mkdir dir="${build-osgi.dir}"/>
+ 
+     <!-- simplify fixing pom versions -->
+@@ -1343,7 +1296,6 @@ TODO:
+     </uptodate>
+ 
+     <if><not><isset property="osgi.bundles.available"/></not><then>
+-      <stopwatch name="osgi.bundle.timer"/>
+       <make-bundle name="scala-library" version="${osgi.version.number}" />
+       <make-bundle name="scala-actors" version="${osgi.version.number}" />
+       <make-bundle name="scala-reflect" version="${osgi.version.number}" />
+@@ -1351,10 +1303,7 @@ TODO:
        <make-plugin-bundle name="continuations" version="${osgi.version.number}" />
        <touch file="${build-osgi.dir}/bundles.complete" verbose="no"/>
  
@@ -168,11 +258,55 @@ index f12b4e8..aad5aaa 100644
 -      </if>
 -      <stopwatch name="osgi.bundle.timer" action="total"/></then>
 +      <make-bundle name="scala-swing" version="${osgi.version.number}"/></then>
-+      <stopwatch name="osgi.bundle.timer" action="total"/>
      </if>
    </target>
  
-@@ -1530,63 +1471,19 @@ TODO:
+@@ -1447,7 +1396,7 @@ TODO:
+ 
+   <property name="partest.srcdir" value="files" /> <!-- TODO: make targets for `pending` and other subdirs -->
+ 
+-  <target name="test.run" depends="pack.done">
++  <target name="test.run" depends="quick.done, pack.bin">
+     <partest showlog="yes" erroronfailed="yes" javacmd="${java.home}/bin/java"
+              timeout="1200000"
+              srcdir="${partest.srcdir}"
+@@ -1459,7 +1408,7 @@ TODO:
+     </partest>
+   </target>
+ 
+-  <target name="test.suite" depends="pack.done">
++  <target name="test.suite" depends="quick.done, pack.bin">
+     <partest showlog="yes" erroronfailed="yes" javacmd="${java.home}/bin/java"
+              timeout="2400000"
+              srcdir="${partest.srcdir}"
+@@ -1484,7 +1433,7 @@ TODO:
+     </partest>
+   </target>
+ 
+-  <target name="test.continuations.suite" depends="pack.done">
++  <target name="test.continuations.suite" depends="quick.done, pack.bin">
+     <partest showlog="yes" erroronfailed="yes" javacmd="${java.home}/bin/java"
+              timeout="2400000"
+              srcdir="${partest.srcdir}"
+@@ -1497,7 +1446,7 @@ TODO:
+     </partest>
+   </target>
+ 
+-  <target name="test.scaladoc" depends="pack.done">
++  <target name="test.scaladoc" depends="quick.done, pack.bin">
+     <partest erroronfailed="yes" scalacopts="${scalac.args.optimise}" showlog="yes">
+       <compilationpath refid="partest.build.path"/>
+       <runtests        dir="${partest.dir}/scaladoc/run"        includes="*.scala" />
+@@ -1505,7 +1454,7 @@ TODO:
+     </partest>
+   </target>
+ 
+-  <target name="test.interactive" depends="pack.done">
++  <target name="test.interactive" depends="quick.done, pack.bin">
+     <partest erroronfailed="yes" scalacopts="${scalac.args.optimise}" showlog="yes">
+       <compilationpath refid="partest.build.path"/>
+       <presentationtests dir="${partest.dir}/${partest.srcdir}/presentation">
+@@ -1530,69 +1479,25 @@ TODO:
      <!-- Obtain mima -->
      <mkdir dir="${bc-build.dir}"/>
      <!-- Pull down MIMA -->
@@ -238,7 +372,52 @@ index f12b4e8..aad5aaa 100644
    </target>
  
  <!-- ===========================================================================
-@@ -1762,7 +1659,6 @@ TODO:
+                                   DOCUMENTATION
+ ============================================================================ -->
+-  <target name="docs.start" depends="pack.done">
++  <target name="docs.start" depends="quick.done, pack.bin">
+     <!-- Set the github commit scaladoc sources point to -->
+     <!-- For releases, look for the tag with the same name as the maven version -->
+     <condition property="scaladoc.git.commit" value="v${maven.version.number}">
+@@ -1614,6 +1519,7 @@ TODO:
+   </target>
+ 
+   <target name="docs.lib" depends="docs.start">
++    
+     <staged-uptodate stage="docs" project="library">
+       <check><srcfiles dir="${src.dir}">
+         <include name="library/**"/>
+@@ -1671,13 +1577,6 @@ TODO:
+     </staged-docs>
+   </target>
+ 
+-  <target name="docs.jline" depends="docs.start">
+-    <staged-docs project="jline" dir="jline/src/main/java" title="Scala JLine">
+-      <include name="**/*.scala"/>
+-      <include name="**/*.java"/>
+-    </staged-docs>
+-  </target>
+-
+   <target name="docs.scalap" depends="docs.start">
+     <staged-docs project="scalap" title="Scalap">
+       <include name="**/*.scala"/>
+@@ -1733,13 +1632,13 @@ TODO:
+     </staged-uptodate>
+   </target>
+ 
+-  <target name="docs.done" depends="docs.jline, docs.comp, docs.man, docs.lib, docs.scalap, docs.partest, docs.continuations-plugin"/>
++  <target name="docs.done" depends="docs.comp, docs.man, docs.lib, docs.scalap, docs.partest, docs.continuations-plugin"/>
+ 
+ 
+ <!-- ===========================================================================
+                                   DISTRIBUTION
+ ============================================================================ -->
+-  <target name="dist.base" depends="pack.done, osgi.done">
++  <target name="dist.base" depends="quick.done, pack.bin, osgi.done">
+     <property name="dist.name" value="scala-${version.number}"/>
+     <property name="dist.dir" value="${dists.dir}/${dist.name}"/>
+ 
+@@ -1762,7 +1661,6 @@ TODO:
      <mkdir dir="${dist.dir}/lib"/>
      <copy toDir="${dist.dir}/lib">
        <fileset dir="${build-pack.dir}/lib">
@@ -246,3 +425,12 @@ index f12b4e8..aad5aaa 100644
          <include name="scalacheck.jar"/>
          <include name="scala-partest.jar"/>
          <include name="scalap.jar"/>
+@@ -1918,7 +1816,7 @@ TODO:
+     </fail>
+     <!-- needs antcall to enforce ordering -->
+     <antcall target="locker.clean"/>
+-    <antcall target="pack.done"/>
++    <antcall target="quick.done, pack.bin"/>
+     <antcall target="starr.done"/>
+     <antcall target="locker.clean"/>
+     <antcall target="test.done"/>
