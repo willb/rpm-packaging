@@ -160,8 +160,8 @@ export ANT_OPTS="-Xms2048m -Xmx2048m %{do_bootstrap}"
 # NB:  the "build" task is (unfortunately) necessary
 #  build-opt will fail due to a scala optimizer bug
 #  and its interaction with the system jline
-ant -f scala-bootstript.xml build
-ant buildlocker build docs || exit 1
+# ant -f scala-bootstript.xml build
+ant build docs || exit 1
 pushd build/pack/lib
 cp %{SOURCE1} bnd.properties
 java -jar $(build-classpath aqute-bnd) wrap -properties \
