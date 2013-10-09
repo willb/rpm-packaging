@@ -47,19 +47,21 @@ Source24:       scala.ant.d
 
 Source31:	scala-bootstript.xml
 
-# Force build with openjdk/icedtea because gij is horribly slow and I haven't
-# been successful at integrating aot compilation with the build process
-# BuildRequires:  java-1.6.0-openjdk-devel
 BuildRequires:  java-devel
 BuildRequires:  ant
 BuildRequires:  ant-junit
 BuildRequires:  ant-contrib
 BuildRequires:  jline2
-BuildRequires:  jpackage-utils
+BuildRequires:  javapackages-tools
 BuildRequires:  shtool
 BuildRequires:	aqute-bnd
 BuildRequires:  junit4
 BuildRequires:  felix-framework
+
+%if !(0%{?bootstrap_build})
+BuildRequires:	scala
+%endif
+
 Requires:       java
 Requires:       jline2
 Requires:       jpackage-utils
