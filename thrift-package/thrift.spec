@@ -85,11 +85,14 @@ Source1:	http://repo1.maven.org/maven2/org/apache/thrift/lib%{name}/%{version}/l
 Source2:	https://raw.github.com/apache/%{name}/%{version}/bootstrap.sh
 
 Source3:        https://gitorious.org/pkg-scribe/thrift-deb-pkg/raw/master:debian/manpage.1.ex
+Source4:	http://repo1.maven.org/maven2/org/apache/thrift/libfb303/%{version}/libfb303-%{version}.pom
 
 # this patch is adapted from Gil Cattaneo's thrift-0.7.0 package
 Patch0:		thrift-0.9.1-buildxml.patch
 # don't use bundled rebar executable
 Patch1:		thrift-0.9.1-rebar.patch
+# for fb303, excise maven ant tasks; build against system libraries; etc.
+Patch2:		fb303-0.9.1-buildxml.patch
 
 Group:		Development/Libraries
 
@@ -266,10 +269,49 @@ BuildRequires:	erlang-rebar
 The erlang-%{name} package contains Erlang bindings for %{name}.
 %endif
 
+%package -n fb303
+Summary:	Basic interface for Thrift services
+
+%description -n fb303
+fb303 is the shared root of all Thrift services; it provides a
+standard interface to monitoring, dynamic options and configuration,
+uptime reports, activity, etc.
+
+%package -n fb303-devel
+Summary:	Development files for fb303
+Requires:	fb303%{?_isa} = %{version}-%{release}
+
+%description -n fb303-devel
+The fb303-devel package contains header files for fb303
+
+%package -n python-fb303
+Summary:	Python bindings for fb303
+Requires:	fb303%{?_isa} = %{version}-%{release}
+BuildRequires:	python2-devel
+
+%description -n python-fb303
+The python-fb303 package contains Python bindings for fb303.
+
+%package -n java-fb303
+Summary:	Java bindings for fb303
+Requires:	java >= 1:1.6.0
+Requires:	jpackage-utils
+Requires:	mvn(org.slf4j:slf4j-api)
+Requires:	mvn(commons-lang:commons-lang)
+Requires:	mvn(org.apache.httpcomponents:httpclient)
+Requires:	mvn(org.apache.httpcomponents:httpcore)
+BuildRequires:	ant
+BuildRequires:	java-libthrift = %{version}
+BuildArch:	noarch
+
+%description -n java-fb303
+The java-fb303 package contains Java bindings for fb303.
+
 %prep
 %setup -q
 %patch0 -p1
 %patch1 -p1
+%patch2 -p1
 
 %{?!el5:sed -i -e 's/^AC_PROG_LIBTOOL/LT_INIT/g' configure.ac}
 
@@ -308,6 +350,22 @@ sed -i 's|${thrift.artifactid}-${version}|${thrift.artifactid}|' lib/java/build.
 # Proper permissions for Erlang files
 sed -i 's|$(INSTALL) $$p|$(INSTALL) --mode 644 $$p|g' lib/erl/Makefile.am
 
+# Build fb303 jars against the in-situ copy of thrift
+sed -i 's|$(thrift_home)/bin/thrift|../../../compiler/cpp/thrift|g' \
+ contrib/fb303/cpp/Makefile.am \
+ contrib/fb303/py/Makefile.am
+
+sed -i 's|$(thrift_home)/include/thrift|../../../lib/cpp/src|g' \
+ contrib/fb303/cpp/Makefile.am
+
+# Create a straightforward makefile for Java fb303
+echo "all:
+	ant
+install: build/libfb303.jar
+	mkdir -p %{buildroot}%{_javadir}
+	/usr/bin/install -c -m 644 build/libfb303.jar %{buildroot}%{_javadir}
+" > contrib/fb303/java/Makefile
+
 sh ./bootstrap.sh
 
 # use unversioned doc dirs where appropriate (via _pkgdocdir macro)
@@ -318,9 +376,23 @@ sed -i -e 's/ -shared / -Wl,--as-needed\0/g' libtool
 
 make %{?_smp_mflags}
 
+# build fb303
+(
+  cd contrib/fb303
+  chmod 755 bootstrap.sh
+  sh bootstrap.sh
+  %configure --disable-static --with-java --without-php
+  make %{?_smp_mflags}
+  (
+      cd java
+      ant dist
+  )
+)
+
 %install
 %make_install
 find %{buildroot} -name '*.la' -exec rm -f {} ';'
+find %{buildroot} -name '*.egg-info' -exec rm -f {} ';'
 find %{buildroot} -name fastbinary.so | xargs chmod 755
 find %{buildroot} -name \*.erl -or -name \*.hrl -or -name \*.app | xargs chmod 644
 
@@ -335,7 +407,12 @@ find %{buildroot}/%{_javadir} -name lib%{name}-javadoc.jar -exec rm -f '{}' \;
 # Add POM file and depmap
 mkdir -p %{buildroot}%{_mavenpomdir}
 install -pm 644 %{SOURCE1} %{buildroot}%{_mavenpomdir}/JPP-lib%{name}.pom
+install -pm 644 %{SOURCE4} %{buildroot}%{_mavenpomdir}/JPP-libfb303.pom
 %add_maven_depmap JPP-lib%{name}.pom lib%{name}.jar
+%add_maven_depmap JPP-libfb303.pom libfb303.jar
+
+# Ensure all python scripts are executable
+chmod 755 $(find %{buildroot} -name \*.py -exec grep -q /usr/bin/env {} \; -print)
 
 # Remove bundled jar files
 find %{buildroot} -name \*.jar -a \! -name \*thrift\* -exec rm -f '{}' \;
@@ -355,6 +432,16 @@ mv %{buildroot}/%{php_extdir}/Thrift %{buildroot}/%{_datadir}/php/
 
 # Fix permissions on Thread.h
 find %{buildroot} -name Thread.h -exec chmod a-x '{}' \;
+
+# install fb303
+(
+  cd contrib/fb303
+  make DESTDIR=%{buildroot} install
+  (
+    cd java
+    ant -Dinstall.path=%{buildroot}%{_javadir} -Dinstall.javadoc.path=%{buildroot}%{_javadocdir}/fb303 install
+  )
+)
 
 %post -p /sbin/ldconfig
 
@@ -408,6 +495,28 @@ find %{buildroot} -name Thread.h -exec chmod a-x '{}' \;
 %{_mavenpomdir}/JPP-lib%{name}.pom
 %{_mavendepmapfragdir}/%{name}
 %doc LICENSE NOTICE
+
+%files -n fb303
+%{_libdir}/libfb303.so
+%{_datarootdir}/fb303
+%doc LICENSE NOTICE
+
+%files -n fb303-devel
+%{_includedir}/thrift/fb303
+%doc LICENSE NOTICE
+
+%files -n python-fb303
+%{python_sitelib}/fb303
+%{python_sitelib}/fb303_scripts
+%doc LICENSE NOTICE
+
+%files -n java-fb303
+%{_javadir}/libfb303.jar
+%{_mavenpomdir}/JPP-libfb303.pom
+%{_mavendepmapfragdir}/fb303
+%doc LICENSE NOTICE
+
+
 
 %changelog
 
