@@ -1,8 +1,8 @@
 diff --git a/contrib/fb303/java/build.xml b/contrib/fb303/java/build.xml
-index 8f2fa51..4cee511 100755
+index 8f2fa51..d89f05e 100755
 --- a/contrib/fb303/java/build.xml
 +++ b/contrib/fb303/java/build.xml
-@@ -17,7 +17,6 @@
+@@ -17,8 +17,7 @@
   specific language governing permissions and limitations
   under the License.
   -->
@@ -11,6 +11,16 @@ index 8f2fa51..4cee511 100755
 +<project name="libfb303" default="dist" basedir=".">
  
    <!-- project wide settings. All directories relative to basedir -->
+   <property name="thrift.root" location="${basedir}/../../../"/>
+@@ -26,7 +25,7 @@
+   <property name="interface.dir" value="${basedir}/../if"/>
+   <property name="thrift.java.dir" location="${thrift.root}/lib/java"/>
+   <property name="build.tools.dir" location="${thrift.java.dir}/build/tools/"/>
+-  <property name="thrift_compiler" value="${thrift.root}/compiler/cpp/thrift"/> 
++  <property name="thrift_compiler" value="${thrift.root}/compiler/cpp/thrift"/>
+ 
+   <!-- inherit from the java build file for version and other properties -->
+   <property file="${thrift.java.dir}/build.properties" />
 @@ -38,8 +37,8 @@
    </condition>
    <property name="version" value="${thrift.version}-snapshot"/>
@@ -18,7 +28,7 @@ index 8f2fa51..4cee511 100755
 -  <property name="fb303.final.name" value="${fb303.artifactid}-${version}"/>
 -  <property name="thrift.java.libthrift" value="${thrift.java.dir}/build/libthrift-${version}.jar"/>
 +  <property name="fb303.final.name" value="${fb303.artifactid}"/>
-+  <property name="thrift.java.libthrift" value="${thrift.java.dir}/libthrift.jar"/>
++  <property name="thrift.java.libthrift" value="${thrift.java.dir}/build/libthrift.jar"/>
  
    <property name="src" value="${basedir}/src"/>
    <property name="gen" value="${basedir}/gen-java"/>

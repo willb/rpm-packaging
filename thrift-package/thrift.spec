@@ -307,6 +307,7 @@ BuildArch:	noarch
 %description -n java-fb303
 The java-fb303 package contains Java bindings for fb303.
 
+%global _default_patch_fuzz 2
 %prep
 %setup -q
 %patch0 -p1
