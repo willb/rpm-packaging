@@ -1,5 +1,6 @@
 %global pkg_version 0.9.1
-%global pkg_rel 5
+%global fb303_version 1.0.0_dev
+%global pkg_rel 6
 
 %global py_version 2.7
 
@@ -328,6 +329,8 @@ echo 'libthriftz_la_LIBADD = $(ZLIB_LIBS) -lthrift -L.libs' >> lib/cpp/Makefile.
 echo 'EXTRA_libthriftqt_la_DEPENDENCIES = libthrift.la' >> lib/cpp/Makefile.am
 echo 'EXTRA_libthriftz_la_DEPENDENCIES = libthrift.la' >> lib/cpp/Makefile.am
 
+echo 'libfb303_la_LIBADD = -lthrift -L.libs' >> contrib/fb303/cpp/Makefile.am
+
 %build
 export PY_PREFIX=%{_prefix}
 export PERL_PREFIX=%{_prefix}
@@ -356,6 +359,8 @@ sed -i 's|$(thrift_home)/bin/thrift|../../../compiler/cpp/thrift|g' \
  contrib/fb303/cpp/Makefile.am \
  contrib/fb303/py/Makefile.am
 
+sed -i 's|$(prefix)/lib$|%{_libdir}|g' contrib/fb303/cpp/Makefile.am
+
 sed -i 's|$(thrift_home)/include/thrift|../../../lib/cpp/src|g' \
  contrib/fb303/cpp/Makefile.am
 
@@ -382,7 +387,7 @@ make %{?_smp_mflags}
   cd contrib/fb303
   chmod 755 bootstrap.sh
   sh bootstrap.sh
-  %configure --disable-static --with-java --without-php
+  %configure --disable-static --with-java --without-php --libdir=%{_libdir}
   make %{?_smp_mflags}
   (
       cd java
@@ -409,13 +414,8 @@ find %{buildroot}/%{_javadir} -name lib%{name}-javadoc.jar -exec rm -f '{}' \;
 mkdir -p %{buildroot}%{_mavenpomdir}
 
 install -pm 644 %{SOURCE1} %{buildroot}%{_mavenpomdir}/JPP-libthrift.pom
-install -pm 644 %{SOURCE4} %{buildroot}%{_mavenpomdir}/JPP-libfb303.pom
 
 %add_maven_depmap JPP-libthrift.pom libthrift.jar
-%add_maven_depmap JPP-libfb303.pom libfb303.jar -a "org.apache.thrift:libfb303"
-
-# Ensure all python scripts are executable
-chmod 755 $(find %{buildroot} -name \*.py -exec grep -q /usr/bin/env {} \; -print)
 
 # Remove bundled jar files
 find %{buildroot} -name \*.jar -a \! -name \*thrift\* -exec rm -f '{}' \;
@@ -445,6 +445,10 @@ find %{buildroot} -name Thread.h -exec chmod a-x '{}' \;
     ant -Dinstall.path=%{buildroot}%{_javadir} -Dinstall.javadoc.path=%{buildroot}%{_javadocdir}/fb303 install
   )
 )
+
+# install maven pom and depmaps for fb303
+install -pm 644 %{SOURCE4} %{buildroot}%{_mavenpomdir}/JPP-libfb303.pom
+%add_maven_depmap JPP-libfb303.pom libfb303.jar -a "org.apache.thrift:libfb303" -f "fb303"
 
 %post -p /sbin/ldconfig
 
@@ -511,21 +515,23 @@ find %{buildroot} -name Thread.h -exec chmod a-x '{}' \;
 %files -n python-fb303
 %{python_sitelib}/fb303
 %{python_sitelib}/fb303_scripts
+%{python_sitelib}/%{name}_fb303-%{fb303_version}-py%{py_version}.egg-info
 %doc LICENSE NOTICE
 
 %files -n fb303-java
 %{_javadir}/libfb303.jar
 %{_mavenpomdir}/JPP-libfb303.pom
-%{_mavendepmapfragdir}/fb303
+%{_mavendepmapfragdir}/thrift-fb303
 %doc LICENSE NOTICE
 
 
 
 %changelog
 
-* Thu Oct 3 2013 willb <willb@redhat> - 0.9.1-6
+* Fri Oct 11 2013 willb <willb@redhat> - 0.9.1-6
 - added thrift man page
-- 
+- integrated fb303
+- fixed many fb303 library dependency problems
 
 * Tue Oct 1 2013 willb <willb@redhat> - 0.9.1-5
 - fixed extension library linking when an older thrift package is not
