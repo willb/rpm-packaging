@@ -211,7 +211,7 @@ The php-%{name} package contains PHP bindings for %{name}.
 
 %package -n	lib%{name}-javadoc
 Summary:	API documentation for java-%{name}
-Requires:	java-lib%{name} = %{version}-%{release}
+Requires:	lib%{name}-java = %{version}-%{release}
 BuildArch:	noarch
 
 %description -n lib%{name}-javadoc 
@@ -317,7 +317,7 @@ The fb303-java package contains Java bindings for fb303.
 %{?!el5:sed -i -e 's/^AC_PROG_LIBTOOL/LT_INIT/g' configure.ac}
 
 # avoid spurious executable permissions in debuginfo package
-find . -name \*.cpp -or -name \*.cc -or -name \*.h | xargs chmod 644
+find . -name \*.cpp -or -name \*.cc -or -name \*.h | xargs -r chmod 644
 
 cp -p %{SOURCE2} bootstrap.sh
 
@@ -397,9 +397,9 @@ make %{?_smp_mflags}
 %install
 %make_install
 find %{buildroot} -name '*.la' -exec rm -f {} ';'
-find %{buildroot} -name '*.egg-info' -exec rm -f {} ';'
-find %{buildroot} -name fastbinary.so | xargs chmod 755
-find %{buildroot} -name \*.erl -or -name \*.hrl -or -name \*.app | xargs chmod 644
+# find %{buildroot} -name '*.egg-info' -exec rm -f {} ';'
+find %{buildroot} -name fastbinary.so | xargs -r chmod 755
+find %{buildroot} -name \*.erl -or -name \*.hrl -or -name \*.app | xargs -r chmod 644
 
 # install man page
 mkdir -p %{buildroot}%{_mandir}/man1
@@ -448,6 +448,10 @@ find %{buildroot} -name Thread.h -exec chmod a-x '{}' \;
 # install maven pom and depmaps for fb303
 install -pm 644 %{SOURCE4} %{buildroot}%{_mavenpomdir}/JPP-libfb303.pom
 %add_maven_depmap JPP-libfb303.pom libfb303.jar -a "org.apache.thrift:libfb303" -f "fb303"
+
+# Ensure all python scripts are executable
+find %{buildroot} -name \*.py -exec grep -q /usr/bin/env {} \; -print | xargs -r chmod 755
+
 
 %post -p /sbin/ldconfig
 
