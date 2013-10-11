@@ -272,6 +272,7 @@ The erlang-%{name} package contains Erlang bindings for %{name}.
 
 %package -n fb303
 Summary:	Basic interface for Thrift services
+Requires:	%{name}%{?_isa} = %{version}-%{release}
 
 %description -n fb303
 fb303 is the shared root of all Thrift services; it provides a
@@ -328,7 +329,9 @@ echo 'libthriftz_la_LIBADD = $(ZLIB_LIBS) -lthrift -L.libs' >> lib/cpp/Makefile.
 echo 'EXTRA_libthriftqt_la_DEPENDENCIES = libthrift.la' >> lib/cpp/Makefile.am
 echo 'EXTRA_libthriftz_la_DEPENDENCIES = libthrift.la' >> lib/cpp/Makefile.am
 
-echo 'libfb303_la_LIBADD = -lthrift -L.libs' >> contrib/fb303/cpp/Makefile.am
+# echo 'libfb303_so_LIBADD = -lthrift -L../../../lib/cpp/.libs' >> contrib/fb303/cpp/Makefile.am
+
+sed -i 's|libfb303_so_LDFLAGS = $(SHARED_LDFLAGS)|libfb303_so_LDFLAGS = $(SHARED_LDFLAGS) -lthrift -L../../../lib/cpp/.libs -Wl,--as-needed|g' contrib/fb303/cpp/Makefile.am
 
 %build
 export PY_PREFIX=%{_prefix}
