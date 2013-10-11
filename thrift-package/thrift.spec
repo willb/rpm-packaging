@@ -208,16 +208,16 @@ BuildRequires:	php-devel
 The php-%{name} package contains PHP bindings for %{name}.
 %endif
 
-%package -n	java-lib%{name}-javadoc
+%package -n	lib%{name}-javadoc
 Summary:	API documentation for java-%{name}
-Requires:	java-lib%{name} = %{version}-%{release}
+Requires:	lib%{name}-java = %{version}-%{release}
 BuildArch:	noarch
 
-%description -n java-lib%{name}-javadoc 
-The java-lib%{name}-javadoc package contains API documentation for the
+%description -n lib%{name}-javadoc 
+The lib%{name}-javadoc package contains API documentation for the
 Java bindings for %{name}.
 
-%package -n	java-lib%{name}
+%package -n	lib%{name}-java
 Summary:	Java support for %{name}
 
 BuildRequires:	java-devel
@@ -242,8 +242,8 @@ Requires:	mvn(org.apache.httpcomponents:httpcore)
 BuildArch:	noarch
 
 
-%description -n java-lib%{name}
-The java-lib%{name} package contains Java bindings for %{name}.
+%description -n lib%{name}-java
+The lib%{name}-java package contains Java bindings for %{name}.
 
 %if 0%{?want_ruby} > 0
 %package -n	ruby-%{name}
@@ -292,7 +292,7 @@ BuildRequires:	python2-devel
 %description -n python-fb303
 The python-fb303 package contains Python bindings for fb303.
 
-%package -n java-fb303
+%package -n fb303-java
 Summary:	Java bindings for fb303
 Requires:	java >= 1:1.6.0
 Requires:	jpackage-utils
@@ -304,8 +304,8 @@ BuildRequires:	ant
 BuildRequires:	java-libthrift = %{version}
 BuildArch:	noarch
 
-%description -n java-fb303
-The java-fb303 package contains Java bindings for fb303.
+%description -n fb303-java
+The fb303-java package contains Java bindings for fb303.
 
 %global _default_patch_fuzz 2
 %prep
@@ -407,10 +407,12 @@ find %{buildroot}/%{_javadir} -name lib%{name}-javadoc.jar -exec rm -f '{}' \;
 
 # Add POM file and depmap
 mkdir -p %{buildroot}%{_mavenpomdir}
-install -pm 644 %{SOURCE1} %{buildroot}%{_mavenpomdir}/JPP-lib%{name}.pom
+
+install -pm 644 %{SOURCE1} %{buildroot}%{_mavenpomdir}/JPP-libthrift.pom
 install -pm 644 %{SOURCE4} %{buildroot}%{_mavenpomdir}/JPP-libfb303.pom
-%add_maven_depmap JPP-lib%{name}.pom lib%{name}.jar
-%add_maven_depmap JPP-libfb303.pom libfb303.jar
+
+%add_maven_depmap JPP-libthrift.pom libthrift.jar
+%add_maven_depmap JPP-libfb303.pom libfb303.jar -a "org.apache.thrift:libfb303"
 
 # Ensure all python scripts are executable
 chmod 755 $(find %{buildroot} -name \*.py -exec grep -q /usr/bin/env {} \; -print)
@@ -487,11 +489,11 @@ find %{buildroot} -name Thread.h -exec chmod a-x '{}' \;
 %{python_sitearch}/%{name}-%{version}-py%{py_version}.egg-info
 %doc LICENSE NOTICE
 
-%files -n java-lib%{name}-javadoc
+%files -n lib%{name}-javadoc
 %{_javadocdir}/%{name}
 %doc LICENSE NOTICE
 
-%files -n java-lib%{name}
+%files -n lib%{name}-java
 %{_javadir}/lib%{name}.jar
 %{_mavenpomdir}/JPP-lib%{name}.pom
 %{_mavendepmapfragdir}/%{name}
@@ -511,7 +513,7 @@ find %{buildroot} -name Thread.h -exec chmod a-x '{}' \;
 %{python_sitelib}/fb303_scripts
 %doc LICENSE NOTICE
 
-%files -n java-fb303
+%files -n fb303-java
 %{_javadir}/libfb303.jar
 %{_mavenpomdir}/JPP-libfb303.pom
 %{_mavendepmapfragdir}/fb303
