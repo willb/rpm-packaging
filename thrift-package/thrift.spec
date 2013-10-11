@@ -211,7 +211,7 @@ The php-%{name} package contains PHP bindings for %{name}.
 
 %package -n	lib%{name}-javadoc
 Summary:	API documentation for java-%{name}
-Requires:	lib%{name}-java = %{version}-%{release}
+Requires:	java-lib%{name} = %{version}-%{release}
 BuildArch:	noarch
 
 %description -n lib%{name}-javadoc 
@@ -302,7 +302,6 @@ Requires:	mvn(commons-lang:commons-lang)
 Requires:	mvn(org.apache.httpcomponents:httpclient)
 Requires:	mvn(org.apache.httpcomponents:httpcore)
 BuildRequires:	ant
-BuildRequires:	java-libthrift = %{version}
 BuildArch:	noarch
 
 %description -n fb303-java
