@@ -123,6 +123,8 @@ BuildRequires:	flex
 BuildRequires:	bison-devel
 BuildRequires:	flex-devel
 
+BuildRequires:	ant
+
 Requires:	openssl
 Requires:	boost
 Requires:	bison
@@ -223,7 +225,6 @@ Summary:	Java support for %{name}
 
 BuildRequires:	java-devel
 BuildRequires:	javapackages-tools
-BuildRequires:	ant
 BuildRequires:	apache-commons-codec
 BuildRequires:	apache-commons-lang
 BuildRequires:	apache-commons-logging
@@ -235,7 +236,7 @@ BuildRequires:	slf4j
 BuildRequires:	tomcat-servlet-3.0-api
 
 Requires:	java >= 1:1.6.0
-Requires:	jpackage-utils
+Requires:	javapackages-tools
 Requires:	mvn(org.slf4j:slf4j-api)
 Requires:	mvn(commons-lang:commons-lang)
 Requires:	mvn(org.apache.httpcomponents:httpclient)
@@ -297,7 +298,7 @@ The python-fb303 package contains Python bindings for fb303.
 %package -n fb303-java
 Summary:	Java bindings for fb303
 Requires:	java >= 1:1.6.0
-Requires:	jpackage-utils
+Requires:	javapackages-tools
 Requires:	mvn(org.slf4j:slf4j-api)
 Requires:	mvn(commons-lang:commons-lang)
 Requires:	mvn(org.apache.httpcomponents:httpclient)
@@ -468,8 +469,10 @@ find %{buildroot} -name \*.py -exec grep -q /usr/bin/env {} \; -print | xargs -r
 %{_mandir}/man1/thrift.1.gz
 
 %files devel
-%{_includedir}/*
+%{_includedir}/thrift
+%exclude %{_includedir}/thrift/fb303
 %{_libdir}/*.so
+%exclude %{_libdir}/libfb303.so
 %{_libdir}/pkgconfig/thrift-z.pc
 %{_libdir}/pkgconfig/thrift-qt.pc
 %{_libdir}/pkgconfig/thrift.pc
@@ -477,7 +480,8 @@ find %{buildroot} -name \*.py -exec grep -q /usr/bin/env {} \; -print | xargs -r
 %doc LICENSE NOTICE
 
 %files -n perl-%{name}
-%{perl_vendorlib}/*
+%{perl_vendorlib}/Thrift
+%{perl_vendorlib}/Thrift.pm
 %doc LICENSE NOTICE
 
 %if 0%{?want_php} != 0
@@ -510,11 +514,11 @@ find %{buildroot} -name \*.py -exec grep -q /usr/bin/env {} \; -print | xargs -r
 %doc LICENSE NOTICE
 
 %files -n fb303
-%{_libdir}/libfb303.so
 %{_datarootdir}/fb303
 %doc LICENSE NOTICE
 
 %files -n fb303-devel
+%{_libdir}/libfb303.so
 %{_includedir}/thrift/fb303
 %doc LICENSE NOTICE
 
