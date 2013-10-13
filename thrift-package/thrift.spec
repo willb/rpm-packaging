@@ -400,7 +400,6 @@ make %{?_smp_mflags}
 %install
 %make_install
 find %{buildroot} -name '*.la' -exec rm -f {} ';'
-# find %{buildroot} -name '*.egg-info' -exec rm -f {} ';'
 find %{buildroot} -name fastbinary.so | xargs -r chmod 755
 find %{buildroot} -name \*.erl -or -name \*.hrl -or -name \*.app | xargs -r chmod 644
 
@@ -430,10 +429,11 @@ mkdir -p %{buildroot}/%{perl_vendorlib}/
 mv %{buildroot}/usr/lib/perl5/* %{buildroot}/%{perl_vendorlib}
 
 %if 0%{?want_php} != 0
+
 # Move arch-independent php files into the appropriate place
 mkdir -p %{buildroot}/%{_datadir}/php/
 mv %{buildroot}/%{php_extdir}/Thrift %{buildroot}/%{_datadir}/php/
-%endif
+%endif # want_php
 
 # Fix permissions on Thread.h
 find %{buildroot} -name Thread.h -exec chmod a-x '{}' \;
