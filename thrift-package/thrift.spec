@@ -344,7 +344,7 @@ export GLIB_CFLAGS=$(pkg-config --cflags glib-2.0)
 export GOBJECT_LIBS=$(pkg-config --libs gobject-2.0)
 export GOBJECT_CFLAGS=$(pkg-config --cflags gobject-2.0)
 
-find %{_builddir} -name rebar -exec rm -f '{}' \;
+find . -name rebar -exec rm -f '{}' \;
 find . -name Makefile\* -exec sed -i -e 's/[.][/]rebar/rebar/g' {} \;
 
 # install javadocs in proper places
