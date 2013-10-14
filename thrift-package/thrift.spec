@@ -1,6 +1,6 @@
 %global pkg_version 0.9.1
 %global fb303_version 1.0.0_dev
-%global pkg_rel 6
+%global pkg_rel 7
 
 %global py_version 2.7
 
@@ -303,7 +303,6 @@ Requires:	mvn(org.slf4j:slf4j-api)
 Requires:	mvn(commons-lang:commons-lang)
 Requires:	mvn(org.apache.httpcomponents:httpclient)
 Requires:	mvn(org.apache.httpcomponents:httpcore)
-BuildRequires:	ant
 BuildArch:	noarch
 
 %description -n fb303-java
@@ -451,7 +450,7 @@ find %{buildroot} -name Thread.h -exec chmod a-x '{}' \;
 
 # install maven pom and depmaps for fb303
 install -pm 644 %{SOURCE4} %{buildroot}%{_mavenpomdir}/JPP-libfb303.pom
-%add_maven_depmap JPP-libfb303.pom libfb303.jar -a "org.apache.thrift:libfb303" -f "fb303"
+%add_maven_depmap JPP-libfb303.pom libfb303.jar -f "fb303"
 
 # Ensure all python scripts are executable
 find %{buildroot} -name \*.py -exec grep -q /usr/bin/env {} \; -print | xargs -r chmod 755
@@ -537,6 +536,9 @@ find %{buildroot} -name \*.py -exec grep -q /usr/bin/env {} \; -print | xargs -r
 
 
 %changelog
+
+* Sun Oct 13 2013 willb <willb@redhat> - 0.9.1-7
+- minor specfile cleanups
 
 * Fri Oct 11 2013 willb <willb@redhat> - 0.9.1-6
 - added thrift man page
