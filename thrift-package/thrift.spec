@@ -1,6 +1,6 @@
 %global pkg_version 0.9.1
 %global fb303_version 1.0.0_dev
-%global pkg_rel 8
+%global pkg_rel 9
 
 %global py_version 2.7
 
@@ -127,15 +127,9 @@ BuildRequires:	flex-devel
 
 BuildRequires:	ant
 
-Requires:	openssl
-Requires:	boost
-Requires:	bison
-Requires:	flex
 %ifarch %{mono_arches}
 Requires:	mono-core
 %endif
-
-Requires:	qt4
 
 %if 0%{?want_golang} > 0
 BuildRequires:	golang
@@ -469,12 +463,14 @@ find %{buildroot} -name \*.py -exec grep -q /usr/bin/env {} \; -print | xargs -r
 %doc LICENSE NOTICE
 %{_bindir}/thrift
 %{_libdir}/*.so.*
+%{_libdir}/lib*-%{version}.so
 %{_mandir}/man1/thrift.1.gz
 
 %files devel
 %{_includedir}/thrift
 %exclude %{_includedir}/thrift/fb303
 %{_libdir}/*.so
+%exclude %{_libdir}/lib*-%{version}.so
 %exclude %{_libdir}/libfb303.so
 %{_libdir}/pkgconfig/thrift-z.pc
 %{_libdir}/pkgconfig/thrift-qt.pc
@@ -540,6 +536,10 @@ find %{buildroot} -name \*.py -exec grep -q /usr/bin/env {} \; -print | xargs -r
 
 
 %changelog
+* Wed Oct 16 2013 willb <willb@redhat> - 0.9.1-9
+- Remove spurious dependencies
+- Move some versioned shared libraries from -devel
+
 * Wed Oct 16 2013 Dan Horák <dan[at]danny.cz> - 0.9.1-8
 - Mono available only on selected arches
 
