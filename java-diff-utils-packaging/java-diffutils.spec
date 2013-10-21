@@ -1,7 +1,7 @@
 Name:           java-diffutils
 Version:        1.3.0
 Release:        2%{?dist}
-Summary:        The DiffUtils library for computing diffs, applying patches, generating side-by-side view in Java.
+Summary:        Library for computing diffs in Java
 License:        ASL 2.0
 %{?el5:Group:          Development/Libraries}
 URL:            http://code.google.com/p/java-diff-utils/
