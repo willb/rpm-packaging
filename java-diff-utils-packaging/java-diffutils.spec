@@ -24,6 +24,13 @@ Summary:        API documentation for %{name}
 This package provides %{summary}.
 
 %prep
+
+# replace these with versions from JRCS or OpenGrok
+rm src/main/java/difflib/myers/DiffException.java
+rm src/main/java/difflib/myers/MyersDiff.java
+rm src/main/java/difflib/myers/PathNode.java
+rm src/main/java/difflib/myers/Snake.java
+
 %setup -q
 cp %{SOURCE1} LICENSE
 
