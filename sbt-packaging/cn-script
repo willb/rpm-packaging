@@ -26,9 +26,9 @@ for subpackage in continuation http io security server servlet webapp util xml ;
     ./climbing-nemesis.py /usr/share/java/jetty/jetty-$subpackage.jar ivy-local org.eclipse.jetty jetty-$subpackage 8.1.5
 done
 
-./climbing-nemesis.py /usr/share/scala/lib/scala-library.jar ivy-local org.scala-lang scala-library 2.9.2
+./climbing-nemesis.py /usr/share/scala/lib/scala-library.jar ivy-local org.scala-lang scala-library ${SCALA_VERSION}
 
-./climbing-nemesis.py /usr/share/scala/lib/scala-compiler.jar ivy-local org.scala-lang scala-compiler 2.9.2
+./climbing-nemesis.py /usr/share/scala/lib/scala-compiler.jar ivy-local org.scala-lang scala-compiler ${SCALA_VERSION}
 
 ./climbing-nemesis.py /usr/share/java/jna.jar ivy-local net.java.dev.jna jna 3.2.3 # we are fibbing about this version number
 
@@ -44,55 +44,48 @@ done
 
 CACHEDIR=/home/wibenton/devel/cache
 
+if [ x$BOOTSTRAP = xyes ] ; then
 # for bootstrapping only
 ./climbing-nemesis.py $CACHEDIR/org.scala-tools.sxr/sxr_2.9.0/jars/sxr_2.9.0-0.2.7.jar ivy-local org.scala-tools.sxr sxr 0.2.7
 ./climbing-nemesis.py $CACHEDIR/org.scala-tools.sbinary/sbinary_2.9.0/jars/sbinary_2.9.0-0.4.0.jar ivy-local org.scala-tools.sbinary sbinary 0.4.0
 ./climbing-nemesis.py $CACHEDIR/org.scala-tools.testing/scalacheck_2.9.1/jars/scalacheck_2.9.1-1.9.jar ivy-local/ org.scala-tools.testing scalacheck 1.9
 ./climbing-nemesis.py $CACHEDIR/org.scala-tools.testing/specs_2.9.1/jars/specs_2.9.1-1.6.9.jar ivy-local/ org.scala-tools.testing specs 1.6.9
 ./climbing-nemesis.py $CACHEDIR/org.scala-tools.testing/test-interface/jars/test-interface-0.5.jar ivy-local org.scala-tools.testing test-interface 0.5
-./climbing-nemesis.py $CACHEDIR/org.scala-sbt/ivy/jars/ivy-0.12.2.jar ivy-local org.scala-sbt ivy 0.12.2
-./climbing-nemesis.py $CACHEDIR/org.scala-sbt/task-system/jars/task-system-0.12.2.jar ivy-local org.scala-sbt task-system 0.12.2
-./climbing-nemesis.py $CACHEDIR/org.scala-sbt/compiler-interface/jars/compiler-interface-bin-0.12.2.jar ivy-local org.scala-sbt compiler-interface-bin 0.12.2
-./climbing-nemesis.py $CACHEDIR/org.scala-sbt/compiler-interface/jars/compiler-interface-src-0.12.2.jar ivy-local org.scala-sbt compiler-interface-src 0.12.2
-./climbing-nemesis.py $CACHEDIR/org.scala-sbt/testing/jars/testing-0.12.2.jar ivy-local org.scala-sbt testing 0.12.2
-./climbing-nemesis.py $CACHEDIR/org.scala-sbt/command/jars/command-0.12.2.jar ivy-local org.scala-sbt command 0.12.2
-./climbing-nemesis.py $CACHEDIR/org.scala-sbt/test-agent/jars/test-agent-0.12.2.jar ivy-local org.scala-sbt test-agent 0.12.2
-./climbing-nemesis.py $CACHEDIR/org.scala-sbt/launcher-interface/jars/launcher-interface-0.12.2.jar ivy-local org.scala-sbt launcher-interface 0.12.2
-./climbing-nemesis.py $CACHEDIR/org.scala-sbt/run/jars/run-0.12.2.jar ivy-local org.scala-sbt run 0.12.2
-./climbing-nemesis.py $CACHEDIR/org.scala-sbt/compiler-ivy-integration/jars/compiler-ivy-integration-0.12.2.jar ivy-local org.scala-sbt compiler-ivy-integration 0.12.2
-./climbing-nemesis.py $CACHEDIR/org.scala-sbt/collections/jars/collections-0.12.2.jar ivy-local org.scala-sbt collections 0.12.2
-./climbing-nemesis.py $CACHEDIR/org.scala-sbt/persist/jars/persist-0.12.2.jar ivy-local org.scala-sbt persist 0.12.2
-./climbing-nemesis.py $CACHEDIR/org.scala-sbt/classfile/jars/classfile-0.12.2.jar ivy-local org.scala-sbt classfile 0.12.2
-./climbing-nemesis.py $CACHEDIR/org.scala-sbt/control/jars/control-0.12.2.jar ivy-local org.scala-sbt control 0.12.2
-./climbing-nemesis.py $CACHEDIR/org.scala-sbt/interface/jars/interface-0.12.2.jar ivy-local org.scala-sbt interface 0.12.2
-./climbing-nemesis.py $CACHEDIR/org.scala-sbt/incremental-compiler/jars/incremental-compiler-0.12.2.jar ivy-local org.scala-sbt incremental-compiler 0.12.2
-./climbing-nemesis.py $CACHEDIR/org.scala-sbt/cache/jars/cache-0.12.2.jar ivy-local org.scala-sbt cache 0.12.2
-./climbing-nemesis.py $CACHEDIR/org.scala-sbt/compiler-integration/jars/compiler-integration-0.12.2.jar ivy-local org.scala-sbt compiler-integration 0.12.2
-./climbing-nemesis.py $CACHEDIR/org.scala-sbt/api/jars/api-0.12.2.jar ivy-local org.scala-sbt api 0.12.2
-./climbing-nemesis.py $CACHEDIR/org.scala-sbt/main/jars/main-0.12.2.jar ivy-local org.scala-sbt main 0.12.2
-./climbing-nemesis.py $CACHEDIR/org.scala-sbt/classpath/jars/classpath-0.12.2.jar ivy-local org.scala-sbt classpath 0.12.2
-./climbing-nemesis.py $CACHEDIR/org.scala-sbt/logging/jars/logging-0.12.2.jar ivy-local org.scala-sbt logging 0.12.2
-./climbing-nemesis.py $CACHEDIR/org.scala-sbt/compile/jars/compile-0.12.2.jar ivy-local org.scala-sbt compile 0.12.2
-./climbing-nemesis.py $CACHEDIR/org.scala-sbt/process/jars/process-0.12.2.jar ivy-local org.scala-sbt process 0.12.2
-./climbing-nemesis.py $CACHEDIR/org.scala-sbt/actions/jars/actions-0.12.2.jar ivy-local org.scala-sbt actions 0.12.2
-./climbing-nemesis.py $CACHEDIR/org.scala-sbt/tracking/jars/tracking-0.12.2.jar ivy-local org.scala-sbt tracking 0.12.2
-./climbing-nemesis.py $CACHEDIR/org.scala-sbt/tasks/jars/tasks-0.12.2.jar ivy-local org.scala-sbt tasks 0.12.2
-./climbing-nemesis.py $CACHEDIR/org.scala-sbt/completion/jars/completion-0.12.2.jar ivy-local org.scala-sbt completion 0.12.2
-./climbing-nemesis.py $CACHEDIR/org.scala-sbt/io/jars/io-0.12.2.jar ivy-local org.scala-sbt io 0.12.2
-./climbing-nemesis.py $CACHEDIR/org.scala-sbt/sbt/jars/sbt-0.12.2.jar ivy-local org.scala-sbt sbt 0.12.2
+./climbing-nemesis.py $CACHEDIR/org.scala-sbt/ivy/jars/ivy-${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}.jar ivy-local org.scala-sbt ivy ${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}
+./climbing-nemesis.py $CACHEDIR/org.scala-sbt/task-system/jars/task-system-${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}.jar ivy-local org.scala-sbt task-system ${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}
+./climbing-nemesis.py $CACHEDIR/org.scala-sbt/compiler-interface/jars/compiler-interface-bin-${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}.jar ivy-local org.scala-sbt compiler-interface-bin ${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}
+./climbing-nemesis.py $CACHEDIR/org.scala-sbt/compiler-interface/jars/compiler-interface-src-${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}.jar ivy-local org.scala-sbt compiler-interface-src ${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}
+./climbing-nemesis.py $CACHEDIR/org.scala-sbt/testing/jars/testing-${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}.jar ivy-local org.scala-sbt testing ${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}
+./climbing-nemesis.py $CACHEDIR/org.scala-sbt/command/jars/command-${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}.jar ivy-local org.scala-sbt command ${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}
+./climbing-nemesis.py $CACHEDIR/org.scala-sbt/test-agent/jars/test-agent-${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}.jar ivy-local org.scala-sbt test-agent ${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}
+./climbing-nemesis.py $CACHEDIR/org.scala-sbt/launcher-interface/jars/launcher-interface-${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}.jar ivy-local org.scala-sbt launcher-interface ${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}
+./climbing-nemesis.py $CACHEDIR/org.scala-sbt/run/jars/run-${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}.jar ivy-local org.scala-sbt run ${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}
+./climbing-nemesis.py $CACHEDIR/org.scala-sbt/compiler-ivy-integration/jars/compiler-ivy-integration-${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}.jar ivy-local org.scala-sbt compiler-ivy-integration ${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}
+./climbing-nemesis.py $CACHEDIR/org.scala-sbt/collections/jars/collections-${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}.jar ivy-local org.scala-sbt collections ${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}
+./climbing-nemesis.py $CACHEDIR/org.scala-sbt/persist/jars/persist-${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}.jar ivy-local org.scala-sbt persist ${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}
+./climbing-nemesis.py $CACHEDIR/org.scala-sbt/classfile/jars/classfile-${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}.jar ivy-local org.scala-sbt classfile ${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}
+./climbing-nemesis.py $CACHEDIR/org.scala-sbt/control/jars/control-${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}.jar ivy-local org.scala-sbt control ${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}
+./climbing-nemesis.py $CACHEDIR/org.scala-sbt/interface/jars/interface-${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}.jar ivy-local org.scala-sbt interface ${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}
+./climbing-nemesis.py $CACHEDIR/org.scala-sbt/incremental-compiler/jars/incremental-compiler-${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}.jar ivy-local org.scala-sbt incremental-compiler ${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}
+./climbing-nemesis.py $CACHEDIR/org.scala-sbt/cache/jars/cache-${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}.jar ivy-local org.scala-sbt cache ${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}
+./climbing-nemesis.py $CACHEDIR/org.scala-sbt/compiler-integration/jars/compiler-integration-${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}.jar ivy-local org.scala-sbt compiler-integration ${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}
+./climbing-nemesis.py $CACHEDIR/org.scala-sbt/api/jars/api-${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}.jar ivy-local org.scala-sbt api ${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}
+./climbing-nemesis.py $CACHEDIR/org.scala-sbt/main/jars/main-${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}.jar ivy-local org.scala-sbt main ${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}
+./climbing-nemesis.py $CACHEDIR/org.scala-sbt/classpath/jars/classpath-${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}.jar ivy-local org.scala-sbt classpath ${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}
+./climbing-nemesis.py $CACHEDIR/org.scala-sbt/logging/jars/logging-${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}.jar ivy-local org.scala-sbt logging ${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}
+./climbing-nemesis.py $CACHEDIR/org.scala-sbt/compile/jars/compile-${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}.jar ivy-local org.scala-sbt compile ${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}
+./climbing-nemesis.py $CACHEDIR/org.scala-sbt/process/jars/process-${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}.jar ivy-local org.scala-sbt process ${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}
+./climbing-nemesis.py $CACHEDIR/org.scala-sbt/actions/jars/actions-${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}.jar ivy-local org.scala-sbt actions ${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}
+./climbing-nemesis.py $CACHEDIR/org.scala-sbt/tracking/jars/tracking-${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}.jar ivy-local org.scala-sbt tracking ${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}
+./climbing-nemesis.py $CACHEDIR/org.scala-sbt/tasks/jars/tasks-${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}.jar ivy-local org.scala-sbt tasks ${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}
+./climbing-nemesis.py $CACHEDIR/org.scala-sbt/completion/jars/completion-${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}.jar ivy-local org.scala-sbt completion ${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}
+./climbing-nemesis.py $CACHEDIR/org.scala-sbt/io/jars/io-${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}.jar ivy-local org.scala-sbt io ${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}
+./climbing-nemesis.py $CACHEDIR/org.scala-sbt/sbt/jars/sbt-${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}.jar ivy-local org.scala-sbt sbt ${SBT_MAJOR}.${SBT_MINOR}.${SBT_PATCH}
+fi
 
 
-
-# ./climbing-nemesis.py $CACHEDIR/com.typesafe.sbt/sbt-site/jars/sbt-site-0.6.0.jar ivy-local com.typesafe.sbt sbt-site 0.6.0 --meta e:scalaVersion=2.9.2 --meta e:sbtVersion=0.12
-# ./climbing-nemesis.py $CACHEDIR/com.typesafe.sbt/sbt-git/jars/sbt-git-0.5.0.jar ivy-local com.typesafe.sbt sbt-git 0.5.0 --meta e:scalaVersion=2.9.2 --meta e:sbtVersion=0.12
-# ./climbing-nemesis.py $CACHEDIR/com.typesafe.sbt/sbt-ghpages/jars/sbt-ghpages-0.5.0.jar ivy-local com.typesafe.sbt sbt-ghpages 0.5.0 --meta e:scalaVersion=2.9.2 --meta e:sbtVersion=0.12
-
-
-
-# irb(main):029:0> open("sbt-jars", "r") do |f|
-# irb(main):030:1*   f.readlines.each do |line|
-# irb(main):031:2*     line =~ /^.*\/([^\/]+)-0.12.2.jar$/
-# irb(main):032:2>     artifact = $1
-# irb(main):033:2>     puts "./climbing-nemesis.py ivy-local org.scala-sbt #{artifact} --version 0.12.2"
-# irb(main):034:2>   end
-# irb(main):035:1> end
+## more bootstrapping
+# 
+# ./climbing-nemesis.py $CACHEDIR/com.typesafe.sbt/sbt-site/jars/sbt-site-0.6.0.jar ivy-local com.typesafe.sbt sbt-site 0.6.0 --meta e:scalaVersion=${SCALA_VERSION} --meta e:sbtVersion=${SBT_MAJOR}.${SBT_MINOR}
+# ./climbing-nemesis.py $CACHEDIR/com.typesafe.sbt/sbt-git/jars/sbt-git-0.5.0.jar ivy-local com.typesafe.sbt sbt-git 0.5.0 --meta e:scalaVersion=${SCALA_VERSION} --meta e:sbtVersion=${SBT_MAJOR}.${SBT_MINOR}
+# ./climbing-nemesis.py $CACHEDIR/com.typesafe.sbt/sbt-ghpages/jars/sbt-ghpages-0.5.0.jar ivy-local com.typesafe.sbt sbt-ghpages 0.5.0 --meta e:scalaVersion=${SCALA_VERSION} --meta e:sbtVersion=${SBT_MAJOR}.${SBT_MINOR}
