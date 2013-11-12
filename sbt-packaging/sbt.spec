@@ -3,7 +3,8 @@
 %global scala_version 2.10.3
 %global sbt_bootstrap_version 0.12.4
 %global typesafe_repo http://repo.typesafe.com/typesafe/ivy-releases
-%global ivy_artifact() %{1}/%{2}/%{3}/%{4}/jars/%{3}.jar
+%global generic_ivy_artifact() %{1}/%{2}/%{3}/%{4}/jars/%{5}.jar
+%global sbt_ivy_artifact() %generic_ivy_artifact %{typesafe_repo} org.scala-sbt %{1} %{sbt_bootstrap_version} %{1}
 
 Name:           sbt
 Version:        0.13.0
@@ -13,49 +14,50 @@ Summary:        simple build tool for Scala and Java projects
 License:        BSD
 URL:            http://www.scala-sbt.org
 Source0:        https://github.com/sbt/sbt/archive/v%{version}.tar.gz
+
 %if %{do_bootstrap}
 # include bootstrap libraries
-Source32:       %ivy_artifact %{typesafe_repo} org.scala-sbt ivy %{sbt_bootstrap_version}.jar
-Source33:       %ivy_artifact %{typesafe_repo} org.scala-sbt task-system %{sbt_bootstrap_version}.jar
-Source34:       %ivy_artifact %{typesafe_repo} org.scala-sbt compiler-interface %{sbt_bootstrap_version}-src.jar
-Source35:       %ivy_artifact %{typesafe_repo} org.scala-sbt compiler-interface %{sbt_bootstrap_version}-bin.jar
-Source36:       %ivy_artifact %{typesafe_repo} org.scala-sbt testing %{sbt_bootstrap_version}.jar
-Source37:       %ivy_artifact %{typesafe_repo} org.scala-sbt command %{sbt_bootstrap_version}.jar
-Source38:       %ivy_artifact %{typesafe_repo} org.scala-sbt test-agent %{sbt_bootstrap_version}.jar
-Source39:       %ivy_artifact %{typesafe_repo} org.scala-sbt launcher-interface %{sbt_bootstrap_version}.jar
-Source40:       %ivy_artifact %{typesafe_repo} org.scala-sbt run %{sbt_bootstrap_version}.jar
-Source41:       %ivy_artifact %{typesafe_repo} org.scala-sbt compiler-ivy-integration %{sbt_bootstrap_version}.jar
-Source42:       %ivy_artifact %{typesafe_repo} org.scala-sbt scripted-sbt %{sbt_bootstrap_version}.jar
-Source43:       %ivy_artifact %{typesafe_repo} org.scala-sbt launch-test %{sbt_bootstrap_version}.jar
-Source44:       %ivy_artifact %{typesafe_repo} org.scala-sbt collections %{sbt_bootstrap_version}.jar
-Source45:       %ivy_artifact %{typesafe_repo} org.scala-sbt persist %{sbt_bootstrap_version}.jar
-Source46:       %ivy_artifact %{typesafe_repo} org.scala-sbt classfile %{sbt_bootstrap_version}.jar
-Source47:       %ivy_artifact %{typesafe_repo} org.scala-sbt control %{sbt_bootstrap_version}.jar
-Source48:       %ivy_artifact %{typesafe_repo} org.scala-sbt launcher %{sbt_bootstrap_version}.jar
-Source49:       %ivy_artifact %{typesafe_repo} org.scala-sbt apply-macro %{sbt_bootstrap_version}.jar
-Source50:       %ivy_artifact %{typesafe_repo} org.scala-sbt datatype-generator %{sbt_bootstrap_version}.jar
-Source51:       %ivy_artifact %{typesafe_repo} org.scala-sbt interface %{sbt_bootstrap_version}.jar
-Source52:       %ivy_artifact %{typesafe_repo} org.scala-sbt main-settings %{sbt_bootstrap_version}.jar
-Source53:       %ivy_artifact %{typesafe_repo} org.scala-sbt incremental-compiler %{sbt_bootstrap_version}.jar
-Source54:       %ivy_artifact %{typesafe_repo} org.scala-sbt cache %{sbt_bootstrap_version}.jar
-Source55:       %ivy_artifact %{typesafe_repo} org.scala-sbt compiler-integration %{sbt_bootstrap_version}.jar
-Source56:       %ivy_artifact %{typesafe_repo} org.scala-sbt api %{sbt_bootstrap_version}.jar
-Source57:       %ivy_artifact %{typesafe_repo} org.scala-sbt main %{sbt_bootstrap_version}.jar
-Source58:       %ivy_artifact %{typesafe_repo} org.scala-sbt classpath %{sbt_bootstrap_version}.jar
-Source59:       %ivy_artifact %{typesafe_repo} org.scala-sbt logging %{sbt_bootstrap_version}.jar
-Source60:       %ivy_artifact %{typesafe_repo} org.scala-sbt compile %{sbt_bootstrap_version}.jar
-Source61:       %ivy_artifact %{typesafe_repo} org.scala-sbt process %{sbt_bootstrap_version}.jar
-Source62:       %ivy_artifact %{typesafe_repo} org.scala-sbt actions %{sbt_bootstrap_version}.jar            
-Source63:       %ivy_artifact %{typesafe_repo} org.scala-sbt sbt-launch %{sbt_bootstrap_version}.jar
-Source64:       %ivy_artifact %{typesafe_repo} org.scala-sbt scripted-plugin %{sbt_bootstrap_version}.jar
-Source65:       %ivy_artifact %{typesafe_repo} org.scala-sbt tracking %{sbt_bootstrap_version}.jar
-Source66:       %ivy_artifact %{typesafe_repo} org.scala-sbt tasks %{sbt_bootstrap_version}.jar
-Source67:       %ivy_artifact %{typesafe_repo} org.scala-sbt completion %{sbt_bootstrap_version}.jar
-Source68:       %ivy_artifact %{typesafe_repo} org.scala-sbt cross %{sbt_bootstrap_version}.jar
-Source69:       %ivy_artifact %{typesafe_repo} org.scala-sbt relation %{sbt_bootstrap_version}.jar
-Source70:       %ivy_artifact %{typesafe_repo} org.scala-sbt io %{sbt_bootstrap_version}.jar
-Source71:       %ivy_artifact %{typesafe_repo} org.scala-sbt sbt %{sbt_bootstrap_version}.jar
-Source72:       %ivy_artifact %{typesafe_repo} org.scala-sbt scripted-framework %{sbt_bootstrap_version}.jar
+Source32:       %sbt_ivy_artifact ivy 
+Source33:       %sbt_ivy_artifact task-system 
+Source34:       %generic_ivy_artifact %{typesafe_repo} org.scala-sbt compiler-interface %{sbt_bootstrap_version} compiler-interface-src
+Source35:       %generic_ivy_artifact %{typesafe_repo} org.scala-sbt compiler-interface %{sbt_bootstrap_version} compiler-interface-bin
+Source36:       %sbt_ivy_artifact testing 
+Source37:       %sbt_ivy_artifact command 
+Source38:       %sbt_ivy_artifact test-agent 
+Source39:       %sbt_ivy_artifact launcher-interface 
+Source40:       %sbt_ivy_artifact run 
+Source41:       %sbt_ivy_artifact compiler-ivy-integration 
+Source42:       %sbt_ivy_artifact scripted-sbt 
+Source43:       %sbt_ivy_artifact launch-test 
+Source44:       %sbt_ivy_artifact collections 
+Source45:       %sbt_ivy_artifact persist 
+Source46:       %sbt_ivy_artifact classfile 
+Source47:       %sbt_ivy_artifact control 
+Source48:       %sbt_ivy_artifact launcher 
+Source49:       %sbt_ivy_artifact apply-macro 
+Source50:       %sbt_ivy_artifact datatype-generator 
+Source51:       %sbt_ivy_artifact interface 
+Source52:       %sbt_ivy_artifact main-settings 
+Source53:       %sbt_ivy_artifact incremental-compiler 
+Source54:       %sbt_ivy_artifact cache 
+Source55:       %sbt_ivy_artifact compiler-integration 
+Source56:       %sbt_ivy_artifact api 
+Source57:       %sbt_ivy_artifact main 
+Source58:       %sbt_ivy_artifact classpath 
+Source59:       %sbt_ivy_artifact logging 
+Source60:       %sbt_ivy_artifact compile 
+Source61:       %sbt_ivy_artifact process 
+Source62:       %sbt_ivy_artifact actions
+Source63:       %sbt_ivy_artifact sbt-launch 
+Source64:       %sbt_ivy_artifact scripted-plugin 
+Source65:       %sbt_ivy_artifact tracking 
+Source66:       %sbt_ivy_artifact tasks 
+Source67:       %sbt_ivy_artifact completion 
+Source68:       %sbt_ivy_artifact cross 
+Source69:       %sbt_ivy_artifact relation 
+Source70:       %sbt_ivy_artifact io 
+Source71:       %sbt_ivy_artifact sbt 
+Source72:       %sbt_ivy_artifact scripted-framework 
 %endif
 
 BuildRequires:  scala
