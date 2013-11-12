@@ -2,18 +2,31 @@
 %global pkg_rel 1
 %global scala_version 2.10.3
 %global sbt_bootstrap_version 0.12.4
+%global sbt_major 0
+%global sbt_minor 13
+%global sbt_patch 0
+%global sbt_short_version %{sbt_major}.%{sbt_minor}
+%global sbt_version %{sbt_major}.%{sbt_minor}.%{sbt_patch}
+%global sbt
 %global typesafe_repo http://repo.typesafe.com/typesafe/ivy-releases
 %global generic_ivy_artifact() %{1}/%{2}/%{3}/%{4}/jars/%{5}.jar
 %global sbt_ivy_artifact() %generic_ivy_artifact %{typesafe_repo} org.scala-sbt %{1} %{sbt_bootstrap_version} %{1}
 
+%global sbt_ghpages_version 0.5.1
+%global sbt_git_version 0.6.3
+%global sbt_site_version 0.7.1
+
 Name:           sbt
-Version:        0.13.0
+Version:        %{sbt_version}
 Release:        %{pkg_rel}%{?dist}
 Summary:        simple build tool for Scala and Java projects
 
 License:        BSD
 URL:            http://www.scala-sbt.org
 Source0:        https://github.com/sbt/sbt/archive/v%{version}.tar.gz
+Source1:        https://github.com/sbt/sbt-ghpages/archive/v%{sbt_ghpages_version}.tar.gz
+Source2:        https://github.com/sbt/sbt-git/archive/v%{sbt_git_version}.tar.gz
+Source3:        https://github.com/sbt/sbt-site/archive/v%{sbt_site_version}.tar.gz
 
 %if %{do_bootstrap}
 # include bootstrap libraries
@@ -58,11 +71,20 @@ Source69:       %sbt_ivy_artifact relation
 Source70:       %sbt_ivy_artifact io 
 Source71:       %sbt_ivy_artifact sbt 
 Source72:       %sbt_ivy_artifact scripted-framework 
+
+Source73:       http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/com.typesafe.sbt/sbt-ghpages/scala_%{scala_version}/sbt_%{sbt_short_version}/%{sbt_ghpages_version}/jars/sbt-ghpages.jar
+Source74:       http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/com.typesafe.sbt/sbt-site/scala_%{scala_version}/sbt_%{sbt_short_version}/%{sbt_site_version}/jars/sbt-site.jar
+Source75:       http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/com.typesafe.sbt/sbt-git/scala_%{scala_version}/sbt_%{sbt_short_version}/%{sbt_git_version}/jars/sbt-git.jar
+
 %endif
 
 BuildRequires:  scala
 %if !%{do_bootstrap}
 BuildRequires:  sbt = %{sbt_bootstrap_version}
+BuildRequires:  sbt-ghpages = %{sbt_ghpages_version}
+BuildRequires:  sbt-site = %{sbt_site_version}
+BuildRequires:  sbt-git = %{sbt_git_version}
+
 %endif
 
 Requires:       scala
