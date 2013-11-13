@@ -1,10 +1,12 @@
 %global do_bootstrap 1
 %global pkg_rel 1
 %global scala_version 2.10.3
-%global sbt_bootstrap_version 0.12.4
+%global scala_short_version 2.10
+%global sbt_bootstrap_version 0.13.0
 %global sbt_major 0
 %global sbt_minor 13
-%global sbt_patch 0
+%global sbt_patch 1
+%global sbt_build -RC2
 %global sbt_short_version %{sbt_major}.%{sbt_minor}
 %global sbt_version %{sbt_major}.%{sbt_minor}.%{sbt_patch}
 %global sbt
@@ -16,6 +18,9 @@
 %global sbt_git_version 0.6.3
 %global sbt_site_version 0.7.1
 
+%global sxr_version 0.3.0
+%global sbinary_version 0.4.2
+
 Name:           sbt
 Version:        %{sbt_version}
 Release:        %{pkg_rel}%{?dist}
@@ -23,12 +28,24 @@ Summary:        simple build tool for Scala and Java projects
 
 License:        BSD
 URL:            http://www.scala-sbt.org
-Source0:        https://github.com/sbt/sbt/archive/v%{version}.tar.gz
+Source0:        https://github.com/sbt/sbt/archive/v%{version}%{sbt_build}.tar.gz
+
+# sbt-ghpages plugin
 Source1:        https://github.com/sbt/sbt-ghpages/archive/v%{sbt_ghpages_version}.tar.gz
+
+# sbt-git plugin
 Source2:        https://github.com/sbt/sbt-git/archive/v%{sbt_git_version}.tar.gz
+
+# sbt-site plugin
 Source3:        https://github.com/sbt/sbt-site/archive/v%{sbt_site_version}.tar.gz
 
-Source4:        https://raw.github.com/willb/climbing-nemesis/master/climbing-nemesis.py
+# sxr
+Source4:        https://github.com/harrah/browse/archive/v%{sxr_version}.tar.gz
+
+Source5:        https://github.com/harrah/sbinary/archive/v%{sbinary_version}.tar.gz
+
+
+Source16:       https://raw.github.com/willb/climbing-nemesis/master/climbing-nemesis.py
 
 %if %{do_bootstrap}
 # include bootstrap libraries
@@ -74,9 +91,15 @@ Source70:       %sbt_ivy_artifact io
 Source71:       %sbt_ivy_artifact sbt 
 Source72:       %sbt_ivy_artifact scripted-framework 
 
+# sbt plugins
 Source73:       http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/com.typesafe.sbt/sbt-ghpages/scala_%{scala_version}/sbt_%{sbt_short_version}/%{sbt_ghpages_version}/jars/sbt-ghpages.jar
 Source74:       http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/com.typesafe.sbt/sbt-site/scala_%{scala_version}/sbt_%{sbt_short_version}/%{sbt_site_version}/jars/sbt-site.jar
 Source75:       http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/com.typesafe.sbt/sbt-git/scala_%{scala_version}/sbt_%{sbt_short_version}/%{sbt_git_version}/jars/sbt-git.jar
+
+# sxr
+Source76:	http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt.sxr/sxr_%{scala_short_version}/%{sxr_version}/jars/sxr_%{scala_short_version}.jar
+Source77:	http://repo.typesafe.com/typesafe/ivy-releases/org.scala-tools.sbinary/sbinary_%{scala_short_version}/%{sbinary_version}/jars/sbinary_%{scala_short_version}.jar
+
 
 %endif
 
@@ -88,6 +111,7 @@ BuildRequires:  sbt-ghpages = %{sbt_ghpages_version}
 BuildRequires:  sbt-site = %{sbt_site_version}
 BuildRequires:  sbt-git = %{sbt_git_version}
 
+BuildRequires:  sxr = %{sxr_version}
 %endif
 
 Requires:       scala
@@ -97,7 +121,7 @@ sbt is the simple build tool for Scala and Java projects.
 
 %prep
 %setup -q
-cp ${SOURCE4} .
+cp ${SOURCE16} .
 chmod 755 climbing-nemesis.py
 
 ./climbing-nemesis.py /usr/share/java/commons-logging.jar ivy-local commons-logging commons-logging 1.1.1
@@ -186,19 +210,21 @@ done
 ./climbing-nemesis.py ${SOURCE71} ivy-local org.scala-sbt sbt %{sbt_version}
 ./climbing-nemesis.py ${SOURCE72} ivy-local org.scala-sbt scripted-framework %{sbt_version}
 
-# XXX
-./climbing-nemesis.py $CACHEDIR/com.typesafe.sbt/sbt-site/jars/sbt-site-0.6.0.jar ivy-local com.typesafe.sbt sbt-site 0.6.0 --meta e:scalaVersion=%{scala_version} --meta e:sbtVersion=%{sbt_short_version}
-./climbing-nemesis.py $CACHEDIR/com.typesafe.sbt/sbt-git/jars/sbt-git-0.5.0.jar ivy-local com.typesafe.sbt sbt-git 0.5.0 --meta e:scalaVersion=%{scala_version} --meta e:sbtVersion=%{sbt_short_version}
-./climbing-nemesis.py $CACHEDIR/com.typesafe.sbt/sbt-ghpages/jars/sbt-ghpages-0.5.0.jar ivy-local com.typesafe.sbt sbt-ghpages 0.5.0 --meta e:scalaVersion=%{scala_version} --meta e:sbtVersion=%{sbt_short_version}
+# plugins
+./climbing-nemesis.py ${SOURCE73} ivy-local com.typesafe.sbt sbt-ghpages %{sbt_ghpages_version} --meta e:scalaVersion=%{scala_version} --meta e:sbtVersion=%{sbt_short_version}
+./climbing-nemesis.py ${SOURCE74} ivy-local com.typesafe.sbt sbt-site %{sbt_site_version} --meta e:scalaVersion=%{scala_version} --meta e:sbtVersion=%{sbt_short_version}
+./climbing-nemesis.py ${SOURCE75} ivy-local com.typesafe.sbt sbt-git %{sbt_git_version} --meta e:scalaVersion=%{scala_version} --meta e:sbtVersion=%{sbt_short_version}
+
+# SXR
+./climbing-nemesis.py ${SOURCE76} ivy-local org.scala-tools.sxr sxr %{sxr_version}
+./climbing-nemesis.py ${SOURCE77} ivy-local org.scala-tools.sbinary sbinary %{sbinary_version}
 
 # XXX
-./climbing-nemesis.py $CACHEDIR/org.scala-tools.sxr/sxr_2.9.0/jars/sxr_2.9.0-0.2.7.jar ivy-local org.scala-tools.sxr sxr 0.2.7
-./climbing-nemesis.py $CACHEDIR/org.scala-tools.sbinary/sbinary_2.9.0/jars/sbinary_2.9.0-0.4.0.jar ivy-local org.scala-tools.sbinary sbinary 0.4.0
 ./climbing-nemesis.py $CACHEDIR/org.scala-tools.testing/scalacheck_2.9.1/jars/scalacheck_2.9.1-1.9.jar ivy-local/ org.scala-tools.testing scalacheck 1.9
 ./climbing-nemesis.py $CACHEDIR/org.scala-tools.testing/specs_2.9.1/jars/specs_2.9.1-1.6.9.jar ivy-local/ org.scala-tools.testing specs 1.6.9
 ./climbing-nemesis.py $CACHEDIR/org.scala-tools.testing/test-interface/jars/test-interface-0.5.jar ivy-local org.scala-tools.testing test-interface 0.5
-%else
 
+%else
 # If we aren't bootstrapping, copy installed jars into local ivy cache
 # dir.  It sure would be nice if we could resolve these via Ivy from
 # installed packages.  This is a FIXME for now, though.
