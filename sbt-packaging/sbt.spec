@@ -12,7 +12,9 @@
 %global sbt
 %global typesafe_repo http://repo.typesafe.com/typesafe/ivy-releases
 %global generic_ivy_artifact() %{1}/%{2}/%{3}/%{4}/jars/%{5}.jar
-%global sbt_ivy_artifact() %generic_ivy_artifact %{typesafe_repo} org.scala-sbt %{1} %{sbt_bootstrap_version} %{1}
+
+# %global sbt_ivy_artifact() %generic_ivy_artifact %{typesafe_repo} org.scala-sbt %{1} %{sbt_bootstrap_version} %{1}
+%global sbt_ivy_artifact() %{typesafe_repo}/org.scala-sbt/%{1}/%{sbt_bootstrap_version}/%{1}.jar
 
 %global sbt_ghpages_version 0.5.1
 %global sbt_git_version 0.6.3
@@ -63,6 +65,15 @@ Source17:       https://raw.github.com/willb/sbt-packaging/master/sbt.boot.prope
 
 %if %{do_bootstrap}
 # include bootstrap libraries
+
+%{echo: here}
+
+%{echo: %{sbt_ivy_artifact ivy}}
+
+%{echo: there}
+
+%{echo: %generic_ivy_artifact %{typesafe_repo} org.scala-sbt ivy %{sbt_bootstrap_version} ivy}
+
 Source32:       %sbt_ivy_artifact ivy 
 
 Source33:       %sbt_ivy_artifact task-system 
