@@ -64,45 +64,85 @@ Source17:       https://raw.github.com/willb/sbt-packaging/master/sbt.boot.prope
 %if %{do_bootstrap}
 # include bootstrap libraries
 Source32:       %sbt_ivy_artifact ivy 
+
 Source33:       %sbt_ivy_artifact task-system 
+
 Source34:       %generic_ivy_artifact %{typesafe_repo} org.scala-sbt compiler-interface %{sbt_bootstrap_version} compiler-interface-src
+
 Source35:       %generic_ivy_artifact %{typesafe_repo} org.scala-sbt compiler-interface %{sbt_bootstrap_version} compiler-interface-bin
+
 Source36:       %sbt_ivy_artifact testing 
+
 Source37:       %sbt_ivy_artifact command 
+
 Source38:       %sbt_ivy_artifact test-agent 
+
 Source39:       %sbt_ivy_artifact launcher-interface 
+
 Source40:       %sbt_ivy_artifact run 
+
 Source41:       %sbt_ivy_artifact compiler-ivy-integration 
+
 Source42:       %sbt_ivy_artifact scripted-sbt 
+
 Source43:       %sbt_ivy_artifact launch-test 
+
 Source44:       %sbt_ivy_artifact collections 
+
 Source45:       %sbt_ivy_artifact persist 
+
 Source46:       %sbt_ivy_artifact classfile 
+
 Source47:       %sbt_ivy_artifact control 
+
 Source48:       %sbt_ivy_artifact launcher 
+
 Source49:       %sbt_ivy_artifact apply-macro 
+
 Source50:       %sbt_ivy_artifact datatype-generator 
+
 Source51:       %sbt_ivy_artifact interface 
+
 Source52:       %sbt_ivy_artifact main-settings 
+
 Source53:       %sbt_ivy_artifact incremental-compiler 
+
 Source54:       %sbt_ivy_artifact cache 
+
 Source55:       %sbt_ivy_artifact compiler-integration 
+
 Source56:       %sbt_ivy_artifact api 
+
 Source57:       %sbt_ivy_artifact main 
+
 Source58:       %sbt_ivy_artifact classpath 
+
 Source59:       %sbt_ivy_artifact logging 
+
 Source60:       %sbt_ivy_artifact compile 
+
 Source61:       %sbt_ivy_artifact process 
+
 Source62:       %sbt_ivy_artifact actions
+
 Source63:       %sbt_ivy_artifact sbt-launch 
+
 Source64:       %sbt_ivy_artifact scripted-plugin 
+
 Source65:       %sbt_ivy_artifact tracking 
+
 Source66:       %sbt_ivy_artifact tasks 
+
 Source67:       %sbt_ivy_artifact completion 
+
 Source68:       %sbt_ivy_artifact cross 
+
 Source69:       %sbt_ivy_artifact relation 
+
 Source70:       %sbt_ivy_artifact io 
+
 Source71:       %sbt_ivy_artifact sbt 
+
 Source72:       %sbt_ivy_artifact scripted-framework 
 
 # sbt plugins
