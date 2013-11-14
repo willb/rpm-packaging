@@ -135,6 +135,10 @@ BuildRequires:  sbt-site = %{sbt_site_version}
 BuildRequires:  sbt-git = %{sbt_git_version}
 
 BuildRequires:  sxr = %{sxr_version}
+BuildRequires:  sbinary = %{sbinary_version}
+BuildRequires:  scalacheck = %{scalacheck_version}
+BuildRequires:  specs2 = %{specs2_version}
+
 %endif
 
 Requires:       scala
@@ -234,6 +238,7 @@ done
 ./climbing-nemesis.py ${SOURCE72} ivy-local org.scala-sbt scripted-framework %{sbt_version}
 
 # plugins
+
 ./climbing-nemesis.py ${SOURCE73} ivy-local com.typesafe.sbt sbt-ghpages %{sbt_ghpages_version} --meta e:scalaVersion=%{scala_version} --meta e:sbtVersion=%{sbt_short_version}
 ./climbing-nemesis.py ${SOURCE74} ivy-local com.typesafe.sbt sbt-site %{sbt_site_version} --meta e:scalaVersion=%{scala_version} --meta e:sbtVersion=%{sbt_short_version}
 ./climbing-nemesis.py ${SOURCE75} ivy-local com.typesafe.sbt sbt-git %{sbt_git_version} --meta e:scalaVersion=%{scala_version} --meta e:sbtVersion=%{sbt_short_version}
@@ -252,10 +257,6 @@ done
 
 # test-interface
 ./climbing-nemesis.py ${SOURCE80} ivy-local org.scala-sbt test-interface %{testinterface_version}
-
-
-# XXX
-
 
 %else
 # If we aren't bootstrapping, copy installed jars into local ivy cache
