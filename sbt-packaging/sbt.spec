@@ -20,7 +20,9 @@
 
 %global sxr_version 0.3.0
 %global sbinary_version 0.4.2
-%global scalacheck_version 0.11.0
+%global scalacheck_version 1.11.0
+%global specs2_version 1.12.3
+%global testinterface_version 1.0
 
 Name:           sbt
 Version:        %{sbt_version}
@@ -46,10 +48,15 @@ Source4:        https://github.com/harrah/browse/archive/v%{sxr_version}.tar.gz
 # sbinary
 Source5:        https://github.com/harrah/sbinary/archive/v%{sbinary_version}.tar.gz
 
-# scalacheck; nb:  no "v" in this tarball URL
+# scalacheck
+# nb:  no "v" in this tarball URL
 Source6:	https://github.com/rickynils/scalacheck/archive/%{scalacheck_version}.tar.gz
 
-Source7:	
+# specs 
+# nb:  no "v" in this tarball url
+# nb:  this depends on scalaz; might need to excise
+Source7:        https://github.com/etorreborre/specs2/archive/SPECS2-%{specs2_version}.tar.gz	
+Source8:        https://github.com/sbt/test-interface/archive/v%{testinterface_version}.tar.gz
 
 Source16:       https://raw.github.com/willb/climbing-nemesis/master/climbing-nemesis.py
 
@@ -110,6 +117,12 @@ Source77:	http://repo.typesafe.com/typesafe/ivy-releases/org.scala-tools.sbinary
 
 # scalacheck
 Source78:       http://oss.sonatype.org/content/repositories/releases/org/scalacheck/scalacheck_%{scala_short_version}/%{scalacheck_version}/scalacheck_%{scala_short_version}-%{scalacheck_version}.jar
+
+# specs
+Source79:       http://oss.sonatype.org/content/repositories/releases/org/specs2/specs2_%{scala_short_version}/%{specs2_version}/specs2_%{scala_short_version}-%{specs2_version}.jar
+
+# test-interface
+Source80:       http://oss.sonatype.org/content/repositories/releases/org/scala-sbt/test-interface/%{testinterface_version}/test-interface-%{testinterface_version}.jar
 
 %endif
 
@@ -227,13 +240,22 @@ done
 
 # SXR
 ./climbing-nemesis.py ${SOURCE76} ivy-local org.scala-tools.sxr sxr %{sxr_version}
+
+# sbinary
 ./climbing-nemesis.py ${SOURCE77} ivy-local org.scala-tools.sbinary sbinary %{sbinary_version}
-./climbing-nemesis.py ${SOURCE78} ivy-local org.scala-tools.testing scalacheck %{scalacheck_version}
-./climbing-nemesis.py ${SOURCE79} ivy-local org.scala-tools.testing specs 1.6.9
+
+# scalacheck
+./climbing-nemesis.py ${SOURCE78} ivy-local org.scalacheck scalacheck %{scalacheck_version}
+
+# specs2
+./climbing-nemesis.py ${SOURCE79} ivy-local org.specs2 specs2 %{specs2_version}
+
+# test-interface
+./climbing-nemesis.py ${SOURCE80} ivy-local org.scala-sbt test-interface %{testinterface_version}
+
 
 # XXX
 
-./climbing-nemesis.py $CACHEDIR/org.scala-tools.testing/test-interface/jars/test-interface-0.5.jar ivy-local org.scala-tools.testing test-interface 0.5
 
 %else
 # If we aren't bootstrapping, copy installed jars into local ivy cache
