@@ -20,6 +20,7 @@
 
 %global sxr_version 0.3.0
 %global sbinary_version 0.4.2
+%global scalacheck_version 0.11.0
 
 Name:           sbt
 Version:        %{sbt_version}
@@ -42,8 +43,13 @@ Source3:        https://github.com/sbt/sbt-site/archive/v%{sbt_site_version}.tar
 # sxr
 Source4:        https://github.com/harrah/browse/archive/v%{sxr_version}.tar.gz
 
+# sbinary
 Source5:        https://github.com/harrah/sbinary/archive/v%{sbinary_version}.tar.gz
 
+# scalacheck; nb:  no "v" in this tarball URL
+Source6:	https://github.com/rickynils/scalacheck/archive/%{scalacheck_version}.tar.gz
+
+Source7:	
 
 Source16:       https://raw.github.com/willb/climbing-nemesis/master/climbing-nemesis.py
 
@@ -98,8 +104,12 @@ Source75:       http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releas
 
 # sxr
 Source76:	http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt.sxr/sxr_%{scala_short_version}/%{sxr_version}/jars/sxr_%{scala_short_version}.jar
+
+# sbinary
 Source77:	http://repo.typesafe.com/typesafe/ivy-releases/org.scala-tools.sbinary/sbinary_%{scala_short_version}/%{sbinary_version}/jars/sbinary_%{scala_short_version}.jar
 
+# scalacheck
+Source78:       http://oss.sonatype.org/content/repositories/releases/org/scalacheck/scalacheck_%{scala_short_version}/%{scalacheck_version}/scalacheck_%{scala_short_version}-%{scalacheck_version}.jar
 
 %endif
 
@@ -218,10 +228,11 @@ done
 # SXR
 ./climbing-nemesis.py ${SOURCE76} ivy-local org.scala-tools.sxr sxr %{sxr_version}
 ./climbing-nemesis.py ${SOURCE77} ivy-local org.scala-tools.sbinary sbinary %{sbinary_version}
+./climbing-nemesis.py ${SOURCE78} ivy-local org.scala-tools.testing scalacheck %{scalacheck_version}
+./climbing-nemesis.py ${SOURCE79} ivy-local org.scala-tools.testing specs 1.6.9
 
 # XXX
-./climbing-nemesis.py $CACHEDIR/org.scala-tools.testing/scalacheck_2.9.1/jars/scalacheck_2.9.1-1.9.jar ivy-local/ org.scala-tools.testing scalacheck 1.9
-./climbing-nemesis.py $CACHEDIR/org.scala-tools.testing/specs_2.9.1/jars/specs_2.9.1-1.6.9.jar ivy-local/ org.scala-tools.testing specs 1.6.9
+
 ./climbing-nemesis.py $CACHEDIR/org.scala-tools.testing/test-interface/jars/test-interface-0.5.jar ivy-local org.scala-tools.testing test-interface 0.5
 
 %else
