@@ -59,6 +59,7 @@ Source7:        https://github.com/etorreborre/specs2/archive/SPECS2-%{specs2_ve
 Source8:        https://github.com/sbt/test-interface/archive/v%{testinterface_version}.tar.gz
 
 Source16:       https://raw.github.com/willb/climbing-nemesis/master/climbing-nemesis.py
+Source17:       https://raw.github.com/willb/sbt-packaging/master/sbt.boot.properties
 
 %if %{do_bootstrap}
 # include bootstrap libraries
@@ -124,10 +125,15 @@ Source79:       http://oss.sonatype.org/content/repositories/releases/org/specs2
 # test-interface
 Source80:       http://oss.sonatype.org/content/repositories/releases/org/scala-sbt/test-interface/%{testinterface_version}/test-interface-%{testinterface_version}.jar
 
+# sbt launcher
+Source128:       http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/%{bootstrap_sbt_version}/sbt-launch.jar
+
 %endif
 
 BuildRequires:  scala
+BuildRequires:	java
 BuildRequires:  python
+
 %if !%{do_bootstrap}
 BuildRequires:  sbt = %{sbt_bootstrap_version}
 BuildRequires:  sbt-ghpages = %{sbt_ghpages_version}
@@ -150,6 +156,10 @@ sbt is the simple build tool for Scala and Java projects.
 %setup -q
 cp ${SOURCE16} .
 chmod 755 climbing-nemesis.py
+
+cp ${SOURCE17} .
+
+cp ${SOURCE128} .
 
 ./climbing-nemesis.py /usr/share/java/commons-logging.jar ivy-local commons-logging commons-logging 1.1.1
 ./climbing-nemesis.py /usr/share/java/commons-logging.jar ivy-local commons-logging commons-logging 1.0.4
@@ -267,9 +277,7 @@ done
 
 
 %build
-%configure
-make %{?_smp_mflags}
-
+java -Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -jar -Dsbt.boot.properties=sbt.boot.properties sbt-launch.jar
 
 %install
 rm -rf %{buildroot}
