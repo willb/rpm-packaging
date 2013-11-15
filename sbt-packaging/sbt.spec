@@ -13,7 +13,6 @@
 %global typesafe_repo http://repo.typesafe.com/typesafe/ivy-releases
 %global generic_ivy_artifact() %{1}/%{2}/%{3}/%{4}/jars/%{5}.jar
 
-# %global sbt_ivy_artifact() %generic_ivy_artifact %{typesafe_repo} org.scala-sbt %{1} %{sbt_bootstrap_version} %{1}
 %global sbt_ivy_artifact() %{typesafe_repo}/org.scala-sbt/%{1}/%{sbt_bootstrap_version}/%{1}.jar
 
 %global sbt_ghpages_version 0.5.1
