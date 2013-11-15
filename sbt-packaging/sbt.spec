@@ -13,11 +13,11 @@
 %global typesafe_repo http://repo.typesafe.com/typesafe/ivy-releases
 %global generic_ivy_artifact() %{1}/%{2}/%{3}/%{4}/jars/%{5}.jar
 
-%global sbt_ivy_artifact() %{typesafe_repo}/org.scala-sbt/%{1}/%{sbt_bootstrap_version}/%{1}.jar
+%global sbt_ivy_artifact() %{typesafe_repo}/org.scala-sbt/%{1}/%{sbt_bootstrap_version}/jars/%{1}.jar
 
 %global sbt_ghpages_version 0.5.1
 %global sbt_git_version 0.6.3
-%global sbt_site_version 0.7.1
+%global sbt_site_version 0.6.2
 
 %global sxr_version 0.3.0
 %global sbinary_version 0.4.2
@@ -176,7 +176,7 @@ Source79:       http://oss.sonatype.org/content/repositories/releases/org/specs2
 Source80:       http://oss.sonatype.org/content/repositories/releases/org/scala-sbt/test-interface/%{testinterface_version}/test-interface-%{testinterface_version}.jar
 
 # sbt launcher
-Source128:       http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/%{bootstrap_sbt_version}/sbt-launch.jar
+Source128:       http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/%{sbt_bootstrap_version}/sbt-launch.jar
 
 %endif
 
