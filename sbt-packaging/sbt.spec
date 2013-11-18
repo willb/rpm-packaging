@@ -17,7 +17,7 @@
 
 %global sbt_ghpages_version 0.5.1
 %global sbt_git_version 0.6.3
-%global sbt_site_version 0.7.1
+%global sbt_site_version 0.6.2
 
 %global sxr_version 0.3.0
 %global sbinary_version 0.4.2
@@ -41,7 +41,7 @@ Source1:        https://github.com/sbt/sbt-ghpages/archive/v%{sbt_ghpages_versio
 Source2:        https://github.com/sbt/sbt-git/archive/v%{sbt_git_version}.tar.gz
 
 # sbt-site plugin
-Source3:        https://github.com/sbt/sbt-site/archive/v%{sbt_site_version}.tar.gz
+Source3:        https://github.com/sbt/sbt-site/archive/%{sbt_site_version}.tar.gz
 
 # sxr
 Source4:        https://github.com/harrah/browse/archive/v%{sxr_version}.tar.gz
