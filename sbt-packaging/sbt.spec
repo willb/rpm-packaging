@@ -17,7 +17,7 @@
 
 %global sbt_ghpages_version 0.5.1
 %global sbt_git_version 0.6.3
-%global sbt_site_version 0.6.2
+%global sbt_site_version 0.7.1
 
 %global sxr_version 0.3.0
 %global sbinary_version 0.4.2
@@ -156,9 +156,9 @@ Source71:       %sbt_ivy_artifact sbt
 Source72:       %sbt_ivy_artifact scripted-framework 
 
 # sbt plugins
-Source73:       http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/com.typesafe.sbt/sbt-ghpages/scala_%{scala_version}/sbt_%{sbt_short_version}/%{sbt_ghpages_version}/jars/sbt-ghpages.jar
-Source74:       http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/com.typesafe.sbt/sbt-site/scala_%{scala_version}/sbt_%{sbt_short_version}/%{sbt_site_version}/jars/sbt-site.jar
-Source75:       http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/com.typesafe.sbt/sbt-git/scala_%{scala_version}/sbt_%{sbt_short_version}/%{sbt_git_version}/jars/sbt-git.jar
+Source73:       http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/com.typesafe.sbt/sbt-ghpages/scala_%{scala_short_version}/sbt_%{sbt_short_version}/%{sbt_ghpages_version}/jars/sbt-ghpages.jar
+Source74:       http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/com.typesafe.sbt/sbt-site/scala_%{scala_short_version}/sbt_%{sbt_short_version}/%{sbt_site_version}/jars/sbt-site.jar
+Source75:       http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/com.typesafe.sbt/sbt-git/scala_%{scala_short_version}/sbt_%{sbt_short_version}/%{sbt_git_version}/jars/sbt-git.jar
 
 # sxr
 Source76:	http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt.sxr/sxr_%{scala_short_version}/%{sxr_version}/jars/sxr_%{scala_short_version}.jar
