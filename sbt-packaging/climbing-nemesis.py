@@ -95,7 +95,7 @@ def resolveJar(group, artifact):
     return jar
 
 def makeIvyXmlTree(org, module, revision, status="release", meta={}):
-    ivy_module = ET.Element("ivy-module", {"version":"1.0"})
+    ivy_module = ET.Element("ivy-module", {"version":"2.0", "xmlns:e":"http://ant.apache.org/ivy/extra"})
     info = ET.SubElement(ivy_module, "info", dict({"organisation":org, "module":module, "revision":revision, "status":status}.items() + meta.items()))
     info.text = " " # ensure a close tag
     confs = ET.SubElement(ivy_module, "configurations")
@@ -109,7 +109,7 @@ def makeIvyXmlTree(org, module, revision, status="release", meta={}):
 def writeIvyXml(org, module, revision, status="release", fileobj=None, meta={}):
     if fileobj is None:
         fileobj = StringIO.StringIO()
-    tree = makeIvyXmlTree(org, module, revision, status)
+    tree = makeIvyXmlTree(org, module, revision, status, meta)
     tree.write(fileobj, xml_declaration=True)
     return fileobj
 
@@ -126,7 +126,7 @@ def placeArtifact(artifact_file, repo_dirname, org, module, revision, status="re
         makedirs(artifact_dir)
     
     ivyxml_file = open(ivyxml_path, "w")
-    writeIvyXml(org, module, revision, status, ivyxml_file)
+    writeIvyXml(org, module, revision, status, ivyxml_file, meta)
     
     if pathexists(artifact_repo_path):
         rmfile(artifact_repo_path)
@@ -158,10 +158,10 @@ def main():
         jarfile = args.jarfile
     
     version = (args.version or pom.version)
-
     
     meta = dict([kv.split("=") for kv in (args.meta or [])])
-
+    cn_debug("meta is %r" % meta)
+    
     placeArtifact(jarfile, args.repodir, pom.groupID, pom.artifactID, version, meta=meta)
 
 if __name__ == "__main__":
