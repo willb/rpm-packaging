@@ -22,45 +22,77 @@ class Artifact(object):
     
     @classmethod
     def fromSubtree(k, t, ns):
-        a = t.find("./{%s}artifactId" % ns).text
-        g = t.find("./{%s}groupId" % ns).text
-        v = t.find("./{%s}version" % ns).text
+        a = t.find("./%sartifactId" % ns).text
+        g = t.find("./%sgroupId" % ns).text
+        v = t.find("./%sversion" % ns).text
         return k(a, g, v)
     
     def __repr__(self):
         return "%s:%s:%s" % (self.group, self.artifact, self.version)
 
+class DummyPOM(object):
+    def __init__(self, groupID=None, artifactID=None, version=None):
+        self.groupID = groupID
+        self.artifactID = artifactID
+        self.version = version
+
 class POM(object):
-    def __init__(self, filename):
+    def __init__(self, filename, suppliedGroupID=None, suppliedArtifactID=None):
         self.filename = filename
+        self.sGroupID = suppliedGroupID
+        self.sArtifactID = suppliedArtifactID
+        self.logger = logging.getLogger("com.freevariable.climbing-nemesis")
         self._parsePom()
     
     def _parsePom(self):
         tree = ET.parse(self.filename)
         project = tree.getroot()
-        logging.getLogger("com.freevariable.climbing-nemesis").debug("parsing POM %s", self.filename)
-        logging.getLogger("com.freevariable.climbing-nemesis").debug("project tag is '%s'", project.tag)
+        self.logger.info("parsing POM %s", self.filename)
+        self.logger.debug("project tag is '%s'", project.tag)
         tagmatch = re.match("[{](.*)[}].*", project.tag)
         namespace = tagmatch and "{%s}" % tagmatch.groups()[0] or ""
-        self.groupID = project.find("./%sgroupId" % namespace).text
+        self.logger.debug("looking for '%s'", ("./%sgroupId" % namespace))
+        groupIDtag = project.find("./%sgroupId" % namespace) 
+        if groupIDtag is None:
+            groupIDtag = project.find("./%sparent/%sgroupId" % (namespace,namespace))
+        
+        versiontag = project.find("./%sversion" % namespace)
+        if versiontag is None:
+            versiontag = project.find("./%sparent/%sversion" % (namespace,namespace))
+        self.logger.debug("group ID tag is '%s'", groupIDtag)
+        self.groupID = groupIDtag.text
         self.artifactID = project.find("./%sartifactId" % namespace).text
-        self.version = project.find("./%sversion" % namespace).text
+        self.version = versiontag.text
         depTrees = project.findall("./%sdependencyManagement/%sdependencies/%sdependency" % (namespace, namespace, namespace))
         self.deps = [Artifact.fromSubtree(depTree, namespace) for depTree in depTrees]
-        self.jarname = re.match(".*JPP-(.*).pom", self.filename).groups()[0]
+        jarmatch = re.match(".*JPP-(.*).pom", self.filename)
+        self.jarname = (jarmatch and jarmatch.groups()[0] or None)
 
-def resolveArtifact(group, artifact, kind="jar"):
+def cn_debug(*args):
+    logging.getLogger("com.freevariable.climbing-nemesis").debug(*args)
+
+def cn_info(*args):
+    logging.getLogger("com.freevariable.climbing-nemesis").info(*args)
+
+def resolveArtifact(group, artifact, pomfile=None, kind="jar"):
     # XXX: some error checking would be the responsible thing to do here
-    [pom] = subprocess.check_output(["xmvn-resolve", "%s:%s:%s" % (group, artifact, kind)]).split()
-    return POM(pom)
+    if pomfile is None:
+        try:
+            [pom] = subprocess.check_output(["xmvn-resolve", "%s:%s:%s" % (group, artifact, kind)]).split()
+            return POM(pom)
+        except:
+            return DummyPOM(group, artifact)
+    else:
+        return POM(pomfile)
 
 def resolveArtifacts(identifiers):
     coords = ["%s:%s:jar" % (group, artifact) for (group, artifact) in identifiers]
     poms =  subprocess.check_output(["xmvn-resolve"] + coords).split()
     return [POM(pom) for pom in poms]
 
-def resolveJar(artifact):
-    return subprocess.check_output(["build-classpath", artifact]).split()[0]
+def resolveJar(group, artifact):
+    [jar] = subprocess.check_output(["xmvn-resolve", "%s:%s:jar:jar" % (group, artifact)]).split()
+    return jar
 
 def makeIvyXmlTree(org, module, revision, status="release", meta={}):
     ivy_module = ET.Element("ivy-module", {"version":"1.0"})
@@ -109,6 +141,7 @@ def main():
     parser.add_argument("--version", metavar="VERSION", type=str, help="version to advertise this artifact as, overriding Maven metadata")
     parser.add_argument("--meta", metavar="K=V", type=str, help="extra metadata to store in ivy.xml", action='append')
     parser.add_argument("--jarfile", metavar="JAR", type=str, help="local jar file (use instead of POM metadata")
+    parser.add_argument("--pomfile", metavar="POM", type=str, help="local pom file (use instead of xmvn-resolved one")
     parser.add_argument("--log", metavar="LEVEL", type=str, help="logging level")
     
     args = parser.parse_args()
@@ -117,9 +150,10 @@ def main():
         print args.log
         logging.basicConfig(level=getattr(logging, args.log.upper()))
     
+    pom = resolveArtifact(args.group, args.artifact, args.pomfile, "jar")
+    
     if args.jarfile is None:
-        pom = resolveArtifact(args.group, args.artifact)
-        jarfile = resolveJar(pom.jarname)
+        jarfile = resolveJar(pom.groupID or args.group, pom.artifactID or args.artifact)
     else:
         jarfile = args.jarfile
     
