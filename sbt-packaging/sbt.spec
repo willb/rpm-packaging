@@ -203,112 +203,112 @@ cp %{SOURCE17} .
 
 cp %{SOURCE128} .
 
-./climbing-nemesis.py /usr/share/java/commons-logging.jar commons-logging commons-logging --version 1.1.1
-./climbing-nemesis.py /usr/share/java/commons-logging.jar commons-logging commons-logging --version 1.0.4
+./climbing-nemesis.py commons-logging commons-logging ivy-local --version 1.1.1
+./climbing-nemesis.py commons-logging commons-logging ivy-local --version 1.0.4
 
-./climbing-nemesis.py /usr/share/java/commons-httpclient.jar commons-httpclient commons-httpclient --version 3.1
+./climbing-nemesis.py commons-httpclient commons-httpclient ivy-local --version 3.1
 
-./climbing-nemesis.py /usr/share/java/jsoup.jar org.jsoup jsoup --version 1.6.1
+./climbing-nemesis.py org.jsoup jsoup ivy-local --version 1.6.1
 
-./climbing-nemesis.py /usr/share/java/args4j.jar args4j args4j --version 2.0.16
+./climbing-nemesis.py args4j args4j ivy-local --version 2.0.16
 
-./climbing-nemesis.py /usr/share/java/stringtemplate.jar org.antlr stringtemplate --version 3.2.1
+./climbing-nemesis.py org.antlr stringtemplate ivy-local --version 3.2.1
 
-./climbing-nemesis.py /usr/share/java/httpcomponents/httpclient.jar org.apache.httpcomponents httpclient --version 4.2.1
+./climbing-nemesis.py org.apache.httpcomponents httpclient ivy-local --version 4.2.1
 
-./climbing-nemesis.py /usr/share/java/httpcomponents/httpclient.jar org.apache.httpcomponents httpclient --version 4.1.3
+./climbing-nemesis.py org.apache.httpcomponents httpclient ivy-local --version 4.1.3
 
-./climbing-nemesis.py /usr/share/java/httpcomponents/httpcore.jar org.apache.httpcomponents httpcore --version 4.1.4
+./climbing-nemesis.py org.apache.httpcomponents httpcore ivy-local --version 4.1.4
 
-./climbing-nemesis.py /usr/share/java/antlr.jar antlr antlr --version 2.7.7
+./climbing-nemesis.py antlr antlr ivy-local --version 2.7.7
 
-./climbing-nemesis.py /usr/share/java/jsch.jar com.jcraft jsch --version 0.1.4841
+./climbing-nemesis.py com.jcraft jsch ivy-local --version 0.1.4841
 
-./climbing-nemesis.py /usr/share/java/tomcat-servlet-3.0-api.jar javax.servlet servlet-api --version 3.0
+./climbing-nemesis.py javax.servlet servlet-api ivy-local --version 3.0
 
 for subpackage in continuation http io security server servlet webapp util xml ; do
-    ./climbing-nemesis.py /usr/share/java/jetty/jetty-$subpackage.jar org.eclipse.jetty jetty-$subpackage --version 8.1.5
+    ./climbing-nemesis.py org.eclipse.jetty jetty-$subpackage ivy-local --version 8.1.5
 done
 
-./climbing-nemesis.py /usr/share/scala/lib/scala-library.jar org.scala-lang scala-library --version %{scala_version}
+./climbing-nemesis.py org.scala-lang scala-library ivy-local --version %{scala_version}
 
-./climbing-nemesis.py /usr/share/scala/lib/scala-compiler.jar org.scala-lang scala-compiler --version %{scala_version}
+./climbing-nemesis.py org.scala-lang scala-compiler ivy-local --version %{scala_version}
 
-./climbing-nemesis.py /usr/share/java/jna.jar net.java.dev.jna jna --version 3.2.3 # we are fibbing about this version number
+./climbing-nemesis.py net.java.dev.jna jna ivy-local --version 3.2.3 # we are fibbing about this version number
 
 # both of these are fake (F18 ships 1.6)
-./climbing-nemesis.py /usr/share/java/commons-codec.jar commons-codec commons-codec --version 1.4
-./climbing-nemesis.py /usr/share/java/commons-codec.jar commons-codec commons-codec --version 1.2
+./climbing-nemesis.py commons-codec commons-codec ivy-local --version 1.4
+./climbing-nemesis.py commons-codec commons-codec ivy-local --version 1.2
 
-./climbing-nemesis.py /usr/share/java/jline.jar jline jline --version 1.0
+./climbing-nemesis.py jline jline ivy-local --version 1.0
 
 # this is bogus (f18 ships 2.2)
-./climbing-nemesis.py /usr/share/java/ivy.jar org.apache.ivy ivy --version 2.3.0
-./climbing-nemesis.py /usr/share/java/ivy.jar org.apache.ivy ivy --version 2.2.0
+./climbing-nemesis.py org.apache.ivy ivy ivy-local --version 2.3.0
+./climbing-nemesis.py org.apache.ivy ivy ivy-local --version 2.2.0
 
 %if %{do_bootstrap}
-./climbing-nemesis.py %{SOURCE32} org.scala-sbt ivy ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE33} org.scala-sbt task-system ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE34} org.scala-sbt compiler-interface-src ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE35} org.scala-sbt compiler-interface-bin ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE36} org.scala-sbt testing ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE37} org.scala-sbt command ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE38} org.scala-sbt test-agent ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE39} org.scala-sbt launcher-interface ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE40} org.scala-sbt run ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE41} org.scala-sbt compiler-ivy-integration ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE42} org.scala-sbt scripted-sbt ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE43} org.scala-sbt launch-test ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE44} org.scala-sbt collections ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE45} org.scala-sbt persist ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE46} org.scala-sbt classfile ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE47} org.scala-sbt control ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE48} org.scala-sbt launcher ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE49} org.scala-sbt apply-macro ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE50} org.scala-sbt datatype-generator ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE51} org.scala-sbt interface ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE52} org.scala-sbt main-settings ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE53} org.scala-sbt incremental-compiler ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE54} org.scala-sbt cache ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE55} org.scala-sbt compiler-integration ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE56} org.scala-sbt api ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE57} org.scala-sbt main ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE58} org.scala-sbt classpath ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE59} org.scala-sbt logging ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE60} org.scala-sbt compile ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE61} org.scala-sbt process ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE62} org.scala-sbt actions ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE63} org.scala-sbt sbt-launch ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE64} org.scala-sbt scripted-plugin ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE65} org.scala-sbt tracking ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE66} org.scala-sbt tasks ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE67} org.scala-sbt completion ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE68} org.scala-sbt cross ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE69} org.scala-sbt relation ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE70} org.scala-sbt io ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE71} org.scala-sbt sbt ivy-local --version %{sbt_version}
-./climbing-nemesis.py %{SOURCE72} org.scala-sbt scripted-framework ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE32} org.scala-sbt ivy ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE33} org.scala-sbt task-system ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE34} org.scala-sbt compiler-interface-src ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE35} org.scala-sbt compiler-interface-bin ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE36} org.scala-sbt testing ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE37} org.scala-sbt command ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE38} org.scala-sbt test-agent ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE39} org.scala-sbt launcher-interface ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE40} org.scala-sbt run ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE41} org.scala-sbt compiler-ivy-integration ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE42} org.scala-sbt scripted-sbt ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE43} org.scala-sbt launch-test ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE44} org.scala-sbt collections ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE45} org.scala-sbt persist ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE46} org.scala-sbt classfile ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE47} org.scala-sbt control ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE48} org.scala-sbt launcher ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE49} org.scala-sbt apply-macro ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE50} org.scala-sbt datatype-generator ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE51} org.scala-sbt interface ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE52} org.scala-sbt main-settings ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE53} org.scala-sbt incremental-compiler ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE54} org.scala-sbt cache ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE55} org.scala-sbt compiler-integration ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE56} org.scala-sbt api ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE57} org.scala-sbt main ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE58} org.scala-sbt classpath ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE59} org.scala-sbt logging ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE60} org.scala-sbt compile ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE61} org.scala-sbt process ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE62} org.scala-sbt actions ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE63} org.scala-sbt sbt-launch ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE64} org.scala-sbt scripted-plugin ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE65} org.scala-sbt tracking ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE66} org.scala-sbt tasks ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE67} org.scala-sbt completion ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE68} org.scala-sbt cross ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE69} org.scala-sbt relation ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE70} org.scala-sbt io ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE71} org.scala-sbt sbt ivy-local --version %{sbt_version}
+./climbing-nemesis.py --jarfile %{SOURCE72} org.scala-sbt scripted-framework ivy-local --version %{sbt_version}
 
 # plugins
 
-./climbing-nemesis.py %{SOURCE73} com.typesafe.sbt sbt-ghpages ivy-local --version %{sbt_ghpages_version} --meta e:scalaVersion=%{scala_version} --meta e:sbtVersion=%{sbt_short_version}
-./climbing-nemesis.py %{SOURCE74} com.typesafe.sbt sbt-site ivy-local --version %{sbt_site_version} --meta e:scalaVersion=%{scala_version} --meta e:sbtVersion=%{sbt_short_version}
-./climbing-nemesis.py %{SOURCE75} com.typesafe.sbt sbt-git ivy-local --version %{sbt_git_version} --meta e:scalaVersion=%{scala_version} --meta e:sbtVersion=%{sbt_short_version}
+./climbing-nemesis.py --jarfile %{SOURCE73} com.typesafe.sbt sbt-ghpages ivy-local --version %{sbt_ghpages_version} --meta e:scalaVersion=%{scala_version} --meta e:sbtVersion=%{sbt_short_version}
+./climbing-nemesis.py --jarfile %{SOURCE74} com.typesafe.sbt sbt-site ivy-local --version %{sbt_site_version} --meta e:scalaVersion=%{scala_version} --meta e:sbtVersion=%{sbt_short_version}
+./climbing-nemesis.py --jarfile %{SOURCE75} com.typesafe.sbt sbt-git ivy-local --version %{sbt_git_version} --meta e:scalaVersion=%{scala_version} --meta e:sbtVersion=%{sbt_short_version}
 
 # SXR
-./climbing-nemesis.py %{SOURCE76} org.scala-tools.sxr sxr ivy-local --version %{sxr_version}
+./climbing-nemesis.py --jarfile %{SOURCE76} org.scala-tools.sxr sxr ivy-local --version %{sxr_version}
 
 # sbinary
-./climbing-nemesis.py %{SOURCE77} org.scala-tools.sbinary sbinary ivy-local --version %{sbinary_version}
+./climbing-nemesis.py --jarfile %{SOURCE77} org.scala-tools.sbinary sbinary ivy-local --version %{sbinary_version}
 
 # scalacheck
-./climbing-nemesis.py %{SOURCE78} org.scalacheck scalacheck ivy-local --version %{scalacheck_version}
+./climbing-nemesis.py --jarfile %{SOURCE78} org.scalacheck scalacheck ivy-local --version %{scalacheck_version}
 
 # specs2
-./climbing-nemesis.py %{SOURCE79} org.specs2 specs2 ivy-local --version %{specs2_version}
+./climbing-nemesis.py --jarfile %{SOURCE79} org.specs2 specs2 ivy-local --version %{specs2_version}
 
 # test-interface
-./climbing-nemesis.py %{SOURCE80} org.scala-sbt test-interface ivy-local --version %{testinterface_version}
+./climbing-nemesis.py --jarfile %{SOURCE80} org.scala-sbt test-interface ivy-local --version %{testinterface_version}
 
 %else
 # If we aren't bootstrapping, copy installed jars into local ivy cache
