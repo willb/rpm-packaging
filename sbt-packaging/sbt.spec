@@ -61,6 +61,10 @@ Source8:        https://github.com/sbt/test-interface/archive/v%{testinterface_v
 Source16:       https://raw.github.com/willb/climbing-nemesis/master/climbing-nemesis.py
 Source17:       https://raw.github.com/willb/sbt-packaging/master/sbt.boot.properties
 
+# Ivy POM
+Source18:       http://repo1.maven.org/maven2/org/apache/ivy/ivy/2.3.0/ivy-2.3.0.pom
+
+
 %if %{do_bootstrap}
 # include bootstrap libraries
 
@@ -214,11 +218,11 @@ cp %{SOURCE128} .
 
 ./climbing-nemesis.py org.antlr stringtemplate ivy-local --version 3.2.1
 
-./climbing-nemesis.py org.apache.httpcomponents httpclient ivy-local --version 4.2.1
+# NB:  omit the --jarfile here once we can get climbing-nemesis to work in these cases
+./climbing-nemesis.py org.apache.httpcomponents httpclient ivy-local --version 4.2.1 --jarfile %{_javadir}/httpcomponents/httpclient.jar 
+./climbing-nemesis.py org.apache.httpcomponents httpclient ivy-local --version 4.1.3 --jarfile %{_javadir}/httpcomponents/httpclient.jar
 
-./climbing-nemesis.py org.apache.httpcomponents httpclient ivy-local --version 4.1.3
-
-./climbing-nemesis.py org.apache.httpcomponents httpcore ivy-local --version 4.1.4
+./climbing-nemesis.py org.apache.httpcomponents httpcore ivy-local --version 4.1.4 --jarfile %{_javadir}/httpcomponents/httpcore.jar
 
 ./climbing-nemesis.py antlr antlr ivy-local --version 2.7.7
 
@@ -227,7 +231,7 @@ cp %{SOURCE128} .
 ./climbing-nemesis.py javax.servlet servlet-api ivy-local --version 3.0
 
 for subpackage in continuation http io security server servlet webapp util xml ; do
-    ./climbing-nemesis.py org.eclipse.jetty jetty-$subpackage ivy-local --version 8.1.5
+    ./climbing-nemesis.py org.eclipse.jetty jetty-$subpackage ivy-local --version 8.1.5 --jarfile %{_javadir}/jetty/jetty-${subpackage}.jar
 done
 
 ./climbing-nemesis.py org.scala-lang scala-library ivy-local --version %{scala_version}
@@ -242,9 +246,9 @@ done
 
 ./climbing-nemesis.py jline jline ivy-local --version 1.0
 
-# this is bogus (f18 ships 2.2)
-./climbing-nemesis.py org.apache.ivy ivy ivy-local --version 2.3.0
-./climbing-nemesis.py org.apache.ivy ivy ivy-local --version 2.2.0
+# this is bogus (f18 ships 2.2; f19 ships 2.3)
+./climbing-nemesis.py org.apache.ivy ivy ivy-local --version 2.3.0 --pomfile %{SOURCE18} --jarfile %{_javadir}/ivy.jar
+./climbing-nemesis.py org.apache.ivy ivy ivy-local --version 2.2.0 --pomfile %{SOURCE18} --jarfile %{_javadir}/ivy.jar
 
 %if %{do_bootstrap}
 ./climbing-nemesis.py --jarfile %{SOURCE32} org.scala-sbt ivy ivy-local --version %{sbt_version}
