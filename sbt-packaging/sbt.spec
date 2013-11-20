@@ -2,11 +2,11 @@
 %global pkg_rel 1
 %global scala_version 2.10.3
 %global scala_short_version 2.10
-%global sbt_bootstrap_version 0.13.0
+%global sbt_bootstrap_version 0.13.1-RC3
 %global sbt_major 0
 %global sbt_minor 13
 %global sbt_patch 1
-%global sbt_build -RC2
+%global sbt_build -RC3
 %global sbt_short_version %{sbt_major}.%{sbt_minor}
 %global sbt_version %{sbt_major}.%{sbt_minor}.%{sbt_patch}
 %global typesafe_repo http://repo.typesafe.com/typesafe/ivy-releases
@@ -33,6 +33,8 @@ Summary:        simple build tool for Scala and Java projects
 License:        BSD
 URL:            http://www.scala-sbt.org
 Source0:        https://github.com/sbt/sbt/archive/v%{version}%{sbt_build}.tar.gz
+
+Patch0:         sbt-scala-0.13.1-RC3.patch 
 
 # sbt-ghpages plugin
 Source1:        https://github.com/sbt/sbt-ghpages/archive/v%{sbt_ghpages_version}.tar.gz
@@ -204,6 +206,8 @@ sbt is the simple build tool for Scala and Java projects.
 %prep
 %setup -q -n %{name}-%{sbt_version}%{sbt_build}
 
+%patch0 -p1
+
 cp %{SOURCE16} .
 chmod 755 climbing-nemesis.py
 
@@ -215,6 +219,8 @@ sed -i -e 's/0.7.1/0.6.2/g' project/p.sbt
 sed -i -e 's/FEDORA_SCALA_VERSION/%{scala_version}/g' sbt.boot.properties
 sed -i -e 's/["]2[.]10[.]2["]/\"2.10.3\"/g' $(find . -name \*.sbt) $(find . -name \*.xml)
 sed -i -e 's/["]2[.]10[.]2-RC2["]/\"2.10.3\"/g' $(find . -name \*.sbt)
+
+sed -i -e 's/0.13.0/%{sbt_bootstrap_version}/g' project/build.properties
 
 ./climbing-nemesis.py commons-logging commons-logging ivy-local --version 1.1.1
 ./climbing-nemesis.py commons-logging commons-logging ivy-local --version 1.0.4
@@ -337,6 +343,8 @@ done
 sed -i -e 's/["]2[.]10[.]2["]/\"2.10.3\"/g' $(find . -name \*.xml)
 
 %build
+export SCALA_HOME=%{_javadir}/scala
+
 java -Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -jar -Dsbt.boot.properties=sbt.boot.properties sbt-launch.jar
 
 %install
