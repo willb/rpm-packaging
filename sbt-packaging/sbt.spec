@@ -347,6 +347,17 @@ sed -i -e 's/["]2[.]10[.]2["]/\"2.10.3\"/g' $(find . -name \*.xml)
 %build
 export SCALA_HOME=%{_javadir}/scala
 
+mkdir -p sbt-boot-dir/scala-%{scala_version}/org.scala-sbt/sbt/%{sbt_bootstrap_version}/
+mkdir -p sbt-boot-dir/scala-%{scala_version}/lib
+
+for jar in $(find ivy-local/org/scala-sbt/ -name \*.jar) ; do 
+    cp $jar sbt-boot-dir/scala-%{scala_version}/org.scala-sbt/sbt/%{sbt_bootstrap_version}/
+done
+
+for jar in $(find ivy-local/ -name \*.jar | grep -v org/scala-sbt) ; do 
+    cp $jar sbt-boot-dir/scala-%{scala_version}/lib
+done
+
 java -Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -jar -Dsbt.boot.properties=sbt.boot.properties sbt-launch.jar
 
 %install
