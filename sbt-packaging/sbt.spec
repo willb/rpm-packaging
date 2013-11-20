@@ -245,9 +245,6 @@ done
 ./climbing-nemesis.py org.scala-lang scala-compiler ivy-local --version %{scala_version}
 ./climbing-nemesis.py org.scala-lang scala-reflect ivy-local --version %{scala_version}
 
-./climbing-nemesis.py org.scala-lang scala-library ivy-local --version 2.10.2
-./climbing-nemesis.py org.scala-lang scala-compiler ivy-local --version 2.10.2
-
 ./climbing-nemesis.py net.java.dev.jna jna ivy-local --version 3.2.3 # we are fibbing about this version number
 
 # both of these are fake (F18 ships 1.6)
