@@ -1,0 +1,10 @@
+--- a/project/Sbt.scala	2013-11-20 11:38:31.023136981 -0600
++++ b/project/Sbt.scala	2013-11-20 11:37:08.130872746 -0600
+@@ -15,6 +15,7 @@
+ 	def buildSettings = Seq(
+ 		organization := "org.scala-sbt",
+ 		version := "0.13.1-RC3",
++		scalaHome := "/usr/share/java/scala",
+ 		publishArtifact in packageDoc := false,
+ 		scalaVersion := "2.10.3",
+ 		publishMavenStyle := false,
