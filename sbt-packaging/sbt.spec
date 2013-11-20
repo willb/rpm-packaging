@@ -263,7 +263,8 @@ done
 ./climbing-nemesis.py commons-codec commons-codec ivy-local --version 1.4
 ./climbing-nemesis.py commons-codec commons-codec ivy-local --version 1.2
 
-./climbing-nemesis.py jline jline ivy-local --version 1.0
+./climbing-nemesis.py jline jline ivy-local --version 2.10 --jarfile %{_javadir}/jline2-2.10.jar
+./climbing-nemesis.py org.fusesource.jansi jansi ivy-local --version 1.9
 
 # this is bogus (f18 ships 2.2; f19 ships 2.3)
 ./climbing-nemesis.py org.apache.ivy ivy ivy-local --version 2.3.0 --pomfile %{SOURCE18} --jarfile %{_javadir}/ivy.jar
