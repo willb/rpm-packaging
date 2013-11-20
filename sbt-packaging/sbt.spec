@@ -16,7 +16,8 @@
 
 %global sbt_ghpages_version 0.5.1
 %global sbt_git_version 0.6.3
-%global sbt_site_version 0.6.2
+%global sbt_site_version 0.7.0-M1
+%global sbt_site_jar_version 0.7.1
 
 %global sxr_version 0.3.0
 %global sbinary_version 0.4.2
@@ -155,7 +156,7 @@ Source72:       %sbt_ivy_artifact scripted-framework
 
 # sbt plugins
 Source73:       http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/com.typesafe.sbt/sbt-ghpages/scala_%{scala_short_version}/sbt_%{sbt_short_version}/%{sbt_ghpages_version}/jars/sbt-ghpages.jar
-Source74:       http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/com.typesafe.sbt/sbt-site/scala_%{scala_short_version}/sbt_%{sbt_short_version}/%{sbt_site_version}/jars/sbt-site.jar
+Source74:       http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/com.typesafe.sbt/sbt-site/scala_%{scala_short_version}/sbt_%{sbt_short_version}/%{sbt_site_jar_version}/jars/sbt-site.jar
 Source75:       http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/com.typesafe.sbt/sbt-git/scala_%{scala_short_version}/sbt_%{sbt_short_version}/%{sbt_git_version}/jars/sbt-git.jar
 
 # sxr
@@ -221,6 +222,9 @@ sed -i -e 's/["]2[.]10[.]2["]/\"2.10.3\"/g' $(find . -name \*.sbt) $(find . -nam
 sed -i -e 's/["]2[.]10[.]2-RC2["]/\"2.10.3\"/g' $(find . -name \*.sbt)
 
 sed -i -e 's/0.13.0/%{sbt_bootstrap_version}/g' project/build.properties
+
+mkdir -p sbt-boot-dir/scala-%{scala_version}/lib
+cp %{_javadir}/scala/scala-reflect.jar sbt-boot-dir/scala-%{scala_version}/lib
 
 ./climbing-nemesis.py commons-logging commons-logging ivy-local --version 1.1.1
 ./climbing-nemesis.py commons-logging commons-logging ivy-local --version 1.0.4
