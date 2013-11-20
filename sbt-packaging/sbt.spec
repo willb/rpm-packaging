@@ -223,9 +223,6 @@ sed -i -e 's/["]2[.]10[.]2-RC2["]/\"2.10.3\"/g' $(find . -name \*.sbt)
 
 sed -i -e 's/0.13.0/%{sbt_bootstrap_version}/g' project/build.properties
 
-mkdir -p sbt-boot-dir/scala-%{scala_version}/lib
-cp %{_javadir}/scala/scala-reflect.jar sbt-boot-dir/scala-%{scala_version}/lib
-
 ./climbing-nemesis.py commons-logging commons-logging ivy-local --version 1.1.1
 ./climbing-nemesis.py commons-logging commons-logging ivy-local --version 1.0.4
 
