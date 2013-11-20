@@ -279,7 +279,7 @@ done
 ./climbing-nemesis.py --jarfile %{SOURCE40} org.scala-sbt run ivy-local --version %{sbt_bootstrap_version}
 ./climbing-nemesis.py --jarfile %{SOURCE41} org.scala-sbt compiler-ivy-integration ivy-local --version %{sbt_bootstrap_version}
 ./climbing-nemesis.py --jarfile %{SOURCE42} org.scala-sbt scripted-sbt ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE43} org.scala-sbt launch-test ivy-local --version %{sbt_bootstrap_version}
+# ./climbing-nemesis.py --jarfile %{SOURCE43} org.scala-sbt launch-test ivy-local --version %{sbt_bootstrap_version}
 ./climbing-nemesis.py --jarfile %{SOURCE44} org.scala-sbt collections ivy-local --version %{sbt_bootstrap_version}
 ./climbing-nemesis.py --jarfile %{SOURCE45} org.scala-sbt persist ivy-local --version %{sbt_bootstrap_version}
 ./climbing-nemesis.py --jarfile %{SOURCE46} org.scala-sbt classfile ivy-local --version %{sbt_bootstrap_version}
