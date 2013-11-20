@@ -204,14 +204,15 @@ sbt is the simple build tool for Scala and Java projects.
 %prep
 %setup -q -n %{name}-%{sbt_version}%{sbt_build}
 
-sed -i -e 's/0.7.1/0.6.2/g' project/p.sbt
-
 cp %{SOURCE16} .
 chmod 755 climbing-nemesis.py
 
 cp %{SOURCE17} .
 
 cp %{SOURCE128} .
+
+sed -i -e 's/0.7.1/0.6.2/g' project/p.sbt
+sed -i -e 's/FEDORA_SCALA_VERSION/%{scala_version}/g' sbt.boot.properties
 
 ./climbing-nemesis.py commons-logging commons-logging ivy-local --version 1.1.1
 ./climbing-nemesis.py commons-logging commons-logging ivy-local --version 1.0.4
@@ -242,6 +243,7 @@ done
 
 ./climbing-nemesis.py org.scala-lang scala-library ivy-local --version %{scala_version}
 ./climbing-nemesis.py org.scala-lang scala-compiler ivy-local --version %{scala_version}
+./climbing-nemesis.py org.scala-lang scala-reflect ivy-local --version %{scala_version}
 
 ./climbing-nemesis.py org.scala-lang scala-library ivy-local --version 2.10.2
 ./climbing-nemesis.py org.scala-lang scala-compiler ivy-local --version 2.10.2
