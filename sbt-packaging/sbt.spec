@@ -197,6 +197,8 @@ Source161:      %sbt_ivy_descriptor process
 
 Source62:       %sbt_ivy_artifact actions
 
+Source162:      %sbt_ivy_descriptor actions
+
 Source63:       %sbt_ivy_artifact sbt-launch 
 
 Source163:      %sbt_ivy_descriptor sbt-launch
