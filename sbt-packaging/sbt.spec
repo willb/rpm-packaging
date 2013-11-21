@@ -250,6 +250,7 @@ for subpackage in continuation http io security server servlet webapp util xml ;
     ./climbing-nemesis.py org.eclipse.jetty jetty-$subpackage ivy-local --version 8.1.5 --jarfile %{_javadir}/jetty/jetty-${subpackage}.jar
 done
 
+# scala compiler; nb; we may need to treat the compiler specially to remove the spurious jline dependency
 ./climbing-nemesis.py org.scala-lang scala-library ivy-local --version %{scala_version}
 ./climbing-nemesis.py org.scala-lang scala-compiler ivy-local --version %{scala_version}
 ./climbing-nemesis.py org.scala-lang scala-reflect ivy-local --version %{scala_version}
@@ -350,13 +351,13 @@ export SCALA_HOME=%{_javadir}/scala
 mkdir -p sbt-boot-dir/scala-%{scala_version}/org.scala-sbt/sbt/%{sbt_bootstrap_version}/
 mkdir -p sbt-boot-dir/scala-%{scala_version}/lib
 
-for jar in $(find ivy-local/org/scala-sbt/ -name \*.jar) ; do 
-    cp $jar sbt-boot-dir/scala-%{scala_version}/org.scala-sbt/sbt/%{sbt_bootstrap_version}/
-done
+# for jar in $(find ivy-local/org/scala-sbt/ -name \*.jar) ; do 
+#     cp $jar sbt-boot-dir/scala-%{scala_version}/org.scala-sbt/sbt/%{sbt_bootstrap_version}/
+# done
 
-for jar in $(find ivy-local/ -name \*.jar | grep -v org/scala-sbt) ; do 
-    cp $jar sbt-boot-dir/scala-%{scala_version}/lib
-done
+# for jar in $(find ivy-local/ -name \*.jar | grep -v org/scala-sbt) ; do 
+#   cp $jar sbt-boot-dir/scala-%{scala_version}/lib
+# done
 
 java -Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -jar -Dsbt.boot.properties=sbt.boot.properties sbt-launch.jar
 
