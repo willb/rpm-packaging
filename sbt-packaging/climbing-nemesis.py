@@ -13,6 +13,7 @@ from os.path import join as pathjoin
 from os import makedirs
 from os import symlink
 from os import remove as rmfile
+from shutil import copyfile
 
 class Artifact(object):
     def __init__(self, a, g, v):
@@ -124,7 +125,7 @@ def writeIvyXml(org, module, revision, status="release", fileobj=None, meta={}, 
 def ivyXmlAsString(org, module, revision, status, meta={}, deps=[]):
     return writeIvyXml(org, module, revision, status, meta=meta, deps=deps).getvalue()
 
-def placeArtifact(artifact_file, repo_dirname, org, module, revision, status="release", meta={}, deps=[]):
+def placeArtifact(artifact_file, repo_dirname, org, module, revision, status="release", meta={}, deps=[], supplied_ivy_file=None):
     repo_dir = realpath(repo_dirname)
     artifact_dir = pathjoin(*[repo_dir] + [org] + [module, revision])
     ivyxml_path = pathjoin(artifact_dir, "ivy.xml")
@@ -134,7 +135,10 @@ def placeArtifact(artifact_file, repo_dirname, org, module, revision, status="re
         makedirs(artifact_dir)
     
     ivyxml_file = open(ivyxml_path, "w")
-    writeIvyXml(org, module, revision, status, ivyxml_file, meta=meta, deps=deps)
+    if supplied_ivy_file is None:
+        writeIvyXml(org, module, revision, status, ivyxml_file, meta=meta, deps=deps)
+    else:
+        copyfile(supplied_ivy_file, ivyxml_path)
     
     if pathexists(artifact_repo_path):
         rmfile(artifact_repo_path)
@@ -151,8 +155,7 @@ def main():
     parser.add_argument("--jarfile", metavar="JAR", type=str, help="local jar file (use instead of POM metadata")
     parser.add_argument("--pomfile", metavar="POM", type=str, help="local pom file (use instead of xmvn-resolved one")
     parser.add_argument("--log", metavar="LEVEL", type=str, help="logging level")
-    # parser.add_argument("--depmunge", metavar="OLD=NEW", type=str, help="replace dependency OLD with NEW")
-    
+    parser.add_argument("--ivyfile", metavar="IVY", type=str, help="supplied Ivy file (use instead of POM metadata)")
     args = parser.parse_args()
     
     if args.log is not None:
@@ -171,10 +174,7 @@ def main():
     meta = dict([kv.split("=") for kv in (args.meta or [])])
     cn_debug("meta is %r" % meta)
     
-    # deps=pom.deps
-    # if args.depmunge is not None:
-    #    pass
-    placeArtifact(jarfile, args.repodir, pom.groupID, pom.artifactID, version, meta=meta, deps=pom.deps)
+    placeArtifact(jarfile, args.repodir, pom.groupID, pom.artifactID, version, meta=meta, deps=pom.deps, supplied_ivy_file=args.ivyfile)
 
 if __name__ == "__main__":
     main()
