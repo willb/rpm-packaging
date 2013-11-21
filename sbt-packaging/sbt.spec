@@ -76,86 +76,165 @@ Source18:       http://repo1.maven.org/maven2/org/apache/ivy/ivy/2.3.0/ivy-2.3.0
 # include bootstrap libraries
 
 Source32:       %sbt_ivy_artifact ivy 
+
 Source132:      %sbt_ivy_descriptor ivy
+
 Source33:       %sbt_ivy_artifact task-system 
+
 Source133:      %sbt_ivy_descriptor task-system
+
 Source34:       %generic_ivy_artifact %{typesafe_repo} org.scala-sbt compiler-interface %{sbt_bootstrap_version} compiler-interface-src
+
 Source134:      %generic_ivy_descriptor %{typesafe_repo} org.scala-sbt compiler-interface %{sbt_bootstrap_version} compiler-interface-src
+
 Source35:       %generic_ivy_artifact %{typesafe_repo} org.scala-sbt compiler-interface %{sbt_bootstrap_version} compiler-interface-bin
+
 Source135:       %generic_ivy_descriptor %{typesafe_repo} org.scala-sbt compiler-interface %{sbt_bootstrap_version} compiler-interface-bin
+
 Source36:       %sbt_ivy_artifact testing 
+
 Source136:      %sbt_ivy_descriptor testing
+
 Source37:       %sbt_ivy_artifact command 
+
 Source137:      %sbt_ivy_descriptor command
+
 Source38:       %sbt_ivy_artifact test-agent 
+
 Source138:      %sbt_ivy_descriptor test-agent
+
 Source39:       %sbt_ivy_artifact launcher-interface 
+
 Source139:      %sbt_ivy_descriptor launcher-interface
+
 Source40:       %sbt_ivy_artifact run 
+
 Source140:      %sbt_ivy_descriptor run
+
 Source41:       %sbt_ivy_artifact compiler-ivy-integration 
+
 Source141:      %sbt_ivy_descriptor compiler-ivy-integration
+
 Source42:       %sbt_ivy_artifact scripted-sbt 
+
 Source142:      %sbt_ivy_descriptor scripted-sbt
+
 Source43:       %sbt_ivy_artifact launch-test 
+
 Source143:      %sbt_ivy_descriptor launch-test
+
 Source44:       %sbt_ivy_artifact collections 
+
 Source144:      %sbt_ivy_descriptor collections
+
 Source45:       %sbt_ivy_artifact persist 
+
 Source145:      %sbt_ivy_descriptor persist
+
 Source46:       %sbt_ivy_artifact classfile 
+
 Source146:      %sbt_ivy_descriptor classfile
+
 Source47:       %sbt_ivy_artifact control 
+
 Source147:      %sbt_ivy_descriptor control
+
 Source48:       %sbt_ivy_artifact launcher 
+
 Source148:      %sbt_ivy_descriptor launcher
+
 Source49:       %sbt_ivy_artifact apply-macro 
+
 Source149:      %sbt_ivy_descriptor apply-macro
+
 Source50:       %sbt_ivy_artifact datatype-generator 
+
 Source150:      %sbt_ivy_descriptor datatype-generator
+
 Source51:       %sbt_ivy_artifact interface 
+
 Source151:      %sbt_ivy_descriptor interface
+
 Source52:       %sbt_ivy_artifact main-settings 
+
 Source152:      %sbt_ivy_descriptor main-settings
+
 Source53:       %sbt_ivy_artifact incremental-compiler 
+
 Source153:      %sbt_ivy_descriptor incremental-compiler
+
 Source54:       %sbt_ivy_artifact cache 
+
 Source154:      %sbt_ivy_descriptor cache
+
 Source55:       %sbt_ivy_artifact compiler-integration 
+
 Source155:      %sbt_ivy_descriptor compiler-integration
+
 Source56:       %sbt_ivy_artifact api 
+
 Source156:      %sbt_ivy_descriptor api
+
 Source57:       %sbt_ivy_artifact main 
+
 Source157:      %sbt_ivy_descriptor main
+
 Source58:       %sbt_ivy_artifact classpath 
+
 Source158:      %sbt_ivy_descriptor classpath
+
 Source59:       %sbt_ivy_artifact logging 
+
 Source159:      %sbt_ivy_descriptor logging
+
 Source60:       %sbt_ivy_artifact compile 
+
 Source160:      %sbt_ivy_descriptor compile
+
 Source61:       %sbt_ivy_artifact process 
+
 Source161:      %sbt_ivy_descriptor process
+
 Source62:       %sbt_ivy_artifact actions
 
 Source63:       %sbt_ivy_artifact sbt-launch 
+
 Source163:      %sbt_ivy_descriptor sbt-launch
+
 Source64:       %sbt_ivy_artifact scripted-plugin 
+
 Source164:      %sbt_ivy_descriptor scripted-plugin
+
 Source65:       %sbt_ivy_artifact tracking 
+
 Source165:      %sbt_ivy_descriptor tracking
+
 Source66:       %sbt_ivy_artifact tasks 
+
 Source166:      %sbt_ivy_descriptor tasks
+
 Source67:       %sbt_ivy_artifact completion 
+
 Source167:      %sbt_ivy_descriptor completion
+
 Source68:       %sbt_ivy_artifact cross 
+
 Source168:      %sbt_ivy_descriptor cross
+
 Source69:       %sbt_ivy_artifact relation 
+
 Source169:      %sbt_ivy_descriptor relation
+
 Source70:       %sbt_ivy_artifact io 
+
 Source170:      %sbt_ivy_descriptor io
+
 Source71:       %sbt_ivy_artifact sbt 
+
 Source171:      %sbt_ivy_descriptor sbt
+
 Source72:       %sbt_ivy_artifact scripted-framework 
+
 Source172:      %sbt_ivy_descriptor scripted-framework
 
 # sbt plugins
