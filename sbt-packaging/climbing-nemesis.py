@@ -25,7 +25,9 @@ class Artifact(object):
         a = t.find("./%sartifactId" % ns).text
         g = t.find("./%sgroupId" % ns).text
         v = t.find("./%sversion" % ns).text
-        return k(a, g, v)
+        result = k(a, g, v)
+        print(result)
+        return result
     
     def __repr__(self):
         return "%s:%s:%s" % (self.group, self.artifact, self.version)
@@ -35,6 +37,7 @@ class DummyPOM(object):
         self.groupID = groupID
         self.artifactID = artifactID
         self.version = version
+        self.deps = []
 
 class POM(object):
     def __init__(self, filename, suppliedGroupID=None, suppliedArtifactID=None):
@@ -42,6 +45,7 @@ class POM(object):
         self.sGroupID = suppliedGroupID
         self.sArtifactID = suppliedArtifactID
         self.logger = logging.getLogger("com.freevariable.climbing-nemesis")
+        self.deps = []
         self._parsePom()
     
     def _parsePom(self):
@@ -63,8 +67,8 @@ class POM(object):
         self.groupID = groupIDtag.text
         self.artifactID = project.find("./%sartifactId" % namespace).text
         self.version = versiontag.text
-        depTrees = project.findall("./%sdependencyManagement/%sdependencies/%sdependency" % (namespace, namespace, namespace))
-        self.deps = [Artifact.fromSubtree(depTree, namespace) for depTree in depTrees]
+        depTrees = project.findall(".//%sdependencies/%sdependency" % (namespace, namespace))
+        self.deps = [Artifact.fromSubtree(depTree, namespace) for depTree in depTrees if len(depTree.findall("./optional")) == 0]
         jarmatch = re.match(".*JPP-(.*).pom", self.filename)
         self.jarname = (jarmatch and jarmatch.groups()[0] or None)
 
@@ -94,8 +98,8 @@ def resolveJar(group, artifact):
     [jar] = subprocess.check_output(["xmvn-resolve", "%s:%s:jar:jar" % (group, artifact)]).split()
     return jar
 
-def makeIvyXmlTree(org, module, revision, status="release", meta={}):
-    ivy_module = ET.Element("ivy-module", {"version":"2.0", "xmlns:e":"http://ant.apache.org/ivy/extra"})
+def makeIvyXmlTree(org, module, revision, status="release", meta={}, deps=[]):
+    ivy_module = ET.Element("ivy-module", {"version":"1.0", "xmlns:e":"http://ant.apache.org/ivy/extra"})
     info = ET.SubElement(ivy_module, "info", dict({"organisation":org, "module":module, "revision":revision, "status":status}.items() + meta.items()))
     info.text = " " # ensure a close tag
     confs = ET.SubElement(ivy_module, "configurations")
@@ -103,22 +107,26 @@ def makeIvyXmlTree(org, module, revision, status="release", meta={}):
         ET.SubElement(confs, "conf", {"name":conf})
     pubs = ET.SubElement(ivy_module, "publications")
     ET.SubElement(pubs, "artifact", {"name":module, "type":"jar"})
-
+    if len(deps) > 0:
+        deptree = ET.SubElement(ivy_module, "dependencies")
+        for dep in deps:
+            ET.SubElement(deptree, "dependency", {"org":dep.group, "name":dep.artifact, "rev":dep.version})
     return ET.ElementTree(ivy_module)
 
-def writeIvyXml(org, module, revision, status="release", fileobj=None, meta={}):
+def writeIvyXml(org, module, revision, status="release", fileobj=None, meta={}, deps=[]):
+    # XXX: handle deps!
     if fileobj is None:
         fileobj = StringIO.StringIO()
-    tree = makeIvyXmlTree(org, module, revision, status, meta)
+    tree = makeIvyXmlTree(org, module, revision, status, meta=meta, deps=deps)
     tree.write(fileobj, xml_declaration=True)
     return fileobj
 
-def ivyXmlAsString(org, module, revision, status, meta={}):
-    return writeIvyXml(org, module, revision, status, meta=meta).getvalue()
+def ivyXmlAsString(org, module, revision, status, meta={}, deps=[]):
+    return writeIvyXml(org, module, revision, status, meta=meta, deps=deps).getvalue()
 
-def placeArtifact(artifact_file, repo_dirname, org, module, revision, status="release", meta={}):
+def placeArtifact(artifact_file, repo_dirname, org, module, revision, status="release", meta={}, deps=[]):
     repo_dir = realpath(repo_dirname)
-    artifact_dir = pathjoin(*[repo_dir] + org.split(".") + [module, revision])
+    artifact_dir = pathjoin(*[repo_dir] + [org] + [module, revision])
     ivyxml_path = pathjoin(artifact_dir, "ivy.xml")
     artifact_repo_path = pathjoin(artifact_dir, "%s-%s.jar" % (module, revision))
     
@@ -126,7 +134,7 @@ def placeArtifact(artifact_file, repo_dirname, org, module, revision, status="re
         makedirs(artifact_dir)
     
     ivyxml_file = open(ivyxml_path, "w")
-    writeIvyXml(org, module, revision, status, ivyxml_file, meta)
+    writeIvyXml(org, module, revision, status, ivyxml_file, meta=meta, deps=deps)
     
     if pathexists(artifact_repo_path):
         rmfile(artifact_repo_path)
@@ -143,6 +151,7 @@ def main():
     parser.add_argument("--jarfile", metavar="JAR", type=str, help="local jar file (use instead of POM metadata")
     parser.add_argument("--pomfile", metavar="POM", type=str, help="local pom file (use instead of xmvn-resolved one")
     parser.add_argument("--log", metavar="LEVEL", type=str, help="logging level")
+    # parser.add_argument("--depmunge", metavar="OLD=NEW", type=str, help="replace dependency OLD with NEW")
     
     args = parser.parse_args()
     
@@ -162,7 +171,10 @@ def main():
     meta = dict([kv.split("=") for kv in (args.meta or [])])
     cn_debug("meta is %r" % meta)
     
-    placeArtifact(jarfile, args.repodir, pom.groupID, pom.artifactID, version, meta=meta)
+    # deps=pom.deps
+    # if args.depmunge is not None:
+    #    pass
+    placeArtifact(jarfile, args.repodir, pom.groupID, pom.artifactID, version, meta=meta, deps=pom.deps)
 
 if __name__ == "__main__":
     main()
