@@ -443,7 +443,7 @@ done
 
 ./climbing-nemesis.py org.bouncycastle bcprov-jdk16 ivy-local --version 1.46
 
-./climbing-nemesis.py org.apache.mina mina-core 2.0.7 --version 1.46
+./climbing-nemesis.py org.apache.mina mina-core ivy-local --version 2.0.7 --ignore mina-core
 
 # XXX
 
@@ -458,14 +458,13 @@ done
 # ./climbing-nemesis.py org.bouncycastle bcprov-jdk14 ivy-local --version 1.45
 ./climbing-nemesis.py org.apache.httpcomponents httpclient ivy-local --version 4.2.3
 ./climbing-nemesis.py org.apache.httpcomponents httpcore ivy-local --version 4.2.3
-./climbing-nemesis.py org.apache.mina mina-core ivy-local --version 2.0.7
 ./climbing-nemesis.py org.apache.tomcat tomcat-coyote ivy-local --version 7.0.40
 ./climbing-nemesis.py com.jcraft jzlib ivy-local --version 1.1.1
 ./climbing-nemesis.py org.springframework spring-context ivy-local --version 3.0.6.RELEASE
-./climbing-nemesis.py net.sf.jpam jpam ivy-local --version 1.1
-./climbing-nemesis.py ch.ethz.ganymed ganymed-ssh2 ivy-local --version build210
-./climbing-nemesis.py org.apache.maven.wagon wagon-ssh-common-test ivy-local --version 2.4
-./climbing-nemesis.py org.apache.maven.wagon wagon-ssh-common ivy-local --version 2.4
+# ./climbing-nemesis.py net.sf.jpam jpam ivy-local --version 1.1
+./climbing-nemesis.py ch.ethz.ganymed ganymed-ssh2 ivy-local --version build210 --jarfile %{_javadir}/ganymed-ssh2.jar
+# ./climbing-nemesis.py org.apache.maven.wagon wagon-ssh-common-test ivy-local --version 2.4
+./climbing-nemesis.py org.apache.maven.wagon wagon-ssh-common ivy-local --version 2.4 --ignore wagon-ssh-common
 ./climbing-nemesis.py org.codehaus.plexus plexus-component-api ivy-local --version 1.0-alpha-15
 ./climbing-nemesis.py org.codehaus.plexus plexus-component-annotations ivy-local --version 1.5.5
 ./climbing-nemesis.py org.codehaus.plexus plexus-component-metadata ivy-local --version 1.5.5
@@ -473,9 +472,9 @@ done
 ./climbing-nemesis.py org.apache.xbean xbean-reflect ivy-local --version 3.4
 ./climbing-nemesis.py com.thoughtworks.qdox qdox ivy-local --version 1.9.2
 ./climbing-nemesis.py jdom jdom ivy-local --version 1.0
-./climbing-nemesis.py org.apache.maven maven-plugin-api ivy-local --version 2.0.9
-./climbing-nemesis.py org.apache.maven maven-model ivy-local --version 2.0.9
-./climbing-nemesis.py org.apache.maven maven-project ivy-local --version 2.0.9
+./climbing-nemesis.py org.apache.maven maven-plugin-api ivy-local --version 2.0.9 --ignore maven-plugin-api
+./climbing-nemesis.py org.apache.maven maven-model ivy-local --version 2.0.9 --ignore maven-model
+./climbing-nemesis.py org.apache.maven maven-project ivy-local --version 2.0.9 --ignore maven-project
 ./climbing-nemesis.py com.google.collections google-collections ivy-local --version 1.0
 # ./climbing-nemesis.py org.mortbay.jetty jetty ivy-local --version 6.1.12
 # ./climbing-nemesis.py org.mortbay.jetty jetty-client ivy-local --version 6.1.12
