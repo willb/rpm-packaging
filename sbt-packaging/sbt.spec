@@ -325,13 +325,13 @@ sed -i -e 's/["]2[.]10[.]2-RC2["]/\"2.10.3\"/g' $(find . -name \*.sbt)
 
 sed -i -e 's/0.13.0/%{sbt_bootstrap_version}/g' project/build.properties
 
-./climbing-nemesis.py commons-logging commons-logging ivy-local --version 1.1.1
+#T ./climbing-nemesis.py commons-logging commons-logging ivy-local --version 1.1.1
 ./climbing-nemesis.py commons-logging commons-logging ivy-local --version 1.0.4
 
 ./climbing-nemesis.py commons-httpclient commons-httpclient ivy-local --version 3.1
 ./climbing-nemesis.py commons-httpclient commons-httpclient ivy-local --version 3.0
 
-./climbing-nemesis.py commons-lang commons-lang ivy-local --version 2.6
+#T ./climbing-nemesis.py commons-lang commons-lang ivy-local --version 2.6
 
 ./climbing-nemesis.py org.jsoup jsoup ivy-local --version 1.7.1
 
@@ -379,24 +379,24 @@ done
 ./climbing-nemesis.py org.apache.ivy ivy ivy-local --version 2.2.0 --pomfile %{SOURCE18} --jarfile %{_javadir}/ivy.jar --ignore bcpg-jdk14 --ignore bcprov-jdk14
 
 
-./climbing-nemesis.py junit junit ivy-local --version 4.11
+#T ./climbing-nemesis.py junit junit ivy-local --version 4.11
 # these junit versions are bogus
 ./climbing-nemesis.py junit junit ivy-local --version 4.3.1
-./climbing-nemesis.py junit junit ivy-local --version 3.8.1
-./climbing-nemesis.py junit junit ivy-local --version 3.8.2
+#T ./climbing-nemesis.py junit junit ivy-local --version 3.8.1
+#T ./climbing-nemesis.py junit junit ivy-local --version 3.8.2
 
-./climbing-nemesis.py ant-contrib ant-contrib ivy-local --version 1.0b3
-./climbing-nemesis.py ant-contrib ant-contrib ivy-local
+#T ./climbing-nemesis.py ant-contrib ant-contrib ivy-local --version 1.0b3
+#T ./climbing-nemesis.py ant-contrib ant-contrib ivy-local
 
 ./climbing-nemesis.py org.apache.ant ant-testutil ivy-local --version 1.0b3
-./climbing-nemesis.py org.apache.ant ant-testutil ivy-local --version 1.7.0
+#T ./climbing-nemesis.py org.apache.ant ant-testutil ivy-local --version 1.7.0
 ./climbing-nemesis.py org.apache.ant ant-testutil ivy-local
 
 ./climbing-nemesis.py org.apache.ant ant ivy-local
 ./climbing-nemesis.py org.apache.ant ant ivy-local --version 1.7.1
 ./climbing-nemesis.py org.apache.ant ant-nodeps ivy-local --version 1.7.1
 ./climbing-nemesis.py org.apache.ant ant-nodeps ivy-local --version 1.7.1 --override org.apache.ant:ant-trax
-./climbing-nemesis.py org.apache.ant ant-launcher ivy-local --version 1.6.2 --override ant:ant-launcher
+#T ./climbing-nemesis.py org.apache.ant ant-launcher ivy-local --version 1.6.2 --override ant:ant-launcher
 ./climbing-nemesis.py org.apache.ant ant-junit ivy-local --version 1.6.5
 ./climbing-nemesis.py org.apache.ant ant-launcher ivy-local --version 1.8.4
 
@@ -406,7 +406,7 @@ done
 ./climbing-nemesis.py xml-apis xml-apis ivy-local --version 2.0.2
 ./climbing-nemesis.py xml-resolver xml-resolver ivy-local --version 1.2
 
-./climbing-nemesis.py avalon-framework avalon-framework-impl ivy-local --version 4.3
+#T ./climbing-nemesis.py avalon-framework avalon-framework-impl ivy-local --version 4.3
 ./climbing-nemesis.py avalon-framework avalon-framework-api ivy-local --version 4.3
 
 ./climbing-nemesis.py avalon-logkit avalon-logkit ivy-local --version 2.1
@@ -423,8 +423,8 @@ done
 
 ./climbing-nemesis.py org.hamcrest hamcrest-core ivy-local --version 1.3
 
-./climbing-nemesis.py xerces xercesImpl ivy-local --version 2.6.2
-./climbing-nemesis.py xerces xmlParserAPIs ivy-local --version 2.6.2
+#T ./climbing-nemesis.py xerces xercesImpl ivy-local --version 2.6.2
+#T ./climbing-nemesis.py xerces xmlParserAPIs ivy-local --version 2.6.2
 
 ./climbing-nemesis.py ch.qos.cal10n cal10n-api ivy-local --version 0.7.4
 
@@ -443,18 +443,18 @@ done
 ./climbing-nemesis.py org.apache.maven.wagon wagon-provider-api ivy-local --version 2.4 --ignore wagon-provider-api --ignore wagon-ssh-common-test --ignore jetty
 ./climbing-nemesis.py org.apache.maven.wagon wagon-provider-test ivy-local --version 2.4 --ignore wagon-provider-test --ignore wagon-ssh-common-test --ignore jetty
 
-./climbing-nemesis.py org.apache.sshd sshd-core ivy-local --version 0.6.0 --ignore org.apache.sshd --ignore jpam
+#T ./climbing-nemesis.py org.apache.sshd sshd-core ivy-local --version 0.6.0 --ignore org.apache.sshd --ignore jpam
 
 ./climbing-nemesis.py org.codehaus.plexus plexus-interactivity-api ivy-local --version 1.0-alpha-6
-./climbing-nemesis.py org.codehaus.plexus plexus-container-default ivy-local --version 1.5.5 --ignore plexus-container-default --ignore mortbay
+#T ./climbing-nemesis.py org.codehaus.plexus plexus-container-default ivy-local --version 1.5.5 --ignore plexus-container-default --ignore mortbay
 ./climbing-nemesis.py org.codehaus.plexus plexus-utils ivy-local --version 3.0.0
 
-for artifact in slf4j-api slf4j-simple log4j-over-slf4j jcl-over-slf4j; do
+for artifact in slf4j-simple log4j-over-slf4j; do
     ./climbing-nemesis.py org.slf4j $artifact ivy-local --version 1.7.2 --ignore slf4j-api
 done
 
-./climbing-nemesis.py org.slf4j slf4j-log4j12 ivy-local --version 1.7.2 --override org.slf4j:slf4j-log4j
-./climbing-nemesis.py org.slf4j slf4j-log4j12 ivy-local --version 1.7.2
+#T ./climbing-nemesis.py org.slf4j slf4j-log4j12 ivy-local --version 1.7.2 --override org.slf4j:slf4j-log4j
+#T ./climbing-nemesis.py org.slf4j slf4j-log4j12 ivy-local --version 1.7.2
 
 ./climbing-nemesis.py com.jcraft jzlib ivy-local --version 1.0.7
 
@@ -464,25 +464,25 @@ done
 # XXX
 
 ./climbing-nemesis.py org.jboss.logging jboss-logging ivy-local --version 3.1.0.GA
-./climbing-nemesis.py org.hibernate hibernate-testing ivy-local --version 4.1.7.Final
-./climbing-nemesis.py org.hibernate hibernate-validator ivy-local --version 4.2.0.Final
+#T ./climbing-nemesis.py org.hibernate hibernate-testing ivy-local --version 4.1.7.Final
+#T ./climbing-nemesis.py org.hibernate hibernate-validator ivy-local --version 4.2.0.Final
 ./climbing-nemesis.py org.apache.tomcat tomcat-servlet-api ivy-local --version 7.0.42
 
 ./climbing-nemesis.py com.google.guava guava ivy-local --version 11.0.2
 ./climbing-nemesis.py io.netty netty ivy-local --version 3.6.3.Final
-./climbing-nemesis.py com.h2database h2 ivy-local --version 1.2.145
+#T ./climbing-nemesis.py com.h2database h2 ivy-local --version 1.2.145
 ./climbing-nemesis.py org.hibernate.javax.persistence hibernate-jpa-2.0-api ivy-local --version 1.0.1.Final
 ./climbing-nemesis.py org.jboss.spec.javax.transaction jboss-transaction-api_1.1_spec ivy-local --version 1.0.0.Final
 ./climbing-nemesis.py commons-collections commons-collections ivy-local --version 3.2.1
-./climbing-nemesis.py commons-collections commons-collections-testframework ivy-local --version 3.2.1
+#T ./climbing-nemesis.py commons-collections commons-collections-testframework ivy-local --version 3.2.1
 ./climbing-nemesis.py com.google.protobuf protobuf-java ivy-local --version 2.4.1
 ./climbing-nemesis.py com.google.code.findbugs jsr305 ivy-local --version 1.3.9
-./climbing-nemesis.py org.javassist javassist ivy-local --version 3.15.0-GA --ignore com.sun
-./climbing-nemesis.py com.fasterxml classmate ivy-local --version 0.5.4
-./climbing-nemesis.py org.jboss.byteman byteman ivy-local --version 1.5.2
-./climbing-nemesis.py org.jboss.byteman byteman-bmunit ivy-local --version 1.5.2
-./climbing-nemesis.py org.jboss.byteman byteman-install ivy-local --version 1.5.2
-./climbing-nemesis.py org.jboss jandex ivy-local --version 1.0.3.Final
+#T ./climbing-nemesis.py org.javassist javassist ivy-local --version 3.15.0-GA --ignore com.sun
+#T ./climbing-nemesis.py com.fasterxml classmate ivy-local --version 0.5.4
+#T ./climbing-nemesis.py org.jboss.byteman byteman ivy-local --version 1.5.2
+#T ./climbing-nemesis.py org.jboss.byteman byteman-bmunit ivy-local --version 1.5.2
+#T ./climbing-nemesis.py org.jboss.byteman byteman-install ivy-local --version 1.5.2
+#T ./climbing-nemesis.py org.jboss jandex ivy-local --version 1.0.3.Final
 ./climbing-nemesis.py org.jboss.modules jboss-modules ivy-local --version 1.1.1
 ./climbing-nemesis.py org.jboss.marshalling jboss-marshalling ivy-local --version 1.3.14.GA
 ./climbing-nemesis.py org.hibernate.common hibernate-commons-annotations ivy-local --version 4.0.1.Final
@@ -490,8 +490,8 @@ done
 ./climbing-nemesis.py org.apache.felix org.osgi.compendium ivy-local --version 1.4.0 --ignore pom.groupId
 ./climbing-nemesis.py org.apache.felix org.osgi.foundation ivy-local --version 1.2.0
 
-./climbing-nemesis.py aopalliance aopalliance ivy-local --version any
-./climbing-nemesis.py cglib cglib ivy-local --version any
+#T ./climbing-nemesis.py aopalliance aopalliance ivy-local --version any
+#T ./climbing-nemesis.py cglib cglib ivy-local --version any
 ./climbing-nemesis.py com.ning async-http-client ivy-local --version 1.6.5
 ./climbing-nemesis.py commons-beanutils commons-beanutils ivy-local --version 1.7.0
 ./climbing-nemesis.py dom4j dom4j ivy-local --version 1.6.1 --ignore stax --ignore junitperf
@@ -511,7 +511,7 @@ done
 ## ./climbing-nemesis.py org.springframework spring ivy-local --version 2.5.6.SEC03
 ./climbing-nemesis.py org.springframework spring-context ivy-local --version 3.0.6.RELEASE
 ./climbing-nemesis.py spy spymemcached ivy-local --version 2.6
-./climbing-nemesis.py xmlunit xmlunit ivy-local --version 1.3
+#T ./climbing-nemesis.py xmlunit xmlunit ivy-local --version 1.3
 
 ./climbing-nemesis.py asm asm ivy-local --version 3.1
 ./climbing-nemesis.py asm asm ivy-local --version 3.2
@@ -523,16 +523,13 @@ done
 ./climbing-nemesis.py com.thoughtworks.qdox qdox ivy-local --version 1.9.2
 ./climbing-nemesis.py commons-cli commons-cli ivy-local --version 1.2
 ./climbing-nemesis.py commons-codec commons-codec ivy-local --version 1.6
-./climbing-nemesis.py commons-jxpath commons-jxpath ivy-local --version 1.3
+#T ./climbing-nemesis.py commons-jxpath commons-jxpath ivy-local --version 1.3
 ./climbing-nemesis.py commons-logging commons-logging-api ivy-local --version 1.1
-./climbing-nemesis.py commons-vfs commons-vfs ivy-local --version 1.0
-./climbing-nemesis.py easymock easymock ivy-local --version 1.2_Java1.5
+#T ./climbing-nemesis.py easymock easymock ivy-local --version 1.2_Java1.5
 ./climbing-nemesis.py javax.jms jms ivy-local --version 1.1.1
 ./climbing-nemesis.py javax.servlet servlet-api ivy-local --version 2.5
 ./climbing-nemesis.py jaxen jaxen ivy-local --version 1.1.1
-./climbing-nemesis.py jaxen jaxen ivy-local --version 1.1
-# nb: this is now org.javassist:javassist
-# ./climbing-nemesis.py jboss javassist ivy-local --version 3.7.ga
+#T ./climbing-nemesis.py jaxen jaxen ivy-local --version 1.1
 ./climbing-nemesis.py jdom jdom ivy-local --version 1.0
 ./climbing-nemesis.py jmock jmock ivy-local --version 1.2.0
 ./climbing-nemesis.py logkit logkit ivy-local --version 1.0.1
@@ -555,7 +552,7 @@ done
 ./climbing-nemesis.py org.apache.maven maven-repository-metadata ivy-local --version 3.0.5
 ./climbing-nemesis.py org.apache.maven maven-settings ivy-local --version 3.0.5
 ./climbing-nemesis.py org.apache.maven maven-settings-builder ivy-local --version 3.0.5
-./climbing-nemesis.py org.apache.maven.wagon wagon-file ivy-local --version 2.4 --ignore wagon-ssh-common-test --ignore jetty
+#T ./climbing-nemesis.py org.apache.maven.wagon wagon-file ivy-local --version 2.4 --ignore wagon-ssh-common-test --ignore jetty
 ./climbing-nemesis.py org.apache.maven.wagon wagon-http ivy-local --version 2.4 --ignore wagon-ssh-common-test --ignore jetty
 ./climbing-nemesis.py org.apache.maven.wagon wagon-ssh-common ivy-local --version 2.4 --ignore wagon-ssh-common-test --ignore jetty
 # ./climbing-nemesis.py org.apache.maven.wagon wagon-ssh-common-test ivy-local --version 2.4
@@ -581,8 +578,8 @@ done
 ./climbing-nemesis.py org.codehaus.plexus plexus-component-metadata ivy-local --version 1.5.5 --ignore mortbay
 ./climbing-nemesis.py org.codehaus.plexus plexus-interpolation ivy-local --version 1.14 --ignore mortbay
 ./climbing-nemesis.py org.codehaus.plexus plexus-utils ivy-local --version 3.0.8
-./climbing-nemesis.py org.easymock easymock ivy-local --version 2.5.2
-./climbing-nemesis.py org.easymock easymockclassextension ivy-local --version 2.5.2
+#T ./climbing-nemesis.py org.easymock easymock ivy-local --version 2.5.2
+#T ./climbing-nemesis.py org.easymock easymockclassextension ivy-local --version 2.5.2
 # ./climbing-nemesis.py org.eclipse.jetty jetty ivy-local --version 6.1.26
 # ./climbing-nemesis.py org.eclipse.jetty jetty-client ivy-local 
 # ./climbing-nemesis.py org.eclipse.jetty jetty-client ivy-local --version SYSTEM
@@ -594,22 +591,22 @@ done
 # ./climbing-nemesis.py org.eclipse.jetty jetty-servlet ivy-local --version SYSTEM
 # ./climbing-nemesis.py org.eclipse.jetty jetty-util ivy-local 
 # ./climbing-nemesis.py org.eclipse.jetty jetty-util ivy-local --version SYSTEM
-./climbing-nemesis.py org.mockito mockito-core ivy-local --version 1.8.5
-./climbing-nemesis.py org.mockito mockito-core ivy-local --version 1.9.0
+#T ./climbing-nemesis.py org.mockito mockito-core ivy-local --version 1.8.5
+#T ./climbing-nemesis.py org.mockito mockito-core ivy-local --version 1.9.0
 ./climbing-nemesis.py org.slf4j slf4j-api ivy-local --version 1.7.4
 ./climbing-nemesis.py org.slf4j slf4j-jcl ivy-local --version 1.5.11
 ./climbing-nemesis.py org.slf4j slf4j-jdk14 ivy-local --version 1.7.4
 ./climbing-nemesis.py org.sonatype.aether aether-api ivy-local --version 1.13.1
-./climbing-nemesis.py org.sonatype.aether aether-connector-wagon ivy-local --version 1.13.1
+#T ./climbing-nemesis.py org.sonatype.aether aether-connector-wagon ivy-local --version 1.13.1
 ./climbing-nemesis.py org.sonatype.aether aether-connector-file ivy-local --version 1.13.1
 ./climbing-nemesis.py org.sonatype.aether aether-connector-asynchttpclient ivy-local --version 1.13.1
-./climbing-nemesis.py org.sonatype.aether aether-test-util ivy-local --version 1.13.1
+#T ./climbing-nemesis.py org.sonatype.aether aether-test-util ivy-local --version 1.13.1
 ./climbing-nemesis.py org.sonatype.aether aether-impl ivy-local --version 1.13.1
 ./climbing-nemesis.py org.sonatype.aether aether-spi ivy-local --version 1.13.1
 ./climbing-nemesis.py org.sonatype.aether aether-util ivy-local --version 1.13.1
 ./climbing-nemesis.py org.sonatype.plexus plexus-cipher ivy-local --version 1.7
 ./climbing-nemesis.py org.sonatype.plexus plexus-sec-dispatcher ivy-local --version 1.3
-./climbing-nemesis.py org.sonatype.sisu sisu-inject-plexus ivy-local --version 2.3.0
+#T ./climbing-nemesis.py org.sonatype.sisu sisu-inject-plexus ivy-local --version 2.3.0
 # ./climbing-nemesis.py org.springframework spring ivy-local --version 2.5.6.SEC03
 ./climbing-nemesis.py org.springframework spring-beans ivy-local --version 3.0.3.RELEASE
 
