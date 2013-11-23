@@ -463,6 +463,11 @@ done
 
 # XXX
 
+./climbing-nemesis.py org.jboss.logging jboss-logging ivy-local --version 3.1.0.GA
+./climbing-nemesis.py org.hibernate hibernate-testing ivy-local --version 4.1.7.Final
+./climbing-nemesis.py org.hibernate hibernate-validator ivy-local --version 4.2.0.Final
+./climbing-nemesis.py org.apache.tomcat tomcat-servlet-api ivy-local --version 7.0.42
+
 ./climbing-nemesis.py com.google.guava guava ivy-local --version 11.0.2
 ./climbing-nemesis.py io.netty netty ivy-local --version 3.6.3.Final
 ./climbing-nemesis.py com.h2database h2 ivy-local --version 1.2.145
