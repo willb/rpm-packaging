@@ -239,6 +239,8 @@ Source72:       %sbt_ivy_artifact scripted-framework
 
 Source172:      %sbt_ivy_descriptor scripted-framework
 
+
+
 # sbt plugins
 Source73:       http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/com.typesafe.sbt/sbt-ghpages/scala_%{scala_short_version}/sbt_%{sbt_short_version}/%{sbt_ghpages_version}/jars/sbt-ghpages.jar
 Source74:       http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/com.typesafe.sbt/sbt-site/scala_%{scala_short_version}/sbt_%{sbt_short_version}/%{sbt_site_jar_version}/jars/sbt-site.jar
@@ -261,6 +263,21 @@ Source80:       http://oss.sonatype.org/content/repositories/releases/org/scala-
 
 # dispatch-http
 Source81:       http://oss.sonatype.org/content/repositories/releases/net/databinder/dispatch-http_%{scala_short_version}/%{dispatch_http_version}/dispatch-http_%{scala_short_version}-%{dispatch_http_version}.jar
+
+# precompiled (need only for bootstrapping)
+
+Source82:       http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/precompiled-2_8_2/%{sbt_bootstrap_version}/jars/compiler-interface-bin.jar/#compiler-interface-bin-2_8_2.jar
+
+Source182:      %sbt_ivy_descriptor precompiled-2_8_2
+
+Source83:       http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/precompiled-2_9_2/%{sbt_bootstrap_version}/jars/compiler-interface-bin.jar/#compiler-interface-bin-2_9_2.jar
+
+Source183:      %sbt_ivy_descriptor precompiled-2_9_2
+
+Source84:       http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/precompiled-2_9_3/%{sbt_bootstrap_version}/jars/compiler-interface-bin.jar/#compiler-interface-bin-2_9_3.jar
+
+Source184:      %sbt_ivy_descriptor precompiled-2_9_3
+
 
 # sbt launcher
 Source128:       http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/%{sbt_bootstrap_version}/sbt-launch.jar
@@ -445,6 +462,29 @@ done
 
 # XXX
 
+./climbing-nemesis.py aopalliance aopalliance ivy-local --version any
+./climbing-nemesis.py cglib cglib ivy-local --version any
+./climbing-nemesis.py com.ning async-http-client ivy-local --version 1.6.5
+## ./climbing-nemesis.py commons-beanutils commons-beanutils ivy-local --version 1.7.0
+./climbing-nemesis.py dom4j dom4j ivy-local --version 1.6.1
+./climbing-nemesis.py javax.jms jms ivy-local --version 1.1.1
+./climbing-nemesis.py javax.servlet jsp-api ivy-local --version 2.0
+./climbing-nemesis.py javax.transaction jta ivy-local --version 1.1
+./climbing-nemesis.py net.sf.cglib cglib ivy-local --version 2.2
+./climbing-nemesis.py net.sf.ehcache sizeof-agent ivy-local --version 1.0.1
+./climbing-nemesis.py org.apache.ant ant-nodeps ivy-local --version 1.7.1
+./climbing-nemesis.py org.apache.maven maven-plugin-api ivy-local --version 3.0.5
+./climbing-nemesis.py org.apache.maven.wagon wagon-http-shared4 ivy-local --version 2.4
+./climbing-nemesis.py org.apache.tomcat tomcat-api ivy-local --version 7.0.42
+## ./climbing-nemesis.py org.hibernate hibernate-core ivy-local --version 3
+./climbing-nemesis.py org.objenesis objenesis ivy-local --version 1.0
+./climbing-nemesis.py org.slf4j slf4j-jdk14 ivy-local --version 1.6.1
+./climbing-nemesis.py org.sonatype.sisu sisu-inject-bean ivy-local --version 2.2.0
+## ./climbing-nemesis.py org.springframework spring ivy-local --version 2.5.6.SEC03
+./climbing-nemesis.py org.springframework spring-context ivy-local --version 3.0.6.RELEASE
+./climbing-nemesis.py spy spymemcached ivy-local --version 2.6
+./climbing-nemesis.py xmlunit xmlunit ivy-local --version 1.3
+
 ./climbing-nemesis.py asm asm ivy-local --version 3.1
 ./climbing-nemesis.py asm asm ivy-local --version 3.2
 ./climbing-nemesis.py asm asm-commons ivy-local --version 3.2
@@ -487,15 +527,15 @@ done
 ./climbing-nemesis.py org.apache.maven maven-settings ivy-local --version 3.0.5
 ./climbing-nemesis.py org.apache.maven maven-settings-builder ivy-local --version 3.0.5
 ./climbing-nemesis.py org.apache.maven.wagon wagon-file ivy-local --version 2.4 --ignore wagon-ssh-common-test --ignore jetty
-./climbing-nemesis.py org.apache.maven.wagon wagon-http ivy-local --version 2.4--ignore wagon-ssh-common-test --ignore jetty
-./climbing-nemesis.py org.apache.maven.wagon wagon-ssh-common ivy-local --version 2.4--ignore wagon-ssh-common-test --ignore jetty
+./climbing-nemesis.py org.apache.maven.wagon wagon-http ivy-local --version 2.4 --ignore wagon-ssh-common-test --ignore jetty
+./climbing-nemesis.py org.apache.maven.wagon wagon-ssh-common ivy-local --version 2.4 --ignore wagon-ssh-common-test --ignore jetty
 # ./climbing-nemesis.py org.apache.maven.wagon wagon-ssh-common-test ivy-local --version 2.4
-./climbing-nemesis.py org.apache.mina mina-core ivy-local --version 2.0.7 --ignore com.agical.rmock --ignore tomcat-apr --ignore javassist --ignore mina-integration --ignore mina-transport
-./climbing-nemesis.py org.apache.mina mina-filter-compression ivy-local --version 2.0.7 --ignore tomcat-apr --ignore javassist --ignore com.agical.rmock --ignore mina-integration --ignore mina-transport
+./climbing-nemesis.py org.apache.mina mina-core ivy-local --version 2.0.7 --ignore com.agical.rmock --ignore tomcat-apr --ignore javassist --ignore mina-integration --ignore mina-transport --ignore ognl
+./climbing-nemesis.py org.apache.mina mina-filter-compression ivy-local --version 2.0.7 --ignore tomcat-apr --ignore javassist --ignore com.agical.rmock --ignore mina-integration --ignore mina-transport --ignore ognl
 # ./climbing-nemesis.py org.apache.mina mina-integration-beans ivy-local --version 2.0.7
 # ./climbing-nemesis.py org.apache.mina mina-integration-jmx ivy-local --version 2.0.7
 # ./climbing-nemesis.py org.apache.mina mina-integration-ognl ivy-local --version 2.0.7
-./climbing-nemesis.py org.apache.mina mina-statemachine ivy-local --version 2.0.7 --ignore tomcat-apr --ignore javassist --ignore com.agical.rmock --ignore mina-integration --ignore mina-transport
+./climbing-nemesis.py org.apache.mina mina-statemachine ivy-local --version 2.0.7 --ignore tomcat-apr --ignore javassist --ignore com.agical.rmock --ignore mina-integration --ignore mina-transport --ignore ognl
 # ./climbing-nemesis.py org.apache.mina mina-transport-apr ivy-local --version 2.0.7
 ./climbing-nemesis.py org.apache.tomcat tomcat-coyote ivy-local --version 7.0.40
 ./climbing-nemesis.py org.apache.tomcat tomcat-juli ivy-local --version 7.0.42
@@ -555,10 +595,16 @@ done
 
 
 %if %{do_bootstrap}
-./climbing-nemesis.py --jarfile %{SOURCE32} --ivyfile %{SOURCE132} org.scala-sbt ivy ivy-local --version %{sbt_bootstrap_version}
+cp %{SOURCE132} org.scala-sbt.ivy-%{sbt_bootstrap_version}.ivy.xml
+cp %{SOURCE171} org.scala-sbt.sbt-%{sbt_bootstrap_version}.ivy.xml
+
+sed -i -e '/precompiled/d' org.scala-sbt.ivy-%{sbt_bootstrap_version}.ivy.xml
+sed -i -e '/precompiled/d' org.scala-sbt.sbt-%{sbt_bootstrap_version}.ivy.xml
+
+./climbing-nemesis.py --jarfile %{SOURCE32} --ivyfile org.scala-sbt.ivy-%{sbt_bootstrap_version}.ivy.xml org.scala-sbt ivy ivy-local --version %{sbt_bootstrap_version}
 ./climbing-nemesis.py --jarfile %{SOURCE33} --ivyfile %{SOURCE133} org.scala-sbt task-system ivy-local --version %{sbt_bootstrap_version}
 ./climbing-nemesis.py --jarfile %{SOURCE34} --ivyfile %{SOURCE134} org.scala-sbt compiler-interface-src ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE35} --ivyfile %{SOURCE135} org.scala-sbt compiler-interface ivy-local --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE35} --ivyfile %{SOURCE135} org.scala-sbt compiler-interface-bin ivy-local --version %{sbt_bootstrap_version}
 ./climbing-nemesis.py --jarfile %{SOURCE36} --ivyfile %{SOURCE136} org.scala-sbt testing ivy-local --version %{sbt_bootstrap_version}
 ./climbing-nemesis.py --jarfile %{SOURCE37} --ivyfile %{SOURCE137} org.scala-sbt command ivy-local --version %{sbt_bootstrap_version}
 ./climbing-nemesis.py --jarfile %{SOURCE38} --ivyfile %{SOURCE138} org.scala-sbt test-agent ivy-local --version %{sbt_bootstrap_version}
@@ -594,8 +640,12 @@ done
 ./climbing-nemesis.py --jarfile %{SOURCE68} --ivyfile %{SOURCE168} org.scala-sbt cross ivy-local --version %{sbt_bootstrap_version}
 ./climbing-nemesis.py --jarfile %{SOURCE69} --ivyfile %{SOURCE169} org.scala-sbt relation ivy-local --version %{sbt_bootstrap_version}
 ./climbing-nemesis.py --jarfile %{SOURCE70} --ivyfile %{SOURCE170} org.scala-sbt io ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE71} --ivyfile %{SOURCE171} org.scala-sbt sbt ivy-local --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE71} --ivyfile org.scala-sbt.sbt-%{sbt_bootstrap_version}.ivy.xml org.scala-sbt sbt ivy-local --version %{sbt_bootstrap_version}
 ./climbing-nemesis.py --jarfile %{SOURCE72} --ivyfile %{SOURCE172} org.scala-sbt scripted-framework ivy-local --version %{sbt_bootstrap_version}
+
+# ./climbing-nemesis.py --jarfile %{SOURCE82} --ivyfile %{SOURCE182} org.scala-sbt precompiled-2_8_2 ivy-local --version %{sbt_bootstrap_version}
+# ./climbing-nemesis.py --jarfile %{SOURCE83} --ivyfile %{SOURCE183} org.scala-sbt precompiled-2_9_2 ivy-local --version %{sbt_bootstrap_version}
+# ./climbing-nemesis.py --jarfile %{SOURCE84} --ivyfile %{SOURCE184} org.scala-sbt precompiled-2_9_3 ivy-local --version %{sbt_bootstrap_version}
 
 # plugins
 
