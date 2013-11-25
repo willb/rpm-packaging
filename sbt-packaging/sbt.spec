@@ -340,8 +340,12 @@ sed -i -e 's/0.13.0/%{sbt_bootstrap_version}/g' project/build.properties
 ./climbing-nemesis.py org.fusesource.jansi jansi ivy-local --version 1.9
 
 # this is bogus (f18 ships 2.2; f19 ships 2.3)
-./climbing-nemesis.py org.apache.ivy ivy ivy-local --version 2.3.0-rc1 --pomfile %{SOURCE18} --jarfile %{_javadir}/ivy.jar --ignore bcpg-jdk14 --ignore bcprov-jdk14
-./climbing-nemesis.py org.apache.ivy ivy ivy-local --version 2.3.0 --pomfile %{SOURCE18} --jarfile %{_javadir}/ivy.jar --ignore bcpg-jdk14 --ignore bcprov-jdk14
+./climbing-nemesis.py org.apache.ivy ivy ivy-local --version 2.3.0-rc1 --pomfile %{SOURCE18} --jarfile %{_javadir}/ivy.jar --extra-dep org.bouncycastle:bcpg-jdk16:1.46 --extra-dep org.bouncycastle:bcprov-jdk16:1.46
+./climbing-nemesis.py org.apache.ivy ivy ivy-local --version 2.3.0 --pomfile %{SOURCE18} --jarfile %{_javadir}/ivy.jar --extra-dep org.bouncycastle:bcpg-jdk16:1.46 --extra-dep org.bouncycastle:bcprov-jdk16:1.46
+
+# bouncycastle pgp signature generator
+./climbing-nemesis.py org.bouncycastle bcpg-jdk16 ivy-local
+./climbing-nemesis.py org.bouncycastle bcprov-jdk16 ivy-local
 
 %if %{do_bootstrap}
 cp %{SOURCE132} org.scala-sbt.ivy-%{sbt_bootstrap_version}.ivy.xml
@@ -432,11 +436,12 @@ export SCALA_HOME=%{_javadir}/scala
 mkdir -p sbt-boot-dir/scala-%{scala_version}/org.scala-sbt/sbt/%{sbt_bootstrap_version}/
 mkdir -p sbt-boot-dir/scala-%{scala_version}/lib
 
-# for jar in $(find ivy-local/org/scala-sbt/ -name \*.jar) ; do 
-#     cp $jar sbt-boot-dir/scala-%{scala_version}/org.scala-sbt/sbt/%{sbt_bootstrap_version}/
-# done
+for jar in $(find ivy-local/ -name \*.jar | grep fusesource) ; do 
+   cp $jar sbt-boot-dir/scala-%{scala_version}/lib
+done
 
-for jar in $(find ivy-local/ -name \*.jar | grep -v org.scala-sbt) ; do 
+# this is a hack, obvs
+for jar in $(find ivy-local/ -name \*.jar | grep bouncycastle) ; do 
    cp $jar sbt-boot-dir/scala-%{scala_version}/lib
 done
 
