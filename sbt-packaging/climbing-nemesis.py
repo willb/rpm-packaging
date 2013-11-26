@@ -180,6 +180,10 @@ def placeArtifact(artifact_file, repo_dirname, org, module, revision, status="re
     
     symlink(artifact_file, artifact_repo_path)
 
+def getFedoraRelease():
+    cmd = "rpm -q --qf %{version} fedora-release"
+    return int(subprocess.check_output(cmd.split()))
+
 def main():
     parser = argparse.ArgumentParser(description="Place a locally-installed artifact in a custom local Ivy repository; get metadata from Maven")
     parser.add_argument("group", metavar="GROUP", type=str, help="name of group")
