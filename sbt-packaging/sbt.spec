@@ -38,7 +38,8 @@ License:        BSD
 URL:            http://www.scala-sbt.org
 Source0:        https://github.com/sbt/sbt/archive/v%{version}%{sbt_build}.tar.gz
 
-Patch0:         sbt-scala-0.13.1-RC3.patch 
+Patch0:         sbt-0.13.1-RC3-sbt-scala.patch 
+Patch1:         sbt-0.13.1-RC3-release-scala.patch 
 
 # sbt-ghpages plugin
 Source1:        https://github.com/sbt/sbt-ghpages/archive/v%{sbt_ghpages_version}.tar.gz
@@ -313,6 +314,7 @@ sbt is the simple build tool for Scala and Java projects.
 %setup -q -n %{name}-%{sbt_version}%{sbt_build}
 
 %patch0 -p1
+%patch1 -p1
 
 cp %{SOURCE16} .
 chmod 755 climbing-nemesis.py
@@ -448,11 +450,6 @@ sed -i -e 's/["]2[.]10[.]2["]/\"2.10.3\"/g' $(find . -name \*.xml)
 # better not to try and compile the docs support
 rm -f project/Docs.scala
 
-# TODO:  patch release/Sbt.scala, fix odd dispatch issue (or remove all references to dispatch from Release.scala)
-
-%build
-export SCALA_HOME=%{_javadir}/scala
-
 mkdir -p sbt-boot-dir/scala-%{scala_version}/org.scala-sbt/sbt/%{sbt_bootstrap_version}/
 mkdir -p sbt-boot-dir/scala-%{scala_version}/lib
 
@@ -465,7 +462,12 @@ for jar in $(find ivy-local/ -name \*.jar | grep bouncycastle) ; do
    cp $jar sbt-boot-dir/scala-%{scala_version}/lib
 done
 
-java -Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -jar -Dsbt.boot.properties=sbt.boot.properties sbt-launch.jar
+mkdir scala
+ln -s %{_javadir}/scala scala/lib
+
+%build
+
+java -Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -jar -Dsbt.boot.properties=sbt.boot.properties sbt-launch.jar publish-local
 
 %install
 rm -rf %{buildroot}
