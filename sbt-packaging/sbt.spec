@@ -448,7 +448,7 @@ sed -i -e 's/["]2[.]10[.]2["]/\"2.10.3\"/g' $(find . -name \*.xml)
 # better not to try and compile the docs support
 rm -f project/Docs.scala
 
-# TODO:  patch release/Sbt.scala, fix odd dispatch issue
+# TODO:  patch release/Sbt.scala, fix odd dispatch issue (or remove all references to dispatch from Release.scala)
 
 %build
 export SCALA_HOME=%{_javadir}/scala
