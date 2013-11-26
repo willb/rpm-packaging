@@ -69,7 +69,10 @@ Source16:       https://raw.github.com/willb/climbing-nemesis/master/climbing-ne
 Source17:       https://raw.github.com/willb/sbt-packaging/master/sbt.boot.properties
 
 # Ivy POM
-Source18:       http://repo1.maven.org/maven2/org/apache/ivy/ivy/2.3.0/ivy-2.3.0.pom
+Source18:       http://repo1.maven.org/maven2/org/apache/ivy/ivy/2.3.0-rc1/ivy-2.3.0-rc1.pom
+
+# Ivy 2.3.0-rc1 jar (necessary)
+Source19:	http://repo1.maven.org/maven2/org/apache/ivy/ivy/2.3.0-rc1/ivy-2.3.0-rc1.jar
 
 
 %if %{do_bootstrap}
@@ -339,13 +342,25 @@ sed -i -e 's/0.13.0/%{sbt_bootstrap_version}/g' project/build.properties
 ./climbing-nemesis.py jline jline ivy-local --version 2.11 --jarfile %{_javadir}/jline2-2.10.jar
 ./climbing-nemesis.py org.fusesource.jansi jansi ivy-local --version 1.9
 
-# this is bogus (f18 ships 2.2; f19 ships 2.3)
-./climbing-nemesis.py org.apache.ivy ivy ivy-local --version 2.3.0-rc1 --pomfile %{SOURCE18} --jarfile %{_javadir}/ivy.jar --extra-dep org.bouncycastle:bcpg-jdk16:1.46 --extra-dep org.bouncycastle:bcprov-jdk16:1.46
-./climbing-nemesis.py org.apache.ivy ivy ivy-local --version 2.3.0 --pomfile %{SOURCE18} --jarfile %{_javadir}/ivy.jar --extra-dep org.bouncycastle:bcpg-jdk16:1.46 --extra-dep org.bouncycastle:bcprov-jdk16:1.46
+# we need to use the bundled ivy because 2.3.0 is source and binary incompatible with 2.3.0-rc1 (which sbt is built against)
+./climbing-nemesis.py org.apache.ivy ivy ivy-local --version 2.3.0-rc1 --pomfile %{SOURCE18} --jarfile %{SOURCE19} --extra-dep org.bouncycastle:bcpg-jdk16:1.46 --extra-dep org.bouncycastle:bcprov-jdk16:1.46 --log debug
+
+## BEGIN OPTIONAL IVY DEPS
 
 # bouncycastle pgp signature generator
 ./climbing-nemesis.py org.bouncycastle bcpg-jdk16 ivy-local
 ./climbing-nemesis.py org.bouncycastle bcprov-jdk16 ivy-local
+
+# ORO (blast from the past)
+./climbing-nemesis.py oro oro  ivy-local --version 2.0.8
+
+# JSCH
+./climbing-nemesis.py com.jcraft jsch  ivy-local --version 0.1.31
+
+# commons-httpclient
+./climbing-nemesis.py commons-httpclient commons-httpclient ivy-local --version 3.0
+
+## END OPTIONAL IVY DEPS
 
 %if %{do_bootstrap}
 cp %{SOURCE132} org.scala-sbt.ivy-%{sbt_bootstrap_version}.ivy.xml
@@ -429,6 +444,11 @@ sed -i -e '/precompiled/d' org.scala-sbt.sbt-%{sbt_bootstrap_version}.ivy.xml
 
 # remove any references to Scala 2.10.2
 sed -i -e 's/["]2[.]10[.]2["]/\"2.10.3\"/g' $(find . -name \*.xml)
+
+# better not to try and compile the docs support
+rm -f project/Docs.scala
+
+# TODO:  patch release/Sbt.scala, fix odd dispatch issue
 
 %build
 export SCALA_HOME=%{_javadir}/scala
