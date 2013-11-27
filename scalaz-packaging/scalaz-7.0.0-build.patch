@@ -1,0 +1,239 @@
+diff --git a/project/build.properties b/project/build.properties
+index 66ad72c..18297d2 100644
+--- a/project/build.properties
++++ b/project/build.properties
+@@ -1 +1 @@
+-sbt.version=0.12.2
++sbt.version=0.13.1-RC3
+diff --git a/project/build.scala b/project/build.scala
+index 493f34a..df88528 100644
+--- a/project/build.scala
++++ b/project/build.scala
+@@ -8,45 +8,14 @@ import java.awt.Desktop
+ 
+ import scala.collection.immutable.IndexedSeq
+ 
+-import sbtrelease._
+-import sbtrelease.ReleasePlugin._
+-import sbtrelease.ReleasePlugin.ReleaseKeys._
+-import sbtrelease.ReleaseStateTransformations._
+-import sbtrelease.Utilities._
+-
+-import com.typesafe.sbt.pgp.PgpKeys._
+-
+-import com.typesafe.sbtosgi.OsgiPlugin._
+-
+-import sbtbuildinfo.Plugin._
+-
+-import com.typesafe.tools.mima.plugin.MimaPlugin.mimaDefaultSettings
+-import com.typesafe.tools.mima.plugin.MimaKeys.previousArtifact
+-
+ object build extends Build {
+   type Sett = Project.Setting[_]
+ 
+-  lazy val publishSignedArtifacts = ReleaseStep(
+-    action = st => {
+-      val extracted = st.extract
+-      val ref = extracted.get(thisProjectRef)
+-      extracted.runAggregated(publishSigned in Global in ref, st)
+-    },
+-    check = st => {
+-      // getPublishTo fails if no publish repository is set up.
+-      val ex = st.extract
+-      val ref = ex.get(thisProjectRef)
+-      Classpaths.getPublishTo(ex.get(publishTo in Global in ref))
+-      st
+-    },
+-    enableCrossBuild = true
+-  )
+-
+-  lazy val standardSettings: Seq[Sett] = Defaults.defaultSettings ++ sbtrelease.ReleasePlugin.releaseSettings ++ Seq[Sett](
++  lazy val standardSettings: Seq[Sett] = Defaults.defaultSettings ++ Seq[Sett](
+     organization := "org.scalaz",
+ 
+-    scalaVersion := "2.9.2",
+-    crossScalaVersions := Seq("2.9.2", "2.9.3", "2.10.0"),
++    scalaVersion := "2.10.3",
++    crossScalaVersions := Seq(),
+     resolvers += Resolver.sonatypeRepo("releases"),
+ 
+     scalacOptions <++= (scalaVersion) map { sv =>
+@@ -99,21 +68,6 @@ object build extends Build {
+     publishSetting,
+     publishArtifact in Test := false,
+ 
+-    // adapted from sbt-release defaults
+-    // (performs `publish-signed` instead of `publish`)
+-    releaseProcess := Seq[ReleaseStep](
+-      checkSnapshotDependencies,
+-      inquireVersions,
+-      runTest,
+-      setReleaseVersion,
+-      commitReleaseVersion,
+-      tagRelease,
+-      publishSignedArtifacts,
+-      setNextVersion,
+-      commitNextVersion,
+-      pushChanges
+-    ),
+-
+     pomIncludeRepository := {
+       x => false
+     },
+@@ -154,10 +108,6 @@ object build extends Build {
+         }
+         </developers>
+       )
+-  ) ++ osgiSettings ++ Seq[Sett](
+-    OsgiKeys.additionalHeaders := Map("-removeheaders" -> "Include-Resource,Private-Package")
+-  ) ++ mimaDefaultSettings ++ Seq[Sett](
+-    previousArtifact <<= (organization, name, scalaBinaryVersion) { (o, n, sbv) => Some(o % (n + "_" + sbv) % "7.0.0-RC2") }
+   )
+ 
+   lazy val scalaz = Project(
+@@ -166,7 +116,6 @@ object build extends Build {
+     settings = standardSettings ++ Unidoc.settings ++ Seq[Sett](
+       // <https://github.com/scalaz/scalaz/issues/261>
+       Unidoc.unidocExclude += "typelevel",
+-      previousArtifact := None,
+       publishArtifact := false
+     ),
+     aggregate = Seq(core, concurrent, effect, example, iterv, iteratee, scalacheckBinding, tests, typelevel, xml)
+@@ -175,17 +124,12 @@ object build extends Build {
+   lazy val core = Project(
+     id = "core",
+     base = file("core"),
+-    settings = standardSettings ++ buildInfoSettings ++ Seq[Sett](
++    settings = standardSettings ++ Seq[Sett](
+       name := "scalaz-core",
+       typeClasses := TypeClass.core,
+       sourceGenerators in Compile <+= (sourceManaged in Compile) map {
+         dir => Seq(generateTupleW(dir))
+-      },
+-      sourceGenerators in Compile <+= buildInfo,
+-      buildInfoKeys := Seq[BuildInfoKey](version, scalaVersion),
+-      buildInfoPackage := "scalaz",
+-      osgiExport("scalaz"),
+-      OsgiKeys.importPackage := Seq("javax.swing;resolution:=optional", "*")
++      }
+     )
+   )
+ 
+@@ -194,9 +138,7 @@ object build extends Build {
+     base = file("concurrent"),
+     settings = standardSettings ++ Seq[Sett](
+       name := "scalaz-concurrent",
+-      typeClasses := TypeClass.concurrent,
+-      osgiExport("scalaz.concurrent"),
+-      OsgiKeys.importPackage := Seq("javax.swing;resolution:=optional", "*")
++      typeClasses := TypeClass.concurrent
+     ),
+     dependencies = Seq(core, effect)
+   )
+@@ -206,8 +148,7 @@ object build extends Build {
+     base = file("effect"),
+     settings = standardSettings ++ Seq[Sett](
+       name := "scalaz-effect",
+-      typeClasses := TypeClass.effect,
+-      osgiExport("scalaz.effect", "scalaz.std.effect", "scalaz.syntax.effect")
++      typeClasses := TypeClass.effect
+     ),
+     dependencies = Seq(core)
+   )
+@@ -216,8 +157,7 @@ object build extends Build {
+     id = "iteratee",
+     base = file("iteratee"),
+     settings = standardSettings ++ Seq[Sett](
+-      name := "scalaz-iteratee",
+-      osgiExport("scalaz.iteratee")
++      name := "scalaz-iteratee"
+     ),
+     dependencies = Seq(effect)
+   )
+@@ -226,9 +166,7 @@ object build extends Build {
+     id = "iterv",
+     base = file("iterv"),
+     settings = standardSettings ++ Seq[Sett](
+-      name := "scalaz-iterv",
+-      OsgiKeys.fragmentHost := Some("org.scalaz.core"),
+-      OsgiKeys.exportPackage := Seq("scalaz;version=${Bundle-Version};-split-package:=first")
++      name := "scalaz-iterv"
+     ),
+     dependencies = Seq(effect)
+   )
+@@ -237,8 +175,7 @@ object build extends Build {
+     id = "typelevel",
+     base = file("typelevel"),
+     settings = standardSettings ++ Seq[Sett](
+-      name := "scalaz-typelevel",
+-      osgiExport("scalaz.typelevel", "scalaz.syntax.typelevel")
++      name := "scalaz-typelevel"
+     ),
+     dependencies = Seq(core)
+   )
+@@ -248,8 +185,7 @@ object build extends Build {
+     base = file("xml"),
+     settings = standardSettings ++ Seq[Sett](
+       name := "scalaz-xml",
+-      typeClasses := TypeClass.xml,
+-      osgiExport("scalaz.xml")
++      typeClasses := TypeClass.xml
+     ),
+     dependencies = Seq(core)
+   )
+@@ -260,7 +196,6 @@ object build extends Build {
+     dependencies = Seq(core, iteratee, concurrent, typelevel, xml),
+     settings = standardSettings ++ Seq[Sett](
+       name := "scalaz-example",
+-      previousArtifact := None,
+       publishArtifact := false
+     )
+   )
+@@ -271,8 +206,7 @@ object build extends Build {
+     dependencies = Seq(core, concurrent, typelevel, xml),
+     settings     = standardSettings ++ Seq[Sett](
+       name := "scalaz-scalacheck-binding",
+-      libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.10.0",
+-      osgiExport("scalaz.scalacheck")
++      libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.10.0"
+     )
+   )
+ 
+@@ -283,7 +217,6 @@ object build extends Build {
+     settings = standardSettings ++Seq[Sett](
+       name := "scalaz-tests",
+       publishArtifact := false,
+-      previousArtifact := None,
+       libraryDependencies <++= (scalaVersion) { sv => Seq(
+         "org.specs2" %% "specs2" % Dependencies.specs2(sv) % "test",
+         "org.scalacheck" %% "scalacheck" % "1.10.0" % "test"
+@@ -392,7 +325,6 @@ object build extends Build {
+     writeFileScalazPackage("TupleOps.scala", source)
+   }
+ 
+-  def osgiExport(packs: String*) = OsgiKeys.exportPackage := packs.map(_ + ".*;version=${Bundle-Version}")
+ }
+ 
+ // vim: expandtab:ts=2:sw=2
+diff --git a/project/plugins.sbt b/project/plugins.sbt
+index e83215b..8901d19 100644
+--- a/project/plugins.sbt
++++ b/project/plugins.sbt
+@@ -1,11 +1,11 @@
+-resolvers += Resolver.url("scalasbt", new URL("http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases"))(Resolver.ivyStylePatterns)
++// resolvers += Resolver.url("scalasbt", new URL("http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases"))(Resolver.ivyStylePatterns)
+ 
+-addSbtPlugin("com.typesafe.sbt" % "sbt-pgp" % "0.8")
++// addSbtPlugin("com.typesafe.sbt" % "sbt-pgp" % "0.8")
+ 
+-addSbtPlugin("com.github.gseitz" % "sbt-release" % "0.7")
++// addSbtPlugin("com.github.gseitz" % "sbt-release" % "0.7")
+ 
+-addSbtPlugin("com.typesafe.sbtosgi" % "sbtosgi" % "0.3.0")
++// addSbtPlugin("com.typesafe.sbtosgi" % "sbtosgi" % "0.3.0")
+ 
+-addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.2.2")
++// addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.2.2")
+ 
+-addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "0.1.4")
++// addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "0.1.4")
