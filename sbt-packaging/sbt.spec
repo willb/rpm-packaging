@@ -9,6 +9,7 @@
 %global sbt_build -RC3
 %global sbt_short_version %{sbt_major}.%{sbt_minor}
 %global sbt_version %{sbt_major}.%{sbt_minor}.%{sbt_patch}
+%global sbt_full_version %{sbt_version}%{sbt_build}
 %global typesafe_repo http://repo.typesafe.com/typesafe/ivy-releases
 
 %global generic_ivy_artifact() %{1}/%{2}/%{3}/%{4}/jars/%{5}.jar
@@ -34,12 +35,16 @@ Version:        %{sbt_version}
 Release:        %{pkg_rel}%{?dist}
 Summary:        simple build tool for Scala and Java projects
 
+BuildArch:      noarch
+
 License:        BSD
 URL:            http://www.scala-sbt.org
 Source0:        https://github.com/sbt/sbt/archive/v%{version}%{sbt_build}.tar.gz
 
 Patch0:         sbt-0.13.1-RC3-sbt-scala.patch 
 Patch1:         sbt-0.13.1-RC3-release-scala.patch 
+
+
 
 # sbt-ghpages plugin
 Source1:        https://github.com/sbt/sbt-ghpages/archive/v%{sbt_ghpages_version}.tar.gz
@@ -93,7 +98,7 @@ Source134:      %generic_ivy_descriptor %{typesafe_repo} org.scala-sbt compiler-
 
 Source35:       %generic_ivy_artifact %{typesafe_repo} org.scala-sbt compiler-interface %{sbt_bootstrap_version} compiler-interface-bin
 
-Source135:       %generic_ivy_descriptor %{typesafe_repo} org.scala-sbt compiler-interface %{sbt_bootstrap_version} compiler-interface-bin
+Source135:      %generic_ivy_descriptor %{typesafe_repo} org.scala-sbt compiler-interface %{sbt_bootstrap_version} compiler-interface-bin
 
 Source36:       %sbt_ivy_artifact testing 
 
@@ -122,10 +127,6 @@ Source141:      %sbt_ivy_descriptor compiler-ivy-integration
 Source42:       %sbt_ivy_artifact scripted-sbt 
 
 Source142:      %sbt_ivy_descriptor scripted-sbt
-
-Source43:       %sbt_ivy_artifact launch-test 
-
-Source143:      %sbt_ivy_descriptor launch-test
 
 Source44:       %sbt_ivy_artifact collections 
 
@@ -270,15 +271,15 @@ Source81:       http://oss.sonatype.org/content/repositories/releases/net/databi
 
 # precompiled (need only for bootstrapping)
 
-Source82:       http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/precompiled-2_8_2/%{sbt_bootstrap_version}/jars/compiler-interface-bin.jar/#compiler-interface-bin-2_8_2.jar
+Source82:       http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/precompiled-2_8_2/%{sbt_bootstrap_version}/jars/compiler-interface-bin.jar#/compiler-interface-bin-2_8_2.jar
 
 Source182:      %sbt_ivy_descriptor precompiled-2_8_2
 
-Source83:       http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/precompiled-2_9_2/%{sbt_bootstrap_version}/jars/compiler-interface-bin.jar/#compiler-interface-bin-2_9_2.jar
+Source83:       http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/precompiled-2_9_2/%{sbt_bootstrap_version}/jars/compiler-interface-bin.jar#/compiler-interface-bin-2_9_2.jar
 
 Source183:      %sbt_ivy_descriptor precompiled-2_9_2
 
-Source84:       http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/precompiled-2_9_3/%{sbt_bootstrap_version}/jars/compiler-interface-bin.jar/#compiler-interface-bin-2_9_3.jar
+Source84:       http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/precompiled-2_9_3/%{sbt_bootstrap_version}/jars/compiler-interface-bin.jar#/compiler-interface-bin-2_9_3.jar
 
 Source184:      %sbt_ivy_descriptor precompiled-2_9_3
 
@@ -364,6 +365,8 @@ sed -i -e 's/0.13.0/%{sbt_bootstrap_version}/g' project/build.properties
 
 ## END OPTIONAL IVY DEPS
 
+./climbing-nemesis.py net.sf.proguard proguard-base ivy-local --version 4.8 --jarfile %{_javadir}/proguard/proguard.jar
+
 %if %{do_bootstrap}
 cp %{SOURCE132} org.scala-sbt.ivy-%{sbt_bootstrap_version}.ivy.xml
 cp %{SOURCE171} org.scala-sbt.sbt-%{sbt_bootstrap_version}.ivy.xml
@@ -412,7 +415,6 @@ sed -i -e '/precompiled/d' org.scala-sbt.sbt-%{sbt_bootstrap_version}.ivy.xml
 ./climbing-nemesis.py --jarfile %{SOURCE71} --ivyfile org.scala-sbt.sbt-%{sbt_bootstrap_version}.ivy.xml org.scala-sbt sbt ivy-local --version %{sbt_bootstrap_version}
 ./climbing-nemesis.py --jarfile %{SOURCE72} --ivyfile %{SOURCE172} org.scala-sbt scripted-framework ivy-local --version %{sbt_bootstrap_version}
 
-
 # plugins
 
 ./climbing-nemesis.py --jarfile %{SOURCE73} com.typesafe.sbt sbt-ghpages ivy-local --version %{sbt_ghpages_version} --meta e:scalaVersion=%{scala_short_version} --meta e:sbtVersion=%{sbt_short_version}
@@ -420,7 +422,7 @@ sed -i -e '/precompiled/d' org.scala-sbt.sbt-%{sbt_bootstrap_version}.ivy.xml
 ./climbing-nemesis.py --jarfile %{SOURCE75} com.typesafe.sbt sbt-git ivy-local --version %{sbt_git_version} --meta e:scalaVersion=%{scala_short_version} --meta e:sbtVersion=%{sbt_short_version}
 
 # SXR
-./climbing-nemesis.py --jarfile %{SOURCE76} org.scala-tools.sxr sxr ivy-local --version %{sxr_version} --scala %{scala_short_version}
+./climbing-nemesis.py --jarfile %{SOURCE76} org.scala-sbt.sxr sxr ivy-local --version %{sxr_version} --scala %{scala_short_version}
 
 # sbinary
 ./climbing-nemesis.py --jarfile %{SOURCE77} org.scala-tools.sbinary sbinary ivy-local --version %{sbinary_version} --scala %{scala_short_version}
@@ -467,54 +469,23 @@ ln -s %{_javadir}/scala scala/lib
 
 %build
 
-java -Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -jar -Dsbt.boot.properties=sbt.boot.properties sbt-launch.jar publish-local
+java -Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -jar -Dsbt.boot.properties=sbt.boot.properties sbt-launch.jar package
 
 %install
 rm -rf %{buildroot}
-%make_install
+mkdir -p %{buildroot}/%{_javadir}/sbt
+
+find . -name \*.jar | grep %{sbt_full_version}.jar | xargs -I JAR cp JAR %{buildroot}/%{_javadir}/sbt
+
+pushd %{buildroot}/%{_javadir}/sbt
+for jar in *.jar ; do
+    ln -s $jar $(echo $jar | sed -e 's/-%{sbt_full_version}//g')
+done
+popd
+
 
 %files
-%{_javadir}/sbt/ivy.jar
-%{_javadir}/sbt/task-system.jar
-%{_javadir}/sbt/compiler-interface-src.jar
-%{_javadir}/sbt/compiler-interface-bin.jar
-%{_javadir}/sbt/testing.jar
-%{_javadir}/sbt/command.jar
-%{_javadir}/sbt/test-agent.jar
-%{_javadir}/sbt/launcher-interface.jar
-%{_javadir}/sbt/run.jar
-%{_javadir}/sbt/compiler-ivy-integration.jar
-%{_javadir}/sbt/scripted-sbt.jar
-%{_javadir}/sbt/launch-test.jar
-%{_javadir}/sbt/collections.jar
-%{_javadir}/sbt/persist.jar
-%{_javadir}/sbt/classfile.jar
-%{_javadir}/sbt/control.jar
-%{_javadir}/sbt/launcher.jar
-%{_javadir}/sbt/apply-macro.jar
-%{_javadir}/sbt/datatype-generator.jar
-%{_javadir}/sbt/interface.jar
-%{_javadir}/sbt/main-settings.jar
-%{_javadir}/sbt/incremental-compiler.jar
-%{_javadir}/sbt/cache.jar
-%{_javadir}/sbt/compiler-integration.jar
-%{_javadir}/sbt/api.jar
-%{_javadir}/sbt/main.jar
-%{_javadir}/sbt/classpath.jar
-%{_javadir}/sbt/logging.jar
-%{_javadir}/sbt/compile.jar
-%{_javadir}/sbt/process.jar
-%{_javadir}/sbt/actions.jar
-%{_javadir}/sbt/sbt-launch.jar
-%{_javadir}/sbt/scripted-plugin.jar
-%{_javadir}/sbt/tracking.jar
-%{_javadir}/sbt/tasks.jar
-%{_javadir}/sbt/completion.jar
-%{_javadir}/sbt/cross.jar
-%{_javadir}/sbt/relation.jar
-%{_javadir}/sbt/io.jar
-%{_javadir}/sbt/sbt.jar
-%{_javadir}/sbt/scripted-framework.jar
+%{_javadir}/sbt/
 %doc README.md LICENSE NOTICE
 
 
