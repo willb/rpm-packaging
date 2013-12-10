@@ -5,7 +5,6 @@ Summary:        metrics library for Java
 License:        ASL 2.0
 URL:            http://metrics.codahale.com
 Source0:        https://github.com/codahale/metrics/archive/v%{version}.tar.gz
-Patch0:		metrics-3.0.1-plugins.patch
 BuildArch:      noarch
 
 BuildRequires:  maven-local
@@ -34,11 +33,23 @@ This package provides %{summary}.
 
 %prep
 %setup -q
-%patch0 -p1
+
+%pom_disable_module metrics-benchmarks
+%pom_disable_module metrics-graphite
+%pom_disable_module metrics-ganglia
+%pom_disable_module metrics-jdbi # can go back in when JDBI is accepted
+%pom_disable_module metrics-jetty8
+
+%pom_remove_dep org.easytesting:fest-assert-core
+
+%pom_remove_plugin org.apache.maven.plugins:maven-enforcer-plugin
+%pom_remove_plugin org.codehaus.mojo:findbugs-maven-plugin
+
 # this is kind of a blunt instrument, but we're missing some test dependencies for now
 find . -type d -name test | xargs rm -rf
 
 %build
+
 %mvn_build -f
 
 %install
