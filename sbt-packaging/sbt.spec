@@ -315,7 +315,6 @@ BuildRequires:  specs2 = %{specs2_version}
 
 %endif
 
-Requires:       scala
 
 %description
 sbt is the simple build tool for Scala and Java projects.
@@ -494,7 +493,15 @@ for mod in $(find | sed -n "s:/target/[^/]*-%{sbt_full_version}.jar$::;T;p"); do
   %mvn_artifact $mod/target/*-%{sbt_full_version}.xml \
                 $mod/target/*-%{sbt_full_version}.jar
 done
+# This is temporarly needed to workaround a limitation in XMvn Installer
+sed -i "/rawPom/{p;s//effectivePom/g}" .xmvn-reactor
 %mvn_install
+
+%if %{do_bootstrap}
+# In bootstrap mode avoid generating auto-requires on artifacts which
+# are not yet available in system local repository
+sed -i -n '/<autoRequires>/{:a;N;/<\/autoRequires>/{p;b;};/>UNKNOWN</{:b;n;/<\/autoRequires>/{b;};bb;};ba;};p' %{buildroot}%{_mavendepmapfragdir}/*
+%endif
 
 %jpackage_script xsbt.boot.Boot "" "" %{name}:ivy:scala %{name} true
 
