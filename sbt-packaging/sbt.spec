@@ -351,8 +351,15 @@ sed -i -e 's/0.13.0/%{sbt_bootstrap_version}/g' project/build.properties
 ./climbing-nemesis.py org.scala-lang scala-reflect ivy-local --version %{scala_version}
 
 # fake on F19
+%if 0%{?fedora} >= 21
+./climbing-nemesis.py jline jline ivy-local --version 2.11
+./climbing-nemesis.py org.fusesource.jansi jansi ivy-local --version 1.9
+./climbing-nemesis.py org.fusesource.jansi jansi-native ivy-local --version 1.5
+./climbing-nemesis.py org.fusesource.hawtjni hawtjni-runtime ivy-local --version 1.8
+%else
 ./climbing-nemesis.py jline jline ivy-local --version 2.11 --jarfile %{_javadir}/jline2-2.10.jar
 ./climbing-nemesis.py org.fusesource.jansi jansi ivy-local --version 1.9
+%endif
 
 # we need to use the bundled ivy because 2.3.0 is source and binary incompatible with 2.3.0-rc1 (which sbt is built against)
 ./climbing-nemesis.py org.apache.ivy ivy ivy-local --version 2.3.0-rc1 --pomfile %{SOURCE18} --jarfile %{SOURCE19} --extra-dep org.bouncycastle:bcpg-jdk16:1.46 --extra-dep org.bouncycastle:bcprov-jdk16:1.46 --log debug
