@@ -496,6 +496,8 @@ for mod in $(find | sed -n "s:/target/[^/]*-%{sbt_full_version}.jar$::;T;p"); do
 done
 %mvn_install
 
+%jpackage_script xsbt.boot.Boot "" "" %{name}:ivy:scala %{name} true
+
 %else
 
 rm -rf %{buildroot}
@@ -513,6 +515,7 @@ popd
 
 %if 0%{?fedora} >= 21
 %files -f .mfiles
+%{_bindir}/%{name}
 %else
 %files
 %{_javadir}/sbt/
