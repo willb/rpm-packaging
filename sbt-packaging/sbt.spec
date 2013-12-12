@@ -497,6 +497,12 @@ done
 sed -i "/rawPom/{p;s//effectivePom/g}" .xmvn-reactor
 %mvn_install
 
+%if %{do_bootstrap}
+# In bootstrap mode avoid generating auto-requires on artifacts which
+# are not yet available in system local repository
+sed -i -n '/<autoRequires>/{:a;N;/<\/autoRequires>/{p;b;};/>UNKNOWN</{:b;n;/<\/autoRequires>/{b;};bb;};ba;};p' %{buildroot}%{_mavendepmapfragdir}/*
+%endif
+
 %jpackage_script xsbt.boot.Boot "" "" %{name}:ivy:scala %{name} true
 
 %else
