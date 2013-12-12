@@ -292,6 +292,15 @@ Source128:       http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/sb
 BuildRequires:  scala
 BuildRequires:	java
 BuildRequires:  python
+# maven is required because climbing-nemesis.py uses xmvn-resolve
+BuildRequires:  maven-local
+
+BuildRequires:  bouncycastle
+BuildRequires:  bouncycastle-pg
+BuildRequires:  hawtjni
+BuildRequires:  jansi
+BuildRequires:  jline
+BuildRequires:  proguard
 
 %if !%{do_bootstrap}
 BuildRequires:  sbt = %{sbt_bootstrap_version}
