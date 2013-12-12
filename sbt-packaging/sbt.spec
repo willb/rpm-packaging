@@ -485,7 +485,7 @@ ln -s %{_javadir}/scala scala/lib
 
 %build
 
-java -Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -jar -Dsbt.boot.properties=sbt.boot.properties sbt-launch.jar package
+java -Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -jar -Dsbt.boot.properties=sbt.boot.properties sbt-launch.jar package deliver-local
 
 %install
 rm -rf %{buildroot}
