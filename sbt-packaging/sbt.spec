@@ -488,6 +488,16 @@ ln -s %{_javadir}/scala scala/lib
 java -Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -jar -Dsbt.boot.properties=sbt.boot.properties sbt-launch.jar package deliver-local
 
 %install
+%if 0%{?fedora} >= 21
+
+for mod in $(find | sed -n "s:/target/[^/]*-%{sbt_full_version}.jar$::;T;p"); do
+  %mvn_artifact $mod/target/*-%{sbt_full_version}.xml \
+                $mod/target/*-%{sbt_full_version}.jar
+done
+%mvn_install
+
+%else
+
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/%{_javadir}/sbt
 
@@ -499,9 +509,14 @@ for jar in *.jar ; do
 done
 popd
 
+%endif
 
+%if 0%{?fedora} >= 21
+%files -f .mfiles
+%else
 %files
 %{_javadir}/sbt/
+%endif
 %doc README.md LICENSE NOTICE
 
 
