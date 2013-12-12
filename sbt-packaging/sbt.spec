@@ -351,8 +351,8 @@ sed -i -e 's/0.13.0/%{sbt_bootstrap_version}/g' project/build.properties
 ## BEGIN OPTIONAL IVY DEPS
 
 # bouncycastle pgp signature generator
-./climbing-nemesis.py org.bouncycastle bcpg-jdk16 ivy-local
-./climbing-nemesis.py org.bouncycastle bcprov-jdk16 ivy-local
+./climbing-nemesis.py org.bouncycastle bcpg-jdk16 ivy-local --version 1.46
+./climbing-nemesis.py org.bouncycastle bcprov-jdk16 ivy-local --version 1.46
 
 # ORO (blast from the past)
 ./climbing-nemesis.py oro oro  ivy-local --version 2.0.8
