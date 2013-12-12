@@ -292,6 +292,15 @@ Source128:       http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/sb
 BuildRequires:  scala
 BuildRequires:	java
 BuildRequires:  python
+# maven is required because climbing-nemesis.py uses xmvn-resolve
+BuildRequires:  maven-local
+
+BuildRequires:  bouncycastle
+BuildRequires:  bouncycastle-pg
+BuildRequires:  hawtjni
+BuildRequires:  jansi
+BuildRequires:  jline
+BuildRequires:  proguard
 
 %if !%{do_bootstrap}
 BuildRequires:  sbt = %{sbt_bootstrap_version}
@@ -342,8 +351,15 @@ sed -i -e 's/0.13.0/%{sbt_bootstrap_version}/g' project/build.properties
 ./climbing-nemesis.py org.scala-lang scala-reflect ivy-local --version %{scala_version}
 
 # fake on F19
+%if 0%{?fedora} >= 21
+./climbing-nemesis.py jline jline ivy-local --version 2.11
+./climbing-nemesis.py org.fusesource.jansi jansi ivy-local --version 1.9
+./climbing-nemesis.py org.fusesource.jansi jansi-native ivy-local --version 1.5
+./climbing-nemesis.py org.fusesource.hawtjni hawtjni-runtime ivy-local --version 1.8
+%else
 ./climbing-nemesis.py jline jline ivy-local --version 2.11 --jarfile %{_javadir}/jline2-2.10.jar
 ./climbing-nemesis.py org.fusesource.jansi jansi ivy-local --version 1.9
+%endif
 
 # we need to use the bundled ivy because 2.3.0 is source and binary incompatible with 2.3.0-rc1 (which sbt is built against)
 ./climbing-nemesis.py org.apache.ivy ivy ivy-local --version 2.3.0-rc1 --pomfile %{SOURCE18} --jarfile %{SOURCE19} --extra-dep org.bouncycastle:bcpg-jdk16:1.46 --extra-dep org.bouncycastle:bcprov-jdk16:1.46 --log debug
@@ -351,8 +367,8 @@ sed -i -e 's/0.13.0/%{sbt_bootstrap_version}/g' project/build.properties
 ## BEGIN OPTIONAL IVY DEPS
 
 # bouncycastle pgp signature generator
-./climbing-nemesis.py org.bouncycastle bcpg-jdk16 ivy-local
-./climbing-nemesis.py org.bouncycastle bcprov-jdk16 ivy-local
+./climbing-nemesis.py org.bouncycastle bcpg-jdk16 ivy-local --version 1.46
+./climbing-nemesis.py org.bouncycastle bcprov-jdk16 ivy-local --version 1.46
 
 # ORO (blast from the past)
 ./climbing-nemesis.py oro oro  ivy-local --version 2.0.8
@@ -469,9 +485,21 @@ ln -s %{_javadir}/scala scala/lib
 
 %build
 
-java -Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -jar -Dsbt.boot.properties=sbt.boot.properties sbt-launch.jar package
+java -Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -jar -Dsbt.boot.properties=sbt.boot.properties sbt-launch.jar package deliver-local
 
 %install
+%if 0%{?fedora} >= 21
+
+for mod in $(find | sed -n "s:/target/[^/]*-%{sbt_full_version}.jar$::;T;p"); do
+  %mvn_artifact $mod/target/*-%{sbt_full_version}.xml \
+                $mod/target/*-%{sbt_full_version}.jar
+done
+%mvn_install
+
+%jpackage_script xsbt.boot.Boot "" "" %{name}:ivy:scala %{name} true
+
+%else
+
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/%{_javadir}/sbt
 
@@ -483,9 +511,15 @@ for jar in *.jar ; do
 done
 popd
 
+%endif
 
+%if 0%{?fedora} >= 21
+%files -f .mfiles
+%{_bindir}/%{name}
+%else
 %files
 %{_javadir}/sbt/
+%endif
 %doc README.md LICENSE NOTICE
 
 
