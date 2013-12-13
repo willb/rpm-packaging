@@ -75,9 +75,12 @@ Source16:       https://raw.github.com/willb/climbing-nemesis/master/climbing-ne
 Source17:       https://raw.github.com/willb/sbt-packaging/master/sbt.boot.properties
 
 # Ivy POM
+# necessary for bootstrapping with sbt 0.13.1
 Source18:       http://repo1.maven.org/maven2/org/apache/ivy/ivy/2.3.0-rc1/ivy-2.3.0-rc1.pom
+# necessary for F19 (which doesn't ship with an Ivy pom)
+Source20:       http://repo1.maven.org/maven2/org/apache/ivy/ivy/2.3.0/ivy-2.3.0.pom
 
-# Ivy 2.3.0-rc1 jar (necessary)
+# Ivy 2.3.0-rc1 jar (necessary for bootstrapping with sbt 0.13.1)
 Source19:	http://repo1.maven.org/maven2/org/apache/ivy/ivy/2.3.0-rc1/ivy-2.3.0-rc1.jar
 
 
@@ -362,8 +365,11 @@ sed -i -e 's/0.13.0/%{sbt_bootstrap_version}/g' project/build.properties
 ./climbing-nemesis.py org.fusesource.jansi jansi ivy-local --version 1.9
 %endif
 
-# we need to use the bundled ivy because 2.3.0 is source and binary incompatible with 2.3.0-rc1 (which sbt is built against)
+# we need to use the bundled ivy because 2.3.0 is source and binary incompatible with 2.3.0-rc1 (which sbt 0.13.1 is built against)
 ./climbing-nemesis.py org.apache.ivy ivy ivy-local --version 2.3.0-rc1 --pomfile %{SOURCE18} --jarfile %{SOURCE19} --extra-dep org.bouncycastle:bcpg-jdk16:1.46 --extra-dep org.bouncycastle:bcprov-jdk16:1.46 --log debug
+
+# we're building against Ivy 2.3.0, though
+./climbing-nemesis.py org.apache.ivy ivy ivy-local --version 2.3.0 --pomfile %{SOURCE20} --jarfile %{_javadir}/ivy.jar --extra-dep org.bouncycastle:bcpg-jdk16:1.46 --extra-dep org.bouncycastle:bcprov-jdk16:1.46 --log debug
 
 ## BEGIN OPTIONAL IVY DEPS
 
