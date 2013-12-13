@@ -43,8 +43,8 @@ Source0:        https://github.com/sbt/sbt/archive/v%{version}%{sbt_build}.tar.g
 
 Patch0:         sbt-0.13.1-RC3-sbt-scala.patch 
 Patch1:         sbt-0.13.1-RC3-release-scala.patch 
-
-
+Patch2:         sbt-0.13.1-ivy-2.3.0.patch
+Patch3:         sbt-0.13.1-ivy-docs.patch
 
 # sbt-ghpages plugin
 Source1:        https://github.com/sbt/sbt-ghpages/archive/v%{sbt_ghpages_version}.tar.gz
@@ -324,6 +324,8 @@ sbt is the simple build tool for Scala and Java projects.
 
 %patch0 -p1
 %patch1 -p1
+%patch2 -p1
+%patch3 -p1
 
 cp %{SOURCE16} .
 chmod 755 climbing-nemesis.py
