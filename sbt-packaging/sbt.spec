@@ -2,11 +2,11 @@
 %global pkg_rel 1
 %global scala_version 2.10.3
 %global scala_short_version 2.10
-%global sbt_bootstrap_version 0.13.1-RC3
+%global sbt_bootstrap_version 0.13.1
 %global sbt_major 0
 %global sbt_minor 13
 %global sbt_patch 1
-%global sbt_build -RC3
+%global sbt_build %{nil}
 %global sbt_short_version %{sbt_major}.%{sbt_minor}
 %global sbt_version %{sbt_major}.%{sbt_minor}.%{sbt_patch}
 %global sbt_full_version %{sbt_version}%{sbt_build}
