@@ -41,7 +41,7 @@ License:        BSD
 URL:            http://www.scala-sbt.org
 Source0:        https://github.com/sbt/sbt/archive/v%{version}%{sbt_build}.tar.gz
 
-Patch0:         sbt-0.13.1-RC3-sbt-scala.patch 
+Patch0:         sbt-0.13.1-sbt-scala.patch 
 Patch1:         sbt-0.13.1-RC3-release-scala.patch 
 Patch2:         sbt-0.13.1-ivy-2.3.0.patch
 Patch3:         sbt-0.13.1-ivy-docs.patch

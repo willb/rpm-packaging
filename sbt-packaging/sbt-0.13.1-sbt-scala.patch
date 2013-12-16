@@ -3,7 +3,7 @@
 @@ -15,6 +15,7 @@
  	def buildSettings = Seq(
  		organization := "org.scala-sbt",
- 		version := "0.13.1-RC3",
+ 		version := "0.13.1",
 +		scalaHome := Some(file("scala")),
  		publishArtifact in packageDoc := false,
  		scalaVersion := "2.10.3",
