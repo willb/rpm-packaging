@@ -23,6 +23,12 @@
 %global sbt_site_version 0.6.2
 %global sbt_site_jar_version 0.6.2
 
+%global want_sxr 1
+%global want_specs2 1
+%global want_scalacheck 1
+%global want_dispatch_http 1
+
+
 %global sxr_version 0.3.0
 %global sbinary_version 0.4.2
 %global scalacheck_version 1.11.0
@@ -63,7 +69,9 @@ Source5:        https://github.com/harrah/sbinary/archive/v%{sbinary_version}.ta
 
 # scalacheck
 # nb:  no "v" in this tarball URL
+%if %{?want_scalacheck}
 Source6:	https://github.com/rickynils/scalacheck/archive/%{scalacheck_version}.tar.gz
+%endif
 
 # specs 
 # nb:  no "v" in this tarball url
@@ -254,23 +262,31 @@ Source73:       http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releas
 Source74:       http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/com.typesafe.sbt/sbt-site/scala_%{scala_short_version}/sbt_%{sbt_short_version}/%{sbt_site_jar_version}/jars/sbt-site.jar
 Source75:       http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/com.typesafe.sbt/sbt-git/scala_%{scala_short_version}/sbt_%{sbt_short_version}/%{sbt_git_version}/jars/sbt-git.jar
 
+%if %{?want_sxr}
 # sxr
 Source76:	http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt.sxr/sxr_%{scala_short_version}/%{sxr_version}/jars/sxr_%{scala_short_version}.jar
+%endif
 
 # sbinary
 Source77:	http://repo.typesafe.com/typesafe/ivy-releases/org.scala-tools.sbinary/sbinary_%{scala_short_version}/%{sbinary_version}/jars/sbinary_%{scala_short_version}.jar
 
 # scalacheck
+%if %{?want_scalacheck}
 Source78:       http://oss.sonatype.org/content/repositories/releases/org/scalacheck/scalacheck_%{scala_short_version}/%{scalacheck_version}/scalacheck_%{scala_short_version}-%{scalacheck_version}.jar
+%endif
 
+%if %{?want_specs2}
 # specs
 Source79:       http://oss.sonatype.org/content/repositories/releases/org/specs2/specs2_%{scala_short_version}/%{specs2_version}/specs2_%{scala_short_version}-%{specs2_version}.jar
+%endif
 
 # test-interface
 Source80:       http://oss.sonatype.org/content/repositories/releases/org/scala-sbt/test-interface/%{testinterface_version}/test-interface-%{testinterface_version}.jar
 
+%if %{?want_dispatch_http}
 # dispatch-http
 Source81:       http://oss.sonatype.org/content/repositories/releases/net/databinder/dispatch-http_%{scala_short_version}/%{dispatch_http_version}/dispatch-http_%{scala_short_version}-%{dispatch_http_version}.jar
+%endif
 
 # precompiled (need only for bootstrapping)
 
@@ -366,10 +382,10 @@ sed -i -e 's/0.13.0/%{sbt_bootstrap_version}/g' project/build.properties
 %endif
 
 # we need to use the bundled ivy because 2.3.0 is source and binary incompatible with 2.3.0-rc1 (which sbt 0.13.1 is built against)
-./climbing-nemesis.py org.apache.ivy ivy ivy-local --version 2.3.0-rc1 --pomfile %{SOURCE18} --jarfile %{SOURCE19} --extra-dep org.bouncycastle:bcpg-jdk16:1.46 --extra-dep org.bouncycastle:bcprov-jdk16:1.46 --log debug
+./climbing-nemesis.py org.apache.ivy ivy ivy-local --version 2.3.0-rc1 --pomfile %{SOURCE18} --jarfile %{SOURCE19} --extra-dep org.bouncycastle:bcpg-jdk16:1.46 --extra-dep org.bouncycastle:bcprov-jdk16:1.46
 
 # we're building against Ivy 2.3.0, though
-./climbing-nemesis.py org.apache.ivy ivy ivy-local --version 2.3.0 --pomfile %{SOURCE20} --jarfile %{_javadir}/ivy.jar --extra-dep org.bouncycastle:bcpg-jdk16:1.46 --extra-dep org.bouncycastle:bcprov-jdk16:1.46 --log debug
+./climbing-nemesis.py org.apache.ivy ivy ivy-local --version 2.3.0 --pomfile %{SOURCE20} --jarfile %{_javadir}/ivy.jar --extra-dep org.bouncycastle:bcpg-jdk16:1.46 --extra-dep org.bouncycastle:bcprov-jdk16:1.46
 
 ## BEGIN OPTIONAL IVY DEPS
 
@@ -445,22 +461,30 @@ sed -i -e '/precompiled/d' org.scala-sbt.sbt-%{sbt_bootstrap_version}.ivy.xml
 ./climbing-nemesis.py --jarfile %{SOURCE75} com.typesafe.sbt sbt-git ivy-local --version %{sbt_git_version} --meta e:scalaVersion=%{scala_short_version} --meta e:sbtVersion=%{sbt_short_version}
 
 # SXR
+%if %{?want_sxr}
 ./climbing-nemesis.py --jarfile %{SOURCE76} org.scala-sbt.sxr sxr ivy-local --version %{sxr_version} --scala %{scala_short_version}
+%endif
 
 # sbinary
 ./climbing-nemesis.py --jarfile %{SOURCE77} org.scala-tools.sbinary sbinary ivy-local --version %{sbinary_version} --scala %{scala_short_version}
 
 # scalacheck
+%if %{?want_scalacheck}
 ./climbing-nemesis.py --jarfile %{SOURCE78} org.scalacheck scalacheck ivy-local --version %{scalacheck_version} --scala %{scala_short_version}
+%endif
 
 # specs2
+%if %{?want_specs2}
 ./climbing-nemesis.py --jarfile %{SOURCE79} org.specs2 specs2 ivy-local --version %{specs2_version} --scala %{scala_short_version}
+%endif
 
 # test-interface
 ./climbing-nemesis.py --jarfile %{SOURCE80} org.scala-sbt test-interface ivy-local --version %{testinterface_version}
 
+%if %{?want_dispatch_http}
 # dispatch-http
 ./climbing-nemesis.py --jarfile %{SOURCE81} net.databinder dispatch-http_%{scala_short_version} ivy-local --version %{dispatch_http_version}
+%endif
 
 %else
 # If we aren't bootstrapping, copy installed jars into local ivy cache
