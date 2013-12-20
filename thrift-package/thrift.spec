@@ -1,6 +1,6 @@
 %global pkg_version 0.9.1
 %global fb303_version 1.0.0_dev
-%global pkg_rel 9
+%global pkg_rel 10
 
 %global py_version 2.7
 
@@ -147,6 +147,7 @@ Python, %{?php_langname}and other languages.
 Summary:	Development files for %{name}
 Requires:	%{name}%{?_isa} = %{version}-%{release}
 Requires:	pkgconfig
+Requires:	boost-devel
 
 %description	devel
 The %{name}-devel package contains libraries and header files for
@@ -536,6 +537,10 @@ find %{buildroot} -name \*.py -exec grep -q /usr/bin/env {} \; -print | xargs -r
 
 
 %changelog
+
+* Fri Dec 20 2013 willb <willb@redhat> - 0.9.1-10
+- fix BZ 1045544
+
 * Wed Oct 16 2013 willb <willb@redhat> - 0.9.1-9
 - Remove spurious dependencies
 - Move some versioned shared libraries from -devel
