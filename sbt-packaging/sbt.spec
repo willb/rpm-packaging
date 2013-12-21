@@ -355,6 +355,7 @@ cp %{SOURCE128} .
 
 sed -i -e 's/0.7.1/0.6.2/g' project/p.sbt
 sed -i -e 's/FEDORA_SCALA_VERSION/%{scala_version}/g' sbt.boot.properties
+sed -i -e 's/FEDORA_SBT_VERSION/%{sbt_version}/g' sbt.boot.properties
 sed -i -e 's/["]2[.]10[.]2["]/\"2.10.3\"/g' $(find . -name \*.sbt) $(find . -name \*.xml)
 sed -i -e 's/["]2[.]10[.]2-RC2["]/\"2.10.3\"/g' $(find . -name \*.sbt)
 
@@ -496,7 +497,7 @@ sed -i -e '/precompiled/d' org.scala-sbt.sbt-%{sbt_bootstrap_version}.ivy.xml
 # remove any references to Scala 2.10.2
 sed -i -e 's/["]2[.]10[.]2["]/\"2.10.3\"/g' $(find . -name \*.xml)
 
-# better not to try and compile the docs support
+# better not to try and compile the docs project
 rm -f project/Docs.scala
 
 mkdir -p sbt-boot-dir/scala-%{scala_version}/org.scala-sbt/sbt/%{sbt_bootstrap_version}/
