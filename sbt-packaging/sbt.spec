@@ -12,6 +12,8 @@
 %global sbt_full_version %{sbt_version}%{sbt_build}
 %global typesafe_repo http://repo.typesafe.com/typesafe/ivy-releases
 
+%global ivy_local_dir ivy-local
+
 %global generic_ivy_artifact() %{1}/%{2}/%{3}/%{4}/jars/%{5}.jar
 %global generic_ivy_descriptor() %{1}/%{2}/%{3}/%{4}/ivys/ivy.xml#/%{5}-%{4}-ivy.xml
 
@@ -91,6 +93,9 @@ Source20:       http://repo1.maven.org/maven2/org/apache/ivy/ivy/2.3.0/ivy-2.3.0
 # Ivy 2.3.0-rc1 jar (necessary for bootstrapping with sbt 0.13.1)
 Source19:	http://repo1.maven.org/maven2/org/apache/ivy/ivy/2.3.0-rc1/ivy-2.3.0-rc1.jar
 
+
+# sbt script (to be obsoleted in future releases)
+Source21:	https://github.com/willb/sbt-packaging/blob/master/sbt
 
 %if %{do_bootstrap}
 # include bootstrap libraries
@@ -361,51 +366,51 @@ sed -i -e 's/["]2[.]10[.]2-RC2["]/\"2.10.3\"/g' $(find . -name \*.sbt)
 
 sed -i -e 's/0.13.0/%{sbt_bootstrap_version}/g' project/build.properties
 
-./climbing-nemesis.py org.jsoup jsoup ivy-local --version 1.7.1
+./climbing-nemesis.py org.jsoup jsoup %{ivy_local_dir} --version 1.7.1
 
 # fake on F19
-./climbing-nemesis.py com.jcraft jsch ivy-local --version 0.1.46
+./climbing-nemesis.py com.jcraft jsch %{ivy_local_dir} --version 0.1.46
 
 # scala compiler; nb; we may need to treat the compiler specially to remove the spurious jline dependency
-./climbing-nemesis.py org.scala-lang scala-library ivy-local --version %{scala_version}
-./climbing-nemesis.py org.scala-lang scala-compiler ivy-local --version %{scala_version}
-./climbing-nemesis.py org.scala-lang scala-reflect ivy-local --version %{scala_version}
+./climbing-nemesis.py org.scala-lang scala-library %{ivy_local_dir} --version %{scala_version}
+./climbing-nemesis.py org.scala-lang scala-compiler %{ivy_local_dir} --version %{scala_version}
+./climbing-nemesis.py org.scala-lang scala-reflect %{ivy_local_dir} --version %{scala_version}
 
 # fake on F19
 %if 0%{?fedora} >= 21
-./climbing-nemesis.py jline jline ivy-local --version 2.11
-./climbing-nemesis.py org.fusesource.jansi jansi ivy-local --version 1.9
-./climbing-nemesis.py org.fusesource.jansi jansi-native ivy-local --version 1.5
-./climbing-nemesis.py org.fusesource.hawtjni hawtjni-runtime ivy-local --version 1.8
+./climbing-nemesis.py jline jline %{ivy_local_dir} --version 2.11
+./climbing-nemesis.py org.fusesource.jansi jansi %{ivy_local_dir} --version 1.9
+./climbing-nemesis.py org.fusesource.jansi jansi-native %{ivy_local_dir} --version 1.5
+./climbing-nemesis.py org.fusesource.hawtjni hawtjni-runtime %{ivy_local_dir} --version 1.8
 %else
-./climbing-nemesis.py jline jline ivy-local --version 2.11 --jarfile %{_javadir}/jline2-2.10.jar
-./climbing-nemesis.py org.fusesource.jansi jansi ivy-local --version 1.9
+./climbing-nemesis.py jline jline %{ivy_local_dir} --version 2.11 --jarfile %{_javadir}/jline2-2.10.jar
+./climbing-nemesis.py org.fusesource.jansi jansi %{ivy_local_dir} --version 1.9
 %endif
 
 # we need to use the bundled ivy because 2.3.0 is source and binary incompatible with 2.3.0-rc1 (which sbt 0.13.1 is built against)
-./climbing-nemesis.py org.apache.ivy ivy ivy-local --version 2.3.0-rc1 --pomfile %{SOURCE18} --jarfile %{SOURCE19} --extra-dep org.bouncycastle:bcpg-jdk16:1.46 --extra-dep org.bouncycastle:bcprov-jdk16:1.46
+./climbing-nemesis.py org.apache.ivy ivy %{ivy_local_dir} --version 2.3.0-rc1 --pomfile %{SOURCE18} --jarfile %{SOURCE19} --extra-dep org.bouncycastle:bcpg-jdk16:1.46 --extra-dep org.bouncycastle:bcprov-jdk16:1.46
 
 # we're building against Ivy 2.3.0, though
-./climbing-nemesis.py org.apache.ivy ivy ivy-local --version 2.3.0 --pomfile %{SOURCE20} --jarfile %{_javadir}/ivy.jar --extra-dep org.bouncycastle:bcpg-jdk16:1.46 --extra-dep org.bouncycastle:bcprov-jdk16:1.46
+./climbing-nemesis.py org.apache.ivy ivy %{ivy_local_dir} --version 2.3.0 --pomfile %{SOURCE20} --jarfile %{_javadir}/ivy.jar --extra-dep org.bouncycastle:bcpg-jdk16:1.46 --extra-dep org.bouncycastle:bcprov-jdk16:1.46
 
 ## BEGIN OPTIONAL IVY DEPS
 
 # bouncycastle pgp signature generator
-./climbing-nemesis.py org.bouncycastle bcpg-jdk16 ivy-local --version 1.46
-./climbing-nemesis.py org.bouncycastle bcprov-jdk16 ivy-local --version 1.46
+./climbing-nemesis.py org.bouncycastle bcpg-jdk16 %{ivy_local_dir} --version 1.46
+./climbing-nemesis.py org.bouncycastle bcprov-jdk16 %{ivy_local_dir} --version 1.46
 
 # ORO (blast from the past)
-./climbing-nemesis.py oro oro  ivy-local --version 2.0.8
+./climbing-nemesis.py oro oro  %{ivy_local_dir} --version 2.0.8
 
 # JSCH
-./climbing-nemesis.py com.jcraft jsch  ivy-local --version 0.1.31
+./climbing-nemesis.py com.jcraft jsch  %{ivy_local_dir} --version 0.1.31
 
 # commons-httpclient
-./climbing-nemesis.py commons-httpclient commons-httpclient ivy-local --version 3.0
+./climbing-nemesis.py commons-httpclient commons-httpclient %{ivy_local_dir} --version 3.0
 
 ## END OPTIONAL IVY DEPS
 
-./climbing-nemesis.py net.sf.proguard proguard-base ivy-local --version 4.8 --jarfile %{_javadir}/proguard/proguard.jar
+./climbing-nemesis.py net.sf.proguard proguard-base %{ivy_local_dir} --version 4.8 --jarfile %{_javadir}/proguard/proguard.jar
 
 %if %{do_bootstrap}
 cp %{SOURCE132} org.scala-sbt.ivy-%{sbt_bootstrap_version}.ivy.xml
@@ -414,77 +419,77 @@ cp %{SOURCE171} org.scala-sbt.sbt-%{sbt_bootstrap_version}.ivy.xml
 sed -i -e '/precompiled/d' org.scala-sbt.ivy-%{sbt_bootstrap_version}.ivy.xml
 sed -i -e '/precompiled/d' org.scala-sbt.sbt-%{sbt_bootstrap_version}.ivy.xml
 
-./climbing-nemesis.py --jarfile %{SOURCE32} --ivyfile org.scala-sbt.ivy-%{sbt_bootstrap_version}.ivy.xml org.scala-sbt ivy ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE33} --ivyfile %{SOURCE133} org.scala-sbt task-system ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE34} --ivyfile %{SOURCE134} org.scala-sbt compiler-interface-src ivy-local --version %{sbt_bootstrap_version} --override org.scala-sbt:compiler-interface --override-dir-only
-./climbing-nemesis.py --jarfile %{SOURCE35} --ivyfile %{SOURCE135} org.scala-sbt compiler-interface-bin ivy-local --version %{sbt_bootstrap_version} --override org.scala-sbt:compiler-interface --override-dir-only
-./climbing-nemesis.py --jarfile %{SOURCE36} --ivyfile %{SOURCE136} org.scala-sbt testing ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE37} --ivyfile %{SOURCE137} org.scala-sbt command ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE38} --ivyfile %{SOURCE138} org.scala-sbt test-agent ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE39} --ivyfile %{SOURCE139} org.scala-sbt launcher-interface ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE40} --ivyfile %{SOURCE140} org.scala-sbt run ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE41} --ivyfile %{SOURCE141} org.scala-sbt compiler-ivy-integration ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE42} --ivyfile %{SOURCE142} org.scala-sbt scripted-sbt ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE44} --ivyfile %{SOURCE144} org.scala-sbt collections ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE45} --ivyfile %{SOURCE145} org.scala-sbt persist ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE46} --ivyfile %{SOURCE146} org.scala-sbt classfile ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE47} --ivyfile %{SOURCE147} org.scala-sbt control ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE48} --ivyfile %{SOURCE148} org.scala-sbt launcher ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE49} --ivyfile %{SOURCE149} org.scala-sbt apply-macro ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE50} --ivyfile %{SOURCE150} org.scala-sbt datatype-generator ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE51} --ivyfile %{SOURCE151} org.scala-sbt interface ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE52} --ivyfile %{SOURCE152} org.scala-sbt main-settings ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE53} --ivyfile %{SOURCE153} org.scala-sbt incremental-compiler ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE54} --ivyfile %{SOURCE154} org.scala-sbt cache ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE55} --ivyfile %{SOURCE155} org.scala-sbt compiler-integration ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE56} --ivyfile %{SOURCE156} org.scala-sbt api ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE57} --ivyfile %{SOURCE157} org.scala-sbt main ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE58} --ivyfile %{SOURCE158} org.scala-sbt classpath ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE59} --ivyfile %{SOURCE159} org.scala-sbt logging ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE60} --ivyfile %{SOURCE160} org.scala-sbt compile ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE61} --ivyfile %{SOURCE161} org.scala-sbt process ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE62} --ivyfile %{SOURCE162} org.scala-sbt actions ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE63} --ivyfile %{SOURCE163} org.scala-sbt sbt-launch ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE64} --ivyfile %{SOURCE164} org.scala-sbt scripted-plugin ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE65} --ivyfile %{SOURCE165} org.scala-sbt tracking ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE66} --ivyfile %{SOURCE166} org.scala-sbt tasks ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE67} --ivyfile %{SOURCE167} org.scala-sbt completion ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE68} --ivyfile %{SOURCE168} org.scala-sbt cross ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE69} --ivyfile %{SOURCE169} org.scala-sbt relation ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE70} --ivyfile %{SOURCE170} org.scala-sbt io ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE71} --ivyfile org.scala-sbt.sbt-%{sbt_bootstrap_version}.ivy.xml org.scala-sbt sbt ivy-local --version %{sbt_bootstrap_version}
-./climbing-nemesis.py --jarfile %{SOURCE72} --ivyfile %{SOURCE172} org.scala-sbt scripted-framework ivy-local --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE32} --ivyfile org.scala-sbt.ivy-%{sbt_bootstrap_version}.ivy.xml org.scala-sbt ivy %{ivy_local_dir} --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE33} --ivyfile %{SOURCE133} org.scala-sbt task-system %{ivy_local_dir} --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE34} --ivyfile %{SOURCE134} org.scala-sbt compiler-interface-src %{ivy_local_dir} --version %{sbt_bootstrap_version} --override org.scala-sbt:compiler-interface --override-dir-only
+./climbing-nemesis.py --jarfile %{SOURCE35} --ivyfile %{SOURCE135} org.scala-sbt compiler-interface-bin %{ivy_local_dir} --version %{sbt_bootstrap_version} --override org.scala-sbt:compiler-interface --override-dir-only
+./climbing-nemesis.py --jarfile %{SOURCE36} --ivyfile %{SOURCE136} org.scala-sbt testing %{ivy_local_dir} --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE37} --ivyfile %{SOURCE137} org.scala-sbt command %{ivy_local_dir} --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE38} --ivyfile %{SOURCE138} org.scala-sbt test-agent %{ivy_local_dir} --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE39} --ivyfile %{SOURCE139} org.scala-sbt launcher-interface %{ivy_local_dir} --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE40} --ivyfile %{SOURCE140} org.scala-sbt run %{ivy_local_dir} --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE41} --ivyfile %{SOURCE141} org.scala-sbt compiler-ivy-integration %{ivy_local_dir} --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE42} --ivyfile %{SOURCE142} org.scala-sbt scripted-sbt %{ivy_local_dir} --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE44} --ivyfile %{SOURCE144} org.scala-sbt collections %{ivy_local_dir} --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE45} --ivyfile %{SOURCE145} org.scala-sbt persist %{ivy_local_dir} --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE46} --ivyfile %{SOURCE146} org.scala-sbt classfile %{ivy_local_dir} --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE47} --ivyfile %{SOURCE147} org.scala-sbt control %{ivy_local_dir} --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE48} --ivyfile %{SOURCE148} org.scala-sbt launcher %{ivy_local_dir} --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE49} --ivyfile %{SOURCE149} org.scala-sbt apply-macro %{ivy_local_dir} --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE50} --ivyfile %{SOURCE150} org.scala-sbt datatype-generator %{ivy_local_dir} --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE51} --ivyfile %{SOURCE151} org.scala-sbt interface %{ivy_local_dir} --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE52} --ivyfile %{SOURCE152} org.scala-sbt main-settings %{ivy_local_dir} --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE53} --ivyfile %{SOURCE153} org.scala-sbt incremental-compiler %{ivy_local_dir} --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE54} --ivyfile %{SOURCE154} org.scala-sbt cache %{ivy_local_dir} --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE55} --ivyfile %{SOURCE155} org.scala-sbt compiler-integration %{ivy_local_dir} --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE56} --ivyfile %{SOURCE156} org.scala-sbt api %{ivy_local_dir} --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE57} --ivyfile %{SOURCE157} org.scala-sbt main %{ivy_local_dir} --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE58} --ivyfile %{SOURCE158} org.scala-sbt classpath %{ivy_local_dir} --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE59} --ivyfile %{SOURCE159} org.scala-sbt logging %{ivy_local_dir} --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE60} --ivyfile %{SOURCE160} org.scala-sbt compile %{ivy_local_dir} --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE61} --ivyfile %{SOURCE161} org.scala-sbt process %{ivy_local_dir} --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE62} --ivyfile %{SOURCE162} org.scala-sbt actions %{ivy_local_dir} --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE63} --ivyfile %{SOURCE163} org.scala-sbt sbt-launch %{ivy_local_dir} --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE64} --ivyfile %{SOURCE164} org.scala-sbt scripted-plugin %{ivy_local_dir} --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE65} --ivyfile %{SOURCE165} org.scala-sbt tracking %{ivy_local_dir} --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE66} --ivyfile %{SOURCE166} org.scala-sbt tasks %{ivy_local_dir} --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE67} --ivyfile %{SOURCE167} org.scala-sbt completion %{ivy_local_dir} --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE68} --ivyfile %{SOURCE168} org.scala-sbt cross %{ivy_local_dir} --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE69} --ivyfile %{SOURCE169} org.scala-sbt relation %{ivy_local_dir} --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE70} --ivyfile %{SOURCE170} org.scala-sbt io %{ivy_local_dir} --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE71} --ivyfile org.scala-sbt.sbt-%{sbt_bootstrap_version}.ivy.xml org.scala-sbt sbt %{ivy_local_dir} --version %{sbt_bootstrap_version}
+./climbing-nemesis.py --jarfile %{SOURCE72} --ivyfile %{SOURCE172} org.scala-sbt scripted-framework %{ivy_local_dir} --version %{sbt_bootstrap_version}
 
 # plugins
 
-./climbing-nemesis.py --jarfile %{SOURCE73} com.typesafe.sbt sbt-ghpages ivy-local --version %{sbt_ghpages_version} --meta e:scalaVersion=%{scala_short_version} --meta e:sbtVersion=%{sbt_short_version}
-./climbing-nemesis.py --jarfile %{SOURCE74} com.typesafe.sbt sbt-site ivy-local --version %{sbt_site_version} --meta e:scalaVersion=%{scala_short_version} --meta e:sbtVersion=%{sbt_short_version}
-./climbing-nemesis.py --jarfile %{SOURCE75} com.typesafe.sbt sbt-git ivy-local --version %{sbt_git_version} --meta e:scalaVersion=%{scala_short_version} --meta e:sbtVersion=%{sbt_short_version}
+./climbing-nemesis.py --jarfile %{SOURCE73} com.typesafe.sbt sbt-ghpages %{ivy_local_dir} --version %{sbt_ghpages_version} --meta e:scalaVersion=%{scala_short_version} --meta e:sbtVersion=%{sbt_short_version}
+./climbing-nemesis.py --jarfile %{SOURCE74} com.typesafe.sbt sbt-site %{ivy_local_dir} --version %{sbt_site_version} --meta e:scalaVersion=%{scala_short_version} --meta e:sbtVersion=%{sbt_short_version}
+./climbing-nemesis.py --jarfile %{SOURCE75} com.typesafe.sbt sbt-git %{ivy_local_dir} --version %{sbt_git_version} --meta e:scalaVersion=%{scala_short_version} --meta e:sbtVersion=%{sbt_short_version}
 
 # SXR
 %if %{?want_sxr}
-./climbing-nemesis.py --jarfile %{SOURCE76} org.scala-sbt.sxr sxr ivy-local --version %{sxr_version} --scala %{scala_short_version}
+./climbing-nemesis.py --jarfile %{SOURCE76} org.scala-sbt.sxr sxr %{ivy_local_dir} --version %{sxr_version} --scala %{scala_short_version}
 %endif
 
 # sbinary
-./climbing-nemesis.py --jarfile %{SOURCE77} org.scala-tools.sbinary sbinary ivy-local --version %{sbinary_version} --scala %{scala_short_version}
+./climbing-nemesis.py --jarfile %{SOURCE77} org.scala-tools.sbinary sbinary %{ivy_local_dir} --version %{sbinary_version} --scala %{scala_short_version}
 
 # scalacheck
 %if %{?want_scalacheck}
-./climbing-nemesis.py --jarfile %{SOURCE78} org.scalacheck scalacheck ivy-local --version %{scalacheck_version} --scala %{scala_short_version}
+./climbing-nemesis.py --jarfile %{SOURCE78} org.scalacheck scalacheck %{ivy_local_dir} --version %{scalacheck_version} --scala %{scala_short_version}
 %endif
 
 # specs2
 %if %{?want_specs2}
-./climbing-nemesis.py --jarfile %{SOURCE79} org.specs2 specs2 ivy-local --version %{specs2_version} --scala %{scala_short_version}
+./climbing-nemesis.py --jarfile %{SOURCE79} org.specs2 specs2 %{ivy_local_dir} --version %{specs2_version} --scala %{scala_short_version}
 %endif
 
 # test-interface
-./climbing-nemesis.py --jarfile %{SOURCE80} org.scala-sbt test-interface ivy-local --version %{testinterface_version}
+./climbing-nemesis.py --jarfile %{SOURCE80} org.scala-sbt test-interface %{ivy_local_dir} --version %{testinterface_version}
 
 %if %{?want_dispatch_http}
 # dispatch-http
-./climbing-nemesis.py --jarfile %{SOURCE81} net.databinder dispatch-http_%{scala_short_version} ivy-local --version %{dispatch_http_version}
+./climbing-nemesis.py --jarfile %{SOURCE81} net.databinder dispatch-http_%{scala_short_version} %{ivy_local_dir} --version %{dispatch_http_version}
 %endif
 
 %else
@@ -493,6 +498,8 @@ sed -i -e '/precompiled/d' org.scala-sbt.sbt-%{sbt_bootstrap_version}.ivy.xml
 # installed packages.  This is a FIXME for now, though.
 
 %endif
+
+(cd %{ivy_local_dir} ; tar -czvf ../ivylocal.tar.gz .)
 
 # remove any references to Scala 2.10.2
 sed -i -e 's/["]2[.]10[.]2["]/\"2.10.3\"/g' $(find . -name \*.xml)
@@ -503,12 +510,12 @@ rm -f project/Docs.scala
 mkdir -p sbt-boot-dir/scala-%{scala_version}/org.scala-sbt/sbt/%{sbt_bootstrap_version}/
 mkdir -p sbt-boot-dir/scala-%{scala_version}/lib
 
-for jar in $(find ivy-local/ -name \*.jar | grep fusesource) ; do 
+for jar in $(find %{ivy_local_dir}/ -name \*.jar | grep fusesource) ; do 
    cp $jar sbt-boot-dir/scala-%{scala_version}/lib
 done
 
 # this is a hack, obvs
-for jar in $(find ivy-local/ -name \*.jar | grep bouncycastle) ; do 
+for jar in $(find %{ivy_local_dir}/ -name \*.jar | grep bouncycastle) ; do 
    cp $jar sbt-boot-dir/scala-%{scala_version}/lib
 done
 
@@ -517,7 +524,7 @@ ln -s %{_javadir}/scala scala/lib
 
 %build
 
-java -Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -jar -Dsbt.boot.properties=sbt.boot.properties sbt-launch.jar package deliver-local
+java -Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -jar -Dfedora.sbt.ivy.dir=ivy-local -Dsbt.boot.properties=sbt.boot.properties sbt-launch.jar package deliver-local
 
 %install
 %if 0%{?fedora} >= 21
@@ -545,6 +552,10 @@ mkdir -p %{buildroot}/%{_javadir}/sbt
 
 find . -name \*.jar | grep %{sbt_full_version}.jar | xargs -I JAR cp JAR %{buildroot}/%{_javadir}/sbt
 
+mkdir -p %{buildroot}/%{_bindir}
+cp -p %{SOURCE21} %{buildroot}/%{_bindir}/%{name}
+chmod 755 %{buildroot}/%{_bindir}/%{name}
+
 pushd %{buildroot}/%{_javadir}/sbt
 for jar in *.jar ; do
     ln -s $jar $(echo $jar | sed -e 's/-%{sbt_full_version}//g')
@@ -553,13 +564,27 @@ popd
 
 %endif
 
+mkdir -p %{buildroot}/%{_sysconfdir}/sbt
+
+cp -p %{SOURCE17} %{buildroot}/%{_sysconfdir}/sbt
+
+cp ivylocal.tar.gz %{buildroot}/%{_javadir}/sbt
+pushd %{buildroot}/%{_javadir}/sbt
+mkdir %{ivy_local_dir}
+cd %{ivy_local_dir}
+tar -xzvf ../ivylocal.tar.gz
+popd
+
 %if 0%{?fedora} >= 21
 %files -f .mfiles
 %{_bindir}/%{name}
 %else
 %files
 %{_javadir}/sbt/
+%{_bindir}/%{name}
 %endif
+
+%{_sysconfdir}/sbt
 %doc README.md LICENSE NOTICE
 
 
