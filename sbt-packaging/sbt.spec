@@ -566,7 +566,7 @@ popd
 
 mkdir -p %{buildroot}/%{_sysconfdir}/sbt
 
-cp -p %{SOURCE17} %{buildroot}/%{_sysconfdir}/sbt
+cp -p sbt.boot.properties %{buildroot}/%{_sysconfdir}/sbt
 
 cp ivylocal.tar.gz %{buildroot}/%{_javadir}/sbt
 pushd %{buildroot}/%{_javadir}/sbt
