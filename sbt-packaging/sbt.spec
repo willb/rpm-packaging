@@ -499,8 +499,6 @@ sed -i -e '/precompiled/d' org.scala-sbt.sbt-%{sbt_bootstrap_version}.ivy.xml
 
 %endif
 
-(cd %{ivy_local_dir} ; tar -czvf ../ivylocal.tar.gz .)
-
 # remove any references to Scala 2.10.2
 sed -i -e 's/["]2[.]10[.]2["]/\"2.10.3\"/g' $(find . -name \*.xml)
 
@@ -524,7 +522,7 @@ ln -s %{_javadir}/scala scala/lib
 
 %build
 
-java -Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -jar -Dfedora.sbt.ivy.dir=ivy-local -Dsbt.boot.properties=sbt.boot.properties sbt-launch.jar package deliver-local
+java -Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -jar -Dfedora.sbt.ivy.dir=ivy-local -Dfedora.sbt.boot.dir=sbt-boot-dir -Dsbt.boot.properties=sbt.boot.properties sbt-launch.jar package deliver-local
 
 %install
 %if 0%{?fedora} >= 21
@@ -566,14 +564,14 @@ popd
 
 mkdir -p %{buildroot}/%{_sysconfdir}/sbt
 
-cp -p sbt.boot.properties %{buildroot}/%{_sysconfdir}/sbt
+sed -i 's/debug/warn/' < sbt.boot.properties > %{buildroot}/%{_sysconfdir}/sbt/sbt.boot.properties
 
-cp ivylocal.tar.gz %{buildroot}/%{_javadir}/sbt
-pushd %{buildroot}/%{_javadir}/sbt
-mkdir %{ivy_local_dir}
-cd %{ivy_local_dir}
-tar -xzvf ../ivylocal.tar.gz
-popd
+mkdir -p %{buildroot}/%{_javadir}/sbt/%{ivy_local_dir}
+mkdir -p %{buildroot}/%{_javadir}/sbt/boot
+
+(cd %{ivy_local_dir} ; tar -cf - .) | (cd %{buildroot}/%{_javadir}/sbt/%{ivy_local_dir} ; tar -xf - )
+
+(cd sbt-boot-dir ; tar -cf - .) | (cd %{buildroot}/%{_javadir}/sbt/boot ; tar -xf - )
 
 %if 0%{?fedora} >= 21
 %files -f .mfiles
@@ -589,5 +587,9 @@ popd
 
 
 %changelog
+* Sat Dec 14 2013 William Benton <willb@redhat.com - 0.13.1-1
+- updated to 0.13.1
+- many other packaging fixes
+
 * Thu Nov 7 2013 William Benton <willb@redhat.com> - 0.13.0-1
 - initial package
