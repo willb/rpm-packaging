@@ -19,6 +19,15 @@ Requires:       scala
 Uniform test interface to Scala/Java test frameworks (specs,
 ScalaCheck, ScalaTest, JUnit and other)
 
+%package javadoc
+Group:          Documentation
+Summary:        Javadoc for %{name}
+Requires:       jpackage-utils
+BuildArch:	noarch
+
+%description javadoc
+Javadoc for %{name}.
+
 %prep
 %setup -q -n test-interface-%{test_interface_version}
 
@@ -42,8 +51,12 @@ rm -rf %{buildroot}
 mkdir -p %{buildroot}/%{_javadir}
 mkdir -p %{buildroot}/%{_mavenpomdir}
 
+mkdir -p %{buildroot}/%{_javadocdir}/%{name}
+
 cp target/%{name}-%{version}.jar %{buildroot}/%{_javadir}/%{name}.jar
 cp target/%{name}-%{version}.pom %{buildroot}/%{_mavenpomdir}/JPP-%{name}.pom
+
+cp -rp target/api/* %{buildroot}/%{_javadocdir}/%{name}
 
 %add_maven_depmap JPP-%{name}.pom %{name}.jar
 
@@ -54,6 +67,8 @@ cp target/%{name}-%{version}.pom %{buildroot}/%{_mavenpomdir}/JPP-%{name}.pom
 
 %doc LICENSE README
 
+%files javadoc
+%{_javadocdir}/%{name}
 
 
 %changelog
