@@ -505,7 +505,7 @@ sed -i -e 's/["]2[.]10[.]2["]/\"2.10.3\"/g' $(find . -name \*.xml)
 # better not to try and compile the docs project
 rm -f project/Docs.scala
 
-mkdir -p sbt-boot-dir/scala-%{scala_version}/org.scala-sbt/sbt/%{sbt_bootstrap_version}/
+mkdir -p sbt-boot-dir/scala-%{scala_version}/org.scala-sbt/%{name}/%{sbt_bootstrap_version}/
 mkdir -p sbt-boot-dir/scala-%{scala_version}/lib
 
 for jar in $(find %{ivy_local_dir}/ -name \*.jar | grep fusesource) ; do 
@@ -546,15 +546,15 @@ sed -i -n '/<autoRequires>/{:a;N;/<\/autoRequires>/{p;b;};/>UNKNOWN</{:b;n;/<\/a
 %else
 
 rm -rf %{buildroot}
-mkdir -p %{buildroot}/%{_javadir}/sbt
+mkdir -p %{buildroot}/%{_javadir}/%{name}
 
-find . -name \*.jar | grep %{sbt_full_version}.jar | xargs -I JAR cp JAR %{buildroot}/%{_javadir}/sbt
+find . -name \*.jar | grep %{sbt_full_version}.jar | xargs -I JAR cp JAR %{buildroot}/%{_javadir}/%{name}
 
 mkdir -p %{buildroot}/%{_bindir}
 cp -p %{SOURCE21} %{buildroot}/%{_bindir}/%{name}
 chmod 755 %{buildroot}/%{_bindir}/%{name}
 
-pushd %{buildroot}/%{_javadir}/sbt
+pushd %{buildroot}/%{_javadir}/%{name}
 for jar in *.jar ; do
     ln -s $jar $(echo $jar | sed -e 's/-%{sbt_full_version}//g')
 done
@@ -562,27 +562,27 @@ popd
 
 %endif
 
-mkdir -p %{buildroot}/%{_sysconfdir}/sbt
+mkdir -p %{buildroot}/%{_sysconfdir}/%{name}
 
-sed -i 's/debug/warn/' < sbt.boot.properties > %{buildroot}/%{_sysconfdir}/sbt/sbt.boot.properties
+sed -i 's/debug/warn/' < sbt.boot.properties > %{buildroot}/%{_sysconfdir}/%{name}/sbt.boot.properties
 
-mkdir -p %{buildroot}/%{_javadir}/sbt/%{ivy_local_dir}
-mkdir -p %{buildroot}/%{_javadir}/sbt/boot
+mkdir -p %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir}
+mkdir -p %{buildroot}/%{_javadir}/%{name}/boot
 
-(cd %{ivy_local_dir} ; tar -cf - .) | (cd %{buildroot}/%{_javadir}/sbt/%{ivy_local_dir} ; tar -xf - )
+(cd %{ivy_local_dir} ; tar -cf - .) | (cd %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir} ; tar -xf - )
 
-(cd sbt-boot-dir ; tar -cf - .) | (cd %{buildroot}/%{_javadir}/sbt/boot ; tar -xf - )
+(cd sbt-boot-dir ; tar -cf - .) | (cd %{buildroot}/%{_javadir}/%{name}/boot ; tar -xf - )
 
 %if 0%{?fedora} >= 21
 %files -f .mfiles
 %{_bindir}/%{name}
 %else
 %files
-%{_javadir}/sbt/
+%{_javadir}/%{name}
 %{_bindir}/%{name}
 %endif
 
-%{_sysconfdir}/sbt
+%{_sysconfdir}/%{name}
 %doc README.md LICENSE NOTICE
 
 
