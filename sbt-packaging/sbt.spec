@@ -585,9 +585,8 @@ mkdir -p %{buildroot}/%{_javadir}/%{name}/boot
 %{_sysconfdir}/%{name}
 %doc README.md LICENSE NOTICE
 
-
 %changelog
-* Sat Dec 14 2013 William Benton <willb@redhat.com - 0.13.1-1
+* Sat Dec 14 2013 William Benton <willb@redhat.com> - 0.13.1-1
 - updated to 0.13.1
 - many other packaging fixes
 
