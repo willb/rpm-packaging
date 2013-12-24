@@ -9,6 +9,7 @@ License:        BSD
 URL:            https://github.com/sbt/test-interface
 Source0:        https://github.com/sbt/test-interface/archive/v%{test_interface_version}.tar.gz
 
+BuildArch:	noarch
 BuildRequires:  sbt
 BuildRequires:  scala
 Requires:       scala
