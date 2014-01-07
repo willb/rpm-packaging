@@ -22,11 +22,15 @@ Source3:	http://craigsworks.com/projects/qtip/packages/1.0.0-rc3/jquery.qtip-%{j
 BuildArch:	noarch
 BuildRequires:  sbt
 BuildRequires:  scala
+BuildRequires:	javapackages-tools
+Requires:	javapackages-tools
 Requires:       scala
 
 %description
 
-
+Browsable Scala source code in HTML with: syntax highlighting,
+types/applied implicits in tooltips, references/definition highlighted
+on mouseover, and links to definitions.
 
 %package javadoc
 Group:          Documentation
