@@ -15,6 +15,8 @@ BuildArch:	noarch
 BuildRequires:  scala
 BuildRequires:  sbt
 BuildRequires:	mvn(org.scala-sbt:test-interface)
+BuildRequires:	javapackages-tools
+Requires:	javapackages-tools
 Requires:       scala
 
 %description
