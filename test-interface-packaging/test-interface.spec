@@ -13,6 +13,8 @@ BuildArch:	noarch
 BuildRequires:  sbt
 BuildRequires:  scala
 Requires:       scala
+BuildRequires:	javapackages-tools
+Requires:	javapackages-tools
 
 %description
 
@@ -22,7 +24,6 @@ ScalaCheck, ScalaTest, JUnit and other)
 %package javadoc
 Group:          Documentation
 Summary:        Javadoc for %{name}
-Requires:       jpackage-utils
 BuildArch:	noarch
 
 %description javadoc
@@ -72,3 +73,6 @@ cp -rp target/api/* %{buildroot}/%{_javadocdir}/%{name}
 
 
 %changelog
+
+* Mon Dec 23 2013 William Benton <willb@redhat.com> - 1.0-1
+- initial package
