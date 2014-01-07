@@ -326,6 +326,9 @@ BuildRequires:  jansi
 BuildRequires:  jline
 BuildRequires:  proguard
 
+BuildRequires:	javapackages-tools
+Requires:	javapackages-tools
+
 %if !%{do_bootstrap}
 BuildRequires:  sbt = %{sbt_bootstrap_version}
 BuildRequires:  sbt-ghpages = %{sbt_ghpages_version}
