@@ -6,7 +6,7 @@ Version:        %{sbinary_version}
 Release:        1%{?dist}
 Summary:        Library for describing binary formats for Scala types
 
-License:        BSD
+License:        MIT
 URL:            https://github.com/harrah/sbinary
 Source0:        https://github.com/harrah/sbinary/archive/v%{sbinary_version}.tar.gz
 Source1:	https://raw.github.com/willb/climbing-nemesis/master/climbing-nemesis.py
@@ -16,12 +16,25 @@ BuildRequires:  sbt
 BuildRequires:  scala
 BuildRequires:	python
 BuildRequires:	mvn(net.sourceforge.fmpp:fmpp)
+BuildRequires:	mvn(org.beanshell:bsh)
+BuildRequires:	mvn(xml-resolver:xml-resolver)
 BuildRequires:	mvn(org.freemarker:freemarker)
+BuildRequires:	maven-local
+BuildRequires:	javapackages-tools
+Requires:	javapackages-tools
 Requires:       scala
 
 %description
 
+SBinary is a library for describing binary protocols, in the form of
+mappings between Scala types and binary formats. It can be used as a
+robust serialization mechanism for Scala objects or a way of dealing
+with existing binary formats found in the wild.
 
+It started out life as a loose port of Haskell's Data.Binary. It's
+since evolved a bit from there to take advantage of the features Scala
+implicits offer over Haskell type classes, but the core idea has
+remained the same.
 
 %package javadoc
 Group:          Documentation
