@@ -26,7 +26,7 @@
 %global sbt_site_jar_version 0.6.2
 
 %global want_sxr 1
-%global want_specs2 1
+%global want_specs2 0
 %global want_scalacheck 1
 %global want_dispatch_http 1
 
@@ -354,6 +354,8 @@ sbt is the simple build tool for Scala and Java projects.
 %patch2 -p1
 %patch3 -p1
 
+sed -i -e '/% "test"/d' project/Util.scala
+
 cp %{SOURCE16} .
 chmod 755 climbing-nemesis.py
 
@@ -512,16 +514,18 @@ mkdir -p sbt-boot-dir/scala-%{scala_version}/org.scala-sbt/%{name}/%{sbt_bootstr
 mkdir -p sbt-boot-dir/scala-%{scala_version}/lib
 
 for jar in $(find %{ivy_local_dir}/ -name \*.jar | grep fusesource) ; do 
-   cp $jar sbt-boot-dir/scala-%{scala_version}/lib
+   cp --symbolic-link $(readlink $jar) sbt-boot-dir/scala-%{scala_version}/lib
 done
 
 # this is a hack, obvs
 for jar in $(find %{ivy_local_dir}/ -name \*.jar | grep bouncycastle) ; do 
-   cp $jar sbt-boot-dir/scala-%{scala_version}/lib
+   cp --symbolic-link $(readlink $jar) sbt-boot-dir/scala-%{scala_version}/lib
 done
 
-mkdir scala
-ln -s %{_javadir}/scala scala/lib
+mkdir -p scala/lib
+for jar in %{_javadir}/scala/*.jar ; do
+    cp --symbolic-link $jar scala/lib
+done
 
 %build
 
@@ -567,10 +571,12 @@ popd
 
 mkdir -p %{buildroot}/%{_sysconfdir}/%{name}
 
-sed -i 's/debug/warn/' < sbt.boot.properties > %{buildroot}/%{_sysconfdir}/%{name}/sbt.boot.properties
+sed 's/debug/warn/' < sbt.boot.properties > %{buildroot}/%{_sysconfdir}/%{name}/sbt.boot.properties
 
 mkdir -p %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir}
 mkdir -p %{buildroot}/%{_javadir}/%{name}/boot
+
+
 
 (cd %{ivy_local_dir} ; tar -cf - .) | (cd %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir} ; tar -xf - )
 
