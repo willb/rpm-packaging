@@ -576,7 +576,7 @@ sed 's/debug/warn/' < sbt.boot.properties > %{buildroot}/%{_sysconfdir}/%{name}/
 
 mkdir -p %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir}
 
-(cd %{ivy_local_dir} ; tar -cf - .) | (cd %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir} ; tar -xf - )
+(cd %{ivy_local_dir} ; tar --exclude=cache -cf - .) | (cd %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir} ; tar -xf - )
 
 %if 0%{?fedora} >= 21
 %files -f .mfiles
