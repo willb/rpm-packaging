@@ -555,6 +555,7 @@ sed -i -n '/<autoRequires>/{:a;N;/<\/autoRequires>/{p;b;};/>UNKNOWN</{:b;n;/<\/a
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/%{_javadir}/%{name}
 
+# collect and install SBT jars
 find . -name \*.jar | grep %{sbt_full_version}.jar | xargs -I JAR cp JAR %{buildroot}/%{_javadir}/%{name}
 
 mkdir -p %{buildroot}/%{_bindir}
@@ -576,11 +577,16 @@ sed 's/debug/warn/' < sbt.boot.properties > %{buildroot}/%{_sysconfdir}/%{name}/
 mkdir -p %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir}
 mkdir -p %{buildroot}/%{_javadir}/%{name}/boot
 
-
-
 (cd %{ivy_local_dir} ; tar -cf - .) | (cd %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir} ; tar -xf - )
 
-(cd sbt-boot-dir ; tar -cf - .) | (cd %{buildroot}/%{_javadir}/%{name}/boot ; tar -xf - )
+mkdir installboot
+cp -r sbt-boot-dir/compiler-interface* installboot
+
+pushd installboot
+for jar in $(find %{buildroot}/%{_javadir}/%{name} -name *%{sbt_full_version}.jar) ; do
+    ln -s %{_javadir}/%{name}/$(basename $jar) $jar
+done
+    
 
 %if 0%{?fedora} >= 21
 %files -f .mfiles
