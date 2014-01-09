@@ -575,18 +575,8 @@ mkdir -p %{buildroot}/%{_sysconfdir}/%{name}
 sed 's/debug/warn/' < sbt.boot.properties > %{buildroot}/%{_sysconfdir}/%{name}/sbt.boot.properties
 
 mkdir -p %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir}
-mkdir -p %{buildroot}/%{_javadir}/%{name}/boot
 
 (cd %{ivy_local_dir} ; tar -cf - .) | (cd %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir} ; tar -xf - )
-
-mkdir installboot
-cp -r sbt-boot-dir/compiler-interface* installboot
-
-pushd installboot
-for jar in $(find %{buildroot}/%{_javadir}/%{name} -name *%{sbt_full_version}.jar) ; do
-    ln -s %{_javadir}/%{name}/$(basename $jar) $jar
-done
-    
 
 %if 0%{?fedora} >= 21
 %files -f .mfiles
