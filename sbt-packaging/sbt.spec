@@ -578,6 +578,27 @@ mkdir -p %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir}
 
 (cd %{ivy_local_dir} ; tar --exclude=cache -cf - .) | (cd %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir} ; tar -xf - )
 
+for bootjar in $(find %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir}/org.scala-sbt -type l) ; do
+rm -f $bootjar
+ln -s %{_javadir}/%{name}/$(basename $bootjar) $bootjar
+done
+
+%if %{do_bootstrap}
+# remove bootstrap ivy 2.3.0-rc1 jar if we're using it
+find %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir} -lname %{SOURCE19} | xargs dirname | xargs rm -rf
+
+concretize() {
+    src=$(readlink $1)
+    rm $1 && cp $src $1
+}
+
+# copy other bootstrap dependency jars from their sources
+for depjar in $(find %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir} -lname %{_sourcedir}\* ) ; do
+concretize $depjar
+done
+
+%endif
+
 %if 0%{?fedora} >= 21
 %files -f .mfiles
 %{_bindir}/%{name}
