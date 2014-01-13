@@ -371,16 +371,6 @@ sed -i -e 's/["]2[.]10[.]2-RC2["]/\"2.10.3\"/g' $(find . -name \*.sbt)
 
 sed -i -e 's/0.13.0/%{sbt_bootstrap_version}/g' project/build.properties
 
-rm -f project/Proguard.scala
-
-sed -i -e '/import LaunchProguard/d' project/Sbt.scala
-sed -i -e 's/[+][+] proguardedLauncherSettings//g' project/Sbt.scala
-sed -i -e 's/[+][+] LaunchProguard.settings//g' project/Sbt.scala
-sed -i -e 's/[+][+] LaunchProguard.specific[(]launchSub[)]//g' project/Sbt.scala
-sed -i -e 's/\(, \)\?proguard in Proguard\(, \)\?//g' project/Sbt.scala
-sed -i -e 's/\(, \)\?Proguard\(, \)\?//g' project/Sbt.scala
-
-
 ./climbing-nemesis.py org.jsoup jsoup %{ivy_local_dir} --version 1.7.1
 
 # fake on F19
