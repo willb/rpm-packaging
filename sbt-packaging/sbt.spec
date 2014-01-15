@@ -529,7 +529,7 @@ done
 
 %build
 
-java -Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -jar -Dfedora.sbt.ivy.dir=ivy-local -Dfedora.sbt.boot.dir=sbt-boot-dir -Dsbt.boot.properties=sbt.boot.properties sbt-launch.jar package deliver-local
+java -Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -jar -Dfedora.sbt.ivy.dir=ivy-local -Dfedora.sbt.boot.dir=sbt-boot-dir -Dsbt.boot.properties=sbt.boot.properties sbt-launch.jar package "set publishTo in Global := Some(Resolver.file(\"ivy-local\", file(\"ivy-local\"))(Resolver.ivyStylePatterns) ivys \"$(pwd)/ivy-local/[organization]/[module]/[revision]/ivy.xml\" artifacts \"$(pwd)/ivy-local/[organization]/[module]/[revision]/[artifact]-[revision].[ext]\")" publish
 
 %install
 %if 0%{?fedora} >= 21
@@ -572,9 +572,16 @@ popd
 
 mkdir -p %{buildroot}/%{_sysconfdir}/%{name}
 
-sed 's/debug/warn/' < sbt.boot.properties > %{buildroot}/%{_sysconfdir}/%{name}/sbt.boot.properties
+sed 's/debug/info/' < sbt.boot.properties > %{buildroot}/%{_sysconfdir}/%{name}/sbt.boot.properties
 
 mkdir -p %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir}
+
+# remove things that we only needed for the bootstrap build
+
+rm -rf %{ivy_local_dir}/net.databinder
+rm -rf %{ivy_local_dir}/com.typesafe.sbt
+rm -rf %{ivy_local_dir}/org.scalacheck
+rm -rf %{ivy_local_dir}/org.scala-sbt.sxr
 
 (cd %{ivy_local_dir} ; tar --exclude=cache -cf - .) | (cd %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir} ; tar -xf - )
 
