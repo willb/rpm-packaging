@@ -1,5 +1,5 @@
 %global do_bootstrap 1
-%global pkg_rel 1
+%global pkg_rel 2
 %global scala_version 2.10.3
 %global scala_short_version 2.10
 %global sbt_bootstrap_version 0.13.1
@@ -621,6 +621,9 @@ done
 %doc README.md LICENSE NOTICE
 
 %changelog
+* Wed Jan 15 20134William Benton <willb@redhat.com> - 0.13.1-2
+- use generated Ivy files
+
 * Sat Dec 14 2013 William Benton <willb@redhat.com> - 0.13.1-1
 - updated to 0.13.1
 - many other packaging fixes
