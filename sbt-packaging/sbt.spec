@@ -510,6 +510,8 @@ sed -i -e 's/["]2[.]10[.]2["]/\"2.10.3\"/g' $(find . -name \*.xml)
 # better not to try and compile the docs project
 rm -f project/Docs.scala
 
+mkdir sbt-boot-dir
+
 mkdir -p sbt-boot-dir/scala-%{scala_version}/org.scala-sbt/%{name}/%{sbt_bootstrap_version}/
 mkdir -p sbt-boot-dir/scala-%{scala_version}/lib
 
@@ -524,12 +526,12 @@ done
 
 mkdir -p scala/lib
 for jar in %{_javadir}/scala/*.jar ; do
-    cp --symbolic-link $jar scala/lib
+   cp --symbolic-link $jar scala/lib
 done
 
 %build
 
-java -Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -jar -Dfedora.sbt.ivy.dir=ivy-local -Dfedora.sbt.boot.dir=sbt-boot-dir -Dsbt.boot.properties=sbt.boot.properties sbt-launch.jar package "set publishTo in Global := Some(Resolver.file(\"ivy-local\", file(\"ivy-local\"))(Resolver.ivyStylePatterns) ivys \"$(pwd)/ivy-local/[organization]/[module]/[revision]/ivy.xml\" artifacts \"$(pwd)/ivy-local/[organization]/[module]/[revision]/[artifact]-[revision].[ext]\")" publish
+java -Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -jar -Dfedora.sbt.ivy.dir=ivy-local -Dfedora.sbt.boot.dir=sbt-boot-dir -Divy.checksums='""' -Dsbt.boot.properties=sbt.boot.properties sbt-launch.jar package "set publishTo in Global := Some(Resolver.file(\"published\", file(\"published\"))(Resolver.ivyStylePatterns) ivys \"$(pwd)/published/[organization]/[module]/[revision]/ivy.xml\" artifacts \"$(pwd)/published/[organization]/[module]/[revision]/[artifact]-[revision].[ext]\")" publish
 
 %install
 %if 0%{?fedora} >= 21
@@ -583,7 +585,8 @@ rm -rf %{ivy_local_dir}/com.typesafe.sbt
 rm -rf %{ivy_local_dir}/org.scalacheck
 rm -rf %{ivy_local_dir}/org.scala-sbt.sxr
 
-(cd %{ivy_local_dir} ; tar --exclude=cache -cf - .) | (cd %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir} ; tar -xf - )
+(cd %{ivy_local_dir} ; tar --exclude=cache  --exclude=\*.md5 --exclude=\*.sha1 -cf - .) | (cd %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir} ; tar -xf - )
+(cd published ; tar --exclude=cache -cf - .) | (cd %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir} ; tar -xf - )
 
 for bootjar in $(find %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir}/org.scala-sbt -type l) ; do
 rm -f $bootjar
@@ -591,6 +594,10 @@ ln -s %{_javadir}/%{name}/$(basename $bootjar) $bootjar
 done
 
 %if %{do_bootstrap}
+# reinstall test-interface
+find %{buildroot}/%{_javadir}/%{name} -name \*test-interface\*  | xargs rm -rf
+./climbing-nemesis.py --jarfile %{SOURCE80} org.scala-sbt test-interface %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir} --version %{testinterface_version}
+
 # remove bootstrap ivy 2.3.0-rc1 jar if we're using it
 find %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir} -lname %{SOURCE19} | xargs dirname | xargs rm -rf
 
@@ -621,8 +628,9 @@ done
 %doc README.md LICENSE NOTICE
 
 %changelog
-* Wed Jan 15 20134William Benton <willb@redhat.com> - 0.13.1-2
+* Wed Jan 15 2014 William Benton <willb@redhat.com> - 0.13.1-2
 - use generated Ivy files
+- use bootstrap test-interface in bootstrap package
 
 * Sat Dec 14 2013 William Benton <willb@redhat.com> - 0.13.1-1
 - updated to 0.13.1
