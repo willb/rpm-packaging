@@ -533,6 +533,12 @@ done
 
 java -Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -jar -Dfedora.sbt.ivy.dir=ivy-local -Dfedora.sbt.boot.dir=sbt-boot-dir -Divy.checksums='""' -Dsbt.boot.properties=sbt.boot.properties sbt-launch.jar package "set publishTo in Global := Some(Resolver.file(\"published\", file(\"published\"))(Resolver.ivyStylePatterns) ivys \"$(pwd)/published/[organization]/[module]/[revision]/ivy.xml\" artifacts \"$(pwd)/published/[organization]/[module]/[revision]/[artifact]-[revision].[ext]\")" publish
 
+# XXX: this is a hack; we seem to get correct metadata but bogus JARs
+# from publish for some reason
+for f in $(find published -name \*.jar ) ; do
+    find . -ipath \*target\* -and -name $(basename $f) -exec mv '{}' $f \;
+done
+
 %install
 %if 0%{?fedora} >= 21
 
@@ -584,9 +590,10 @@ rm -rf %{ivy_local_dir}/net.databinder
 rm -rf %{ivy_local_dir}/com.typesafe.sbt
 rm -rf %{ivy_local_dir}/org.scalacheck
 rm -rf %{ivy_local_dir}/org.scala-sbt.sxr
+rm -rf %{ivy_local_dir}/cache
 
-(cd %{ivy_local_dir} ; tar --exclude=cache  --exclude=\*.md5 --exclude=\*.sha1 -cf - .) | (cd %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir} ; tar -xf - )
-(cd published ; tar --exclude=cache -cf - .) | (cd %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir} ; tar -xf - )
+(cd %{ivy_local_dir} ; tar --exclude=.md5 --exclude=.sha1 -cf - .) | (cd %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir} ; tar -xf - )
+(cd published ; tar --exclude=\*.md5 --exclude=\*.sha1 -cf - .) | (cd %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir} ; tar -xf - )
 
 for bootjar in $(find %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir}/org.scala-sbt -type l) ; do
 rm -f $bootjar
