@@ -1,4 +1,8 @@
+# doing a bootstrap build from public sbt binaries
 %global do_bootstrap 1
+
+# build non-bootstrap packages with tests, cross-referenced sources, etc
+%global do_proper 0
 %global pkg_rel 2
 %global scala_version 2.10.3
 %global scala_short_version 2.10
@@ -260,8 +264,6 @@ Source72:       %sbt_ivy_artifact scripted-framework
 
 Source172:      %sbt_ivy_descriptor scripted-framework
 
-
-
 # sbt plugins
 Source73:       http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/com.typesafe.sbt/sbt-ghpages/scala_%{scala_short_version}/sbt_%{sbt_short_version}/%{sbt_ghpages_version}/jars/sbt-ghpages.jar
 Source74:       http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/com.typesafe.sbt/sbt-site/scala_%{scala_short_version}/sbt_%{sbt_short_version}/%{sbt_site_jar_version}/jars/sbt-site.jar
@@ -331,14 +333,22 @@ Requires:	javapackages-tools
 
 %if !%{do_bootstrap}
 BuildRequires:  sbt = %{sbt_bootstrap_version}
+
+BuildRequires:  sbinary = %{sbinary_version}
+BuildRequires:  test-interface = %{testinterface_version}
+
+Requires:  sbinary = %{sbinary_version}
+Requires:  test-interface = %{testinterface_version}
+
+%if %{do_proper}
 BuildRequires:  sbt-ghpages = %{sbt_ghpages_version}
 BuildRequires:  sbt-site = %{sbt_site_version}
 BuildRequires:  sbt-git = %{sbt_git_version}
 
 BuildRequires:  sxr = %{sxr_version}
-BuildRequires:  sbinary = %{sbinary_version}
 BuildRequires:  scalacheck = %{scalacheck_version}
 BuildRequires:  specs2 = %{specs2_version}
+%endif
 
 %endif
 
@@ -534,7 +544,7 @@ done
 java -Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -jar -Dfedora.sbt.ivy.dir=ivy-local -Dfedora.sbt.boot.dir=sbt-boot-dir -Divy.checksums='""' -Dsbt.boot.properties=sbt.boot.properties sbt-launch.jar package "set publishTo in Global := Some(Resolver.file(\"published\", file(\"published\"))(Resolver.ivyStylePatterns) ivys \"$(pwd)/published/[organization]/[module]/[revision]/ivy.xml\" artifacts \"$(pwd)/published/[organization]/[module]/[revision]/[artifact]-[revision].[ext]\")" publish
 
 # XXX: this is a hack; we seem to get correct metadata but bogus JARs
-# from publish for some reason
+# from "sbt publish" for some reason
 for f in $(find published -name \*.jar ) ; do
     find . -ipath \*target\* -and -name $(basename $f) -exec mv '{}' $f \;
 done
