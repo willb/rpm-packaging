@@ -352,7 +352,6 @@ BuildRequires:  specs2 = %{specs2_version}
 
 %endif
 
-
 %description
 sbt is the simple build tool for Scala and Java projects.
 
@@ -509,8 +508,18 @@ sed -i -e '/precompiled/d' org.scala-sbt.sbt-%{sbt_bootstrap_version}.ivy.xml
 
 %else
 # If we aren't bootstrapping, copy installed jars into local ivy cache
-# dir.  It sure would be nice if we could resolve these via Ivy from
-# installed packages.  This is a FIXME for now, though.
+# dir.  In the future, we'll use Mikołaj's new xmvn Ivy resolver.
+
+# sbt components
+for jar in actions api apply-macro cache classfile classpath collections command compile compiler-integration compiler-interface-bin compiler-interface-src compiler-ivy-integration completion control cross datatype-generator incremental-compiler interface io ivy launcher launcher-interface logging main main-settings persist process relation run sbt sbt-launch scripted-framework scripted-plugin scripted-sbt tasks task-system test-agent testing test-interface tracking; do
+    ./climbing-nemesis.py --jarfile %{_javadir}/%{name}/${jar}-%{sbt_bootstrap_version}.jar --ivyfile %{_javadir}/%{name}/%{ivy_local_dir}/org.scala-sbt/${jar}/%{sbt_bootstrap_version}/ivy.xml org.scala-sbt ${jar} %{ivy_local_dir}
+done
+
+# test-interface
+./climbing-nemesis.py org.scala-sbt test-interface %{ivy_local_dir}
+
+# sbinary
+./climbing-nemesis.py org.scala-tools.sbinary sbinary %{ivy_local_dir} --scala %{scala_short_version}
 
 %endif
 
