@@ -370,7 +370,11 @@ chmod 755 climbing-nemesis.py
 
 cp %{SOURCE17} .
 
+%if %{do_bootstrap}
 cp %{SOURCE128} .
+%else
+cp %{_javadir}/%{name}/sbt-launch.jar .
+%endif
 
 sed -i -e 's/0.7.1/0.6.2/g' project/p.sbt
 sed -i -e 's/FEDORA_SCALA_VERSION/%{scala_version}/g' sbt.boot.properties
@@ -409,8 +413,13 @@ sed -i -e 's/0.13.0/%{sbt_bootstrap_version}/g' project/build.properties
 ./climbing-nemesis.py org.fusesource.jansi jansi %{ivy_local_dir} --version 1.9
 %endif
 
-# we need to use the bundled ivy because 2.3.0 is source and binary incompatible with 2.3.0-rc1 (which sbt 0.13.1 is built against)
+%if %{do_bootstrap}
+# we need to use the bundled ivy in the bootstrap build because 2.3.0
+# is source and binary incompatible with 2.3.0-rc1 (which upstream sbt
+# 0.13.1 is built against)
+
 ./climbing-nemesis.py org.apache.ivy ivy %{ivy_local_dir} --version 2.3.0-rc1 --pomfile %{SOURCE18} --jarfile %{SOURCE19} --extra-dep org.bouncycastle:bcpg-jdk16:1.46 --extra-dep org.bouncycastle:bcprov-jdk16:1.46
+%endif
 
 # we're building against Ivy 2.3.0, though
 ./climbing-nemesis.py org.apache.ivy ivy %{ivy_local_dir} --version 2.3.0 --pomfile %{SOURCE20} --jarfile %{_javadir}/ivy.jar --extra-dep org.bouncycastle:bcpg-jdk16:1.46 --extra-dep org.bouncycastle:bcprov-jdk16:1.46
@@ -519,15 +528,19 @@ sed -i -e '/precompiled/d' org.scala-sbt.sbt-%{sbt_bootstrap_version}.ivy.xml
 # dir.  In the future, we'll use Mikołaj's new xmvn Ivy resolver.
 
 # sbt components
-for jar in actions api apply-macro cache classfile classpath collections command compile compiler-integration compiler-interface-bin compiler-interface-src compiler-ivy-integration completion control cross datatype-generator incremental-compiler interface io ivy launcher launcher-interface logging main main-settings persist process relation run sbt sbt-launch scripted-framework scripted-plugin scripted-sbt tasks task-system test-agent testing test-interface tracking; do
+for jar in actions api apply-macro cache classfile classpath collections command compile compiler-integration compiler-ivy-integration completion control cross datatype-generator incremental-compiler interface io ivy launcher launcher-interface logging main main-settings persist process relation run sbt sbt-launch scripted-framework scripted-plugin scripted-sbt tasks task-system test-agent testing tracking; do
     ./climbing-nemesis.py --jarfile %{_javadir}/%{name}/${jar}-%{sbt_bootstrap_version}.jar --ivyfile %{_javadir}/%{name}/%{ivy_local_dir}/org.scala-sbt/${jar}/%{sbt_bootstrap_version}/ivy.xml org.scala-sbt ${jar} %{ivy_local_dir}
 done
+
+./climbing-nemesis.py --jarfile %{_javadir}/%{name}/compiler-interface-src-%{sbt_bootstrap_version}.jar --ivyfile %{_javadir}/%{name}/%{ivy_local_dir}/org.scala-sbt/compiler-interface/%{sbt_bootstrap_version}/ivy.xml org.scala-sbt compiler-interface-src %{ivy_local_dir} --version %{sbt_bootstrap_version} --override org.scala-sbt:compiler-interface --override-dir-only
+
+./climbing-nemesis.py --jarfile %{_javadir}/%{name}/compiler-interface-bin-%{sbt_bootstrap_version}.jar --ivyfile %{_javadir}/%{name}/%{ivy_local_dir}/org.scala-sbt/compiler-interface/%{sbt_bootstrap_version}/ivy.xml org.scala-sbt compiler-interface-bin %{ivy_local_dir} --version %{sbt_bootstrap_version} --override org.scala-sbt:compiler-interface --override-dir-only
 
 # test-interface
 ./climbing-nemesis.py org.scala-sbt test-interface %{ivy_local_dir}
 
 # sbinary
-./climbing-nemesis.py org.scala-tools.sbinary sbinary %{ivy_local_dir} --scala %{scala_short_version}
+./climbing-nemesis.py org.scala-tools.sbinary sbinary_%{scala_short_version} %{ivy_local_dir} # --scala %{scala_short_version}
 
 %endif
 
@@ -591,7 +604,7 @@ rm -rf %{buildroot}
 mkdir -p %{buildroot}/%{_javadir}/%{name}
 
 # collect and install SBT jars
-find . -name \*.jar | grep %{sbt_full_version}.jar | xargs -I JAR cp JAR %{buildroot}/%{_javadir}/%{name}
+find published -name \*.jar | grep %{sbt_full_version}.jar | xargs -I JAR cp JAR %{buildroot}/%{_javadir}/%{name}
 
 mkdir -p %{buildroot}/%{_bindir}
 cp -p %{SOURCE21} %{buildroot}/%{_bindir}/%{name}
@@ -657,8 +670,9 @@ rm -f .rpm_pomfiles
 touch .rpm_pomfiles
 declare -a shortnames
 
-for pom in $(find . -name \*.pom | grep -v compiler-interface) ; do 
+for pom in $(find . -name \*.pom | grep -v compiler-interface | grep -v launch-test ) ; do 
     shortname=$(echo $pom | sed -e 's/^.*[/]\([a-z-]\+\)-0.13.1.pom$/\1/g')
+    echo installing POM $pom to %{_mavenpomdir}/JPP.%{name}-${shortname}.pom
     cp $pom %{buildroot}/%{_mavenpomdir}/JPP.%{name}-${shortname}.pom
     echo %{_mavenpomdir}/JPP.%{name}-${shortname}.pom >> .rpm_pomfiles
     shortnames=( "${shortnames[@]}" $shortname )
