@@ -647,7 +647,29 @@ done
 
 %else  # do_bootstrap
 
+# nothing here  for now; we should be able to use the ivy-local we built against
+
 %endif # do_bootstrap
+
+### install POM files
+mkdir -p %{buildroot}/%{_mavenpomdir}
+rm -f .rpm_pomfiles
+touch .rpm_pomfiles
+declare -a shortnames
+
+for pom in $(find . -name \*.pom | grep -v compiler-interface) ; do 
+    shortname=$(echo $pom | sed -e 's/^.*[/]\([a-z-]\+\)-0.13.1.pom$/\1/g')
+    cp $pom %{buildroot}/%{_mavenpomdir}/JPP.%{name}-${shortname}.pom
+    echo %{_mavenpomdir}/JPP.%{name}-${shortname}.pom >> .rpm_pomfiles
+    shortnames=( "${shortnames[@]}" $shortname )
+done
+
+echo shortnames are ${shortnames[@]}
+
+for sub in ${shortnames[@]} ; do
+    echo running add_maven_depmap JPP.%{name}-${sub}.pom %{name}/${sub}.jar
+    %add_maven_depmap JPP.%{name}-${sub}.pom %{name}/${sub}.jar
+done
 
 %if 0%{?fedora} >= 21
 %files -f .mfiles
@@ -656,6 +678,8 @@ done
 %files
 %{_javadir}/%{name}
 %{_bindir}/%{name}
+%{_mavenpomdir}/JPP.%{name}-*.pom
+%{_mavendepmapfragdir}/*
 %endif
 
 %{_sysconfdir}/%{name}
