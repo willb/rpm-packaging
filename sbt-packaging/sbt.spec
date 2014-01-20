@@ -3,7 +3,7 @@
 
 # build non-bootstrap packages with tests, cross-referenced sources, etc
 %global do_proper 0
-%global pkg_rel 2
+%global pkg_rel 3
 %global scala_version 2.10.3
 %global scala_short_version 2.10
 %global sbt_bootstrap_version 0.13.1
@@ -710,6 +710,10 @@ done
 %doc README.md LICENSE NOTICE
 
 %changelog
+* Mon Jan 20 2014 William Benton <willb@redhat.com> - 0.13.1-3
+- builds as non-bootstrap package
+- numerous other minor fixes
+
 * Wed Jan 15 2014 William Benton <willb@redhat.com> - 0.13.1-2
 - use generated Ivy files
 - use bootstrap test-interface in bootstrap package
