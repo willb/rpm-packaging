@@ -376,6 +376,11 @@ cp %{SOURCE128} .
 cp %{_javadir}/%{name}/sbt-launch.jar .
 %endif
 
+sed -i -e '/dispatch-http/d' project/p.sbt
+sed -i -e '/sbt-site/d' project/p.sbt
+sed -i -e '/sbt-ghpages/d' project/p.sbt
+
+
 sed -i -e 's/0.7.1/0.6.2/g' project/p.sbt
 sed -i -e 's/FEDORA_SCALA_VERSION/%{scala_version}/g' sbt.boot.properties
 sed -i -e 's/FEDORA_SBT_VERSION/%{sbt_version}/g' sbt.boot.properties
