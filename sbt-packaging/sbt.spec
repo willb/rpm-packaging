@@ -380,6 +380,14 @@ sed -i -e 's/["]2[.]10[.]2-RC2["]/\"2.10.3\"/g' $(find . -name \*.sbt)
 
 sed -i -e 's/0.13.0/%{sbt_bootstrap_version}/g' project/build.properties
 
+######################################################################
+# Here we're going to use the climbing-nemesis script to populate a local
+# Ivy repository.  sbt needs these dependencies to be resolvable by Ivy
+# and not merely on the classpath.  When we build a package, we'll be taking
+# this repository and installing it alongside the sbt jars so our sbt binary
+# can use it.
+######################################################################
+
 ./climbing-nemesis.py org.jsoup jsoup %{ivy_local_dir} --version 1.7.1
 
 # fake on F19
