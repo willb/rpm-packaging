@@ -39,7 +39,7 @@ sed -i -e 's/0[.]12[.]4/0.13.1/g' project/build.properties
 rm project/plugins.sbt
 
 cp -r /usr/share/java/sbt/ivy-local .
-cp -r /usr/share/java/sbt/boot .
+mkdir boot
 
 %build
 
