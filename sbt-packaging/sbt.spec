@@ -1,5 +1,5 @@
 # doing a bootstrap build from public sbt binaries
-%global do_bootstrap 1
+%global do_bootstrap 0
 
 # build non-bootstrap packages with tests, cross-referenced sources, etc
 %global do_proper 0
@@ -57,6 +57,7 @@ Patch0:         sbt-0.13.1-sbt-scala.patch
 Patch1:         sbt-0.13.1-RC3-release-scala.patch 
 Patch2:         sbt-0.13.1-ivy-2.3.0.patch
 Patch3:         sbt-0.13.1-ivy-docs.patch
+Patch4:		sbt-0.13.1-sxr.patch
 
 # sbt-ghpages plugin
 Source1:        https://github.com/sbt/sbt-ghpages/archive/v%{sbt_ghpages_version}.tar.gz
@@ -362,6 +363,10 @@ sbt is the simple build tool for Scala and Java projects.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+
+%if !%{do_proper}
+%patch4 -p1
+%endif
 
 sed -i -e '/% "test"/d' project/Util.scala
 
