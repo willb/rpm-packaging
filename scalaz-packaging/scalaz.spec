@@ -5,7 +5,7 @@
 %global have_scalacheck 0
 
 # set this to 1 once sbt is available in Fedora
-%global have_native_sbt 0
+%global have_native_sbt 1
 
 Name:           scalaz
 Version:        %{scalaz_version}
@@ -41,9 +41,19 @@ of data structures.
 %setup -q
 %patch0 -p1
 
+%if 0%{have_scalacheck} == 0
+sed -i -e 's/scalacheckBinding, tests,//g' project/build.scala
+%endif
+
 %build
 
 %if %{have_native_sbt}
+cp -r /usr/share/java/sbt/ivy-local .
+mkdir boot
+
+export SBT_BOOT_DIR=boot
+export SBT_IVY_DIR=ivy-local
+
 sbt package
 %else
 ./sbt package
@@ -62,3 +72,5 @@ find . -wholename \*/scala-%{scala_short_version}/\*.jar -exec cp '{}' %{buildro
 
 
 %changelog
+* Tue Nov 26 2013 William Benton <willb@redhat.com> - 7.0.0-1
+- initial package

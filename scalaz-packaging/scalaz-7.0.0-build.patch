@@ -2,9 +2,9 @@ diff --git a/project/build.properties b/project/build.properties
 index 66ad72c..18297d2 100644
 --- a/project/build.properties
 +++ b/project/build.properties
-@@ -1 +1 @@
+@@ -1,1 +1,1 @@
 -sbt.version=0.12.2
-+sbt.version=0.13.1-RC3
++sbt.version=0.13.1
 diff --git a/project/build.scala b/project/build.scala
 index 493f34a..df88528 100644
 --- a/project/build.scala
