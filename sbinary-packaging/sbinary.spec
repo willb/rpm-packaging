@@ -44,9 +44,7 @@ implicits offer over Haskell type classes, but the core idea has
 remained the same.
 
 %package javadoc
-Group:          Documentation
 Summary:        Javadoc for %{name}
-BuildArch:	noarch
 
 %description javadoc
 Javadoc for %{name}.
@@ -125,14 +123,13 @@ EOF
 %endif
 
 %install
-rm -rf %{buildroot}
 mkdir -p %{buildroot}/%{_javadir}
 mkdir -p %{buildroot}/%{_mavenpomdir}
 
 mkdir -p %{buildroot}/%{_javadocdir}/%{name}
 
-cp core/target/scala-%{scala_version}/%{name}_%{scala_version}-%{version}.jar %{buildroot}/%{_javadir}/%{name}.jar
-cp core/target/scala-%{scala_version}/%{name}_%{scala_version}-%{version}.pom %{buildroot}/%{_mavenpomdir}/JPP-%{name}.pom
+install -pm 644 core/target/scala-%{scala_version}/%{name}_%{scala_version}-%{version}.jar %{buildroot}/%{_javadir}/%{name}.jar
+install -pm 644 core/target/scala-%{scala_version}/%{name}_%{scala_version}-%{version}.pom %{buildroot}/%{_mavenpomdir}/JPP-%{name}.pom
 
 cp -rp core/target/scala-%{scala_version}/api/* %{buildroot}/%{_javadocdir}/%{name}
 
@@ -147,7 +144,7 @@ cp -rp core/target/scala-%{scala_version}/api/* %{buildroot}/%{_javadocdir}/%{na
 
 %files javadoc
 %{_javadocdir}/%{name}
-
+%doc LICENSE
 
 %changelog
 
