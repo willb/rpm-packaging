@@ -3,7 +3,7 @@
 
 Name:           test-interface
 Version:        %{test_interface_version}
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        uniform interface to Scala and Java test frameworks
 
 License:        BSD
@@ -114,6 +114,9 @@ cp -rp target/api/* %{buildroot}/%{_javadocdir}/%{name}
 
 
 %changelog
+
+* Tue Jan 21 2014 William Benton <willb@redhat.com> - 1.0-2
+- conditionally build without sbt (thanks to Gil)
 
 * Mon Dec 23 2013 William Benton <willb@redhat.com> - 1.0-1
 - initial package
