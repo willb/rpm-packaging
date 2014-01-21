@@ -670,7 +670,8 @@ done
 
 %else  # do_bootstrap
 
-# nothing here  for now; we should be able to use the ivy-local we built against
+find %{buildroot}/%{_javadir}/%{name} -name \*test-interface\*  | xargs rm -rf
+./climbing-nemesis.py org.scala-sbt test-interface %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir} --version %{testinterface_version}
 
 %endif # do_bootstrap
 
