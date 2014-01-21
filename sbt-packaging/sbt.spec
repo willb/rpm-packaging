@@ -45,7 +45,7 @@
 Name:           sbt
 Version:        %{sbt_version}
 Release:        %{pkg_rel}%{?dist}
-Summary:        simple build tool for Scala and Java projects
+Summary:        The simple build tool for Scala and Java projects
 
 BuildArch:      noarch
 
@@ -316,21 +316,26 @@ Source128:       http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/sb
 
 %endif
 
-BuildRequires:  scala
-BuildRequires:	java
+BuildRequires:  mvn(org.scala-lang:scala-compiler)
+BuildRequires:	java-devel
 BuildRequires:  python
 # maven is required because climbing-nemesis.py uses xmvn-resolve
 BuildRequires:  maven-local
 
-BuildRequires:  bouncycastle
-BuildRequires:  bouncycastle-pg
+BuildRequires:  mvn(org.bouncycastle:bcprov-jdk16)
+BuildRequires:  mvn(org.bouncycastle:bcpg-jdk16)
 BuildRequires:  hawtjni
-BuildRequires:  jansi
-BuildRequires:  jline
+BuildRequires:  mvn(org.fusesource.jansi:jansi)
+BuildRequires:  jline2
 BuildRequires:  proguard
 
 BuildRequires:	javapackages-tools
 Requires:	javapackages-tools
+
+Requires:  mvn(org.bouncycastle:bcprov-jdk16)
+Requires:  mvn(org.bouncycastle:bcpg-jdk16)
+Requires:  mvn(org.fusesource.jansi:jansi)
+Requires:  jline2
 
 %if !%{do_bootstrap}
 BuildRequires:  sbt = %{sbt_bootstrap_version}
