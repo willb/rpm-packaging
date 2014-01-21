@@ -1,18 +1,24 @@
 %global test_interface_version 1.0
+%global build_with_sbt 0
 
 Name:           test-interface
 Version:        %{test_interface_version}
 Release:        1%{?dist}
-Summary:        uniform interface to Scala test frameworks
+Summary:        uniform interface to Scala and Java test frameworks
 
 License:        BSD
 URL:            https://github.com/sbt/test-interface
 Source0:        https://github.com/sbt/test-interface/archive/v%{test_interface_version}.tar.gz
+%if !%{build_with_sbt}
+Source1:	http://mirrors.ibiblio.org/maven2/org/scala-sbt/%{name}/%{version}/%{name}-%{version}.pom
+%endif
 
 BuildArch:	noarch
+%if %{build_with_sbt}
 BuildRequires:  sbt
-BuildRequires:  scala
-Requires:       scala
+%else
+BuildRequires:	java-devel
+%endif
 BuildRequires:	javapackages-tools
 Requires:	javapackages-tools
 
@@ -30,8 +36,9 @@ BuildArch:	noarch
 Javadoc for %{name}.
 
 %prep
-%setup -q -n test-interface-%{test_interface_version}
+%setup -q
 
+%if %{build_with_sbt}
 sed -i -e 's/2[.]10[.]2/2.10.3/g' build.sbt
 sed -i -e '/scalatest_2.10/d' build.sbt
 
@@ -40,12 +47,46 @@ rm project/plugins.sbt
 
 cp -r /usr/share/java/sbt/ivy-local .
 mkdir boot
+%else # building without sbt
+
+cp -p %{SOURCE1} pom.xml
+# Remove unavailable test dep
+%pom_remove_dep :scalatest_2.10
+
+%endif
 
 %build
 
+%if %{build_with_sbt}
 export SBT_BOOT_DIR=boot
 export SBT_IVY_DIR=ivy-local
 sbt package deliverLocal publishM2Configuration
+%else # building without sbt
+mkdir -p classes target/api
+%javac -d classes $(find src/main/java -name "*.java")
+
+(
+cd classes
+mkdir -p META-INF
+cat > META-INF/MANIFEST.MF << 'EOF'
+'EOF'
+Manifest-Version: 1.0
+Implementation-Vendor: org.scala-sbt
+Implementation-Title: %{name}
+Implementation-Version: %{version}
+Implementation-Vendor-Id: org.scala-sbt
+Specification-Vendor: org.scala-sbt
+Specification-Title: %{name}
+Specification-Version: %{version}
+EOF
+%jar -cMf ../target/%{name}-%{version}.jar *
+)
+
+%javadoc -d target/api -classpath $PWD/target/%{name}.jar $(find src/main/java -name "*.java")
+
+cp pom.xml target/%{name}-%{version}.pom
+
+%endif
 
 %install
 rm -rf %{buildroot}
