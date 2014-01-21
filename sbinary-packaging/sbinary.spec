@@ -18,6 +18,8 @@ BuildArch:	noarch
 %if %{build_with_sbt}
 BuildRequires:  sbt
 BuildRequires:	python
+%else
+BuildRequires:	java-devel
 %endif
 BuildRequires:  mvn(org.scala-lang:scala-compiler)
 BuildRequires:	mvn(net.sourceforge.fmpp:fmpp)
