@@ -4,7 +4,7 @@
 Name:           test-interface
 Version:        %{test_interface_version}
 Release:        2%{?dist}
-Summary:        uniform interface to Scala and Java test frameworks
+Summary:        Uniform interface to Scala and Java test frameworks
 
 License:        BSD
 URL:            https://github.com/sbt/test-interface
