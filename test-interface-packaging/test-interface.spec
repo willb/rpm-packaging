@@ -28,9 +28,7 @@ Uniform test interface to Scala/Java test frameworks (specs,
 ScalaCheck, ScalaTest, JUnit and other)
 
 %package javadoc
-Group:          Documentation
-Summary:        Javadoc for %{name}
-BuildArch:	noarch
+Summary:	Javadoc for %{name}
 
 %description javadoc
 Javadoc for %{name}.
@@ -89,14 +87,13 @@ cp pom.xml target/%{name}-%{version}.pom
 %endif
 
 %install
-rm -rf %{buildroot}
 mkdir -p %{buildroot}/%{_javadir}
 mkdir -p %{buildroot}/%{_mavenpomdir}
 
 mkdir -p %{buildroot}/%{_javadocdir}/%{name}
 
-cp target/%{name}-%{version}.jar %{buildroot}/%{_javadir}/%{name}.jar
-cp target/%{name}-%{version}.pom %{buildroot}/%{_mavenpomdir}/JPP-%{name}.pom
+install -pm 644 target/%{name}-%{version}.jar %{buildroot}/%{_javadir}/%{name}.jar
+install -pm 644 target/%{name}-%{version}.pom %{buildroot}/%{_mavenpomdir}/JPP-%{name}.pom
 
 cp -rp target/api/* %{buildroot}/%{_javadocdir}/%{name}
 
@@ -111,7 +108,7 @@ cp -rp target/api/* %{buildroot}/%{_javadocdir}/%{name}
 
 %files javadoc
 %{_javadocdir}/%{name}
-
+%doc LICENSE
 
 %changelog
 
