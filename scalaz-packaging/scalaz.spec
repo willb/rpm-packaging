@@ -2,7 +2,7 @@
 %global scala_short_version 2.10
 
 # set this to 1 once scalacheck is available in Fedora
-%global have_scalacheck 0
+%global have_scalacheck 1
 
 # set this to 1 once sbt is available in Fedora
 %global have_native_sbt 1
@@ -16,11 +16,12 @@ License:        BSD
 URL:            http://typelevel.org
 # TODO:  get a POM for scalaz or package sbt-release to generate one
 Source0:        https://github.com/scalaz/scalaz/archive/v%{scalaz_version}.tar.gz#/%{name}-v%{version}.tar.gz
-
+Source1:	https://raw.github.com/willb/climbing-nemesis/master/climbing-nemesis.py
 Patch0:		scalaz-7.0.0-build.patch
 
 BuildArch:	noarch
 
+BuildRequires:	mvn(org.scalacheck:scalacheck_%{scala_short_version})
 BuildRequires:  scala
 %if %{have_native_sbt}
 BuildRequires:  sbt
@@ -41,8 +42,16 @@ of data structures.
 %setup -q
 %patch0 -p1
 
+cp %{SOURCE1} .
+chmod 755 climbing-nemesis.py
+
+sed -i -e 's/1[.]10[.]0/1.11.0/g' project/build.scala
+
 %if 0%{have_scalacheck} == 0
 sed -i -e 's/scalacheckBinding, tests,//g' project/build.scala
+%else
+sed -i -e 's/ tests,//g' project/build.scala
+./climbing-nemesis.py org.scalacheck scalacheck_%{scala_short_version} ivy-local
 %endif
 
 %build
