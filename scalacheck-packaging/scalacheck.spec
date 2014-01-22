@@ -4,7 +4,7 @@
 Name:           scalacheck
 Version:        %{scalacheck_version}
 Release:        1%{?dist}
-Summary:        property-based testing for Scalas
+Summary:        property-based testing for Scala
 
 License:        BSD
 URL:            http://www.scalacheck.org
@@ -45,7 +45,7 @@ Javadoc for %{name}.
 find . -name \*.jar -delete
 
 cp -r /usr/share/java/sbt/ivy-local .
-cp -r /usr/share/java/sbt/boot .
+mkdir boot
 
 %patch0 -p1
 
@@ -58,15 +58,14 @@ export SBT_IVY_DIR=ivy-local
 sbt package deliverLocal publishM2Configuration
 
 %install
-rm -rf %{buildroot}
 
 mkdir -p %{buildroot}/%{_javadir}
 mkdir -p %{buildroot}/%{_mavenpomdir}
 
 mkdir -p %{buildroot}/%{_javadocdir}/%{name}
 
-cp target/scala-%{scala_version}/%{name}_%{scala_version}-%{version}.jar %{buildroot}/%{_javadir}/%{name}.jar
-cp target/scala-%{scala_version}/%{name}_%{scala_version}-%{version}.pom %{buildroot}/%{_mavenpomdir}/JPP-%{name}.pom
+install -pm 644 target/scala-%{scala_version}/%{name}_%{scala_version}-%{version}.jar %{buildroot}/%{_javadir}/%{name}.jar
+install -pm 644 target/scala-%{scala_version}/%{name}_%{scala_version}-%{version}.pom %{buildroot}/%{_mavenpomdir}/JPP-%{name}.pom
 
 %add_maven_depmap JPP-%{name}.pom %{name}.jar
 
