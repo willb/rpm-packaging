@@ -163,5 +163,5 @@ cp -rp target/scala-%{scala_version}/api/* %{buildroot}/%{_javadocdir}/%{name}
 
 %changelog
 
-* Tue Jan 7 2014 William Benton <willb@redhat.com> - 0.4.2-1
+* Thu Jan 23 2014 William Benton <willb@redhat.com> - 0.9.5.6-1
 - initial package
