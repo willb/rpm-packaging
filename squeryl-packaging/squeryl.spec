@@ -141,10 +141,12 @@ mkdir -p %{buildroot}/%{_mavenpomdir}
 
 mkdir -p %{buildroot}/%{_javadocdir}/%{name}
 
-install -pm 644 core/target/scala-%{scala_version}/%{name}_%{scala_version}-%{version}.jar %{buildroot}/%{_javadir}/%{name}.jar
-install -pm 644 core/target/scala-%{scala_version}/%{name}_%{scala_version}-%{version}.pom %{buildroot}/%{_mavenpomdir}/JPP-%{name}.pom
+export JARNAME=$(echo %{name} | tr \[A-Z] \[a-z])
 
-cp -rp core/target/scala-%{scala_version}/api/* %{buildroot}/%{_javadocdir}/%{name}
+install -pm 644 target/scala-%{scala_version}/${JARNAME}_%{scala_version}-%{squeryl_version}.jar %{buildroot}/%{_javadir}/%{name}.jar
+install -pm 644 target/scala-%{scala_version}/${JARNAME}_%{scala_version}-%{squeryl_version}.pom %{buildroot}/%{_mavenpomdir}/JPP-%{name}.pom
+
+cp -rp target/scala-%{scala_version}/api/* %{buildroot}/%{_javadocdir}/%{name}
 
 %add_maven_depmap JPP-%{name}.pom %{name}.jar
 
