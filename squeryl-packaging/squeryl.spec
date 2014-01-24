@@ -23,6 +23,8 @@ URL:            https://github.com/max-l/Squeryl
 Source0:        https://github.com/max-l/Squeryl/archive/%{squeryl_version}.tar.gz
 Source1:	https://raw.github.com/willb/climbing-nemesis/master/climbing-nemesis.py
 
+Patch0:		squeryl-0.9.5.6-notestdeps.patch
+
 BuildArch:	noarch
 BuildRequires:  sbt
 BuildRequires:	python
@@ -67,6 +69,8 @@ Javadoc for %{name}.
 
 %prep
 %setup -q -n %{name}-%{squeryl_version}
+
+%patch0 -p1
 
 # don't cross-compile for other Scala versions
 sed -i -e 's/crossScalaVersions := Seq[(].*[)]/crossScalaVersions := Seq()/g' project/SquerylBuild.scala
