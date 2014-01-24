@@ -10,6 +10,9 @@
 # group, artifact, file
 %global remap_version_to_installed() sed -i -e 's/"%{1}" %% "%{2}" %% "[^"]*"/"%{1}" %% "%{2}" %% "'$(rpm -q --qf "%%%%{version}" $(rpm -q --whatprovides "mvn(%{1}:%{2})" ))'"/g' %{3} 
 
+# group, artifact
+%global climbing_nemesis() ./climbing-nemesis.py %{1} %{2} ivy-local --version $(rpm -q --qf "%%%%{version}" $(rpm -q --whatprovides "mvn(%{1}:%{2})" ))
+
 Name:           Squeryl
 Version:        %{squeryl_rpm_version}
 Release:        1%{?dist}
@@ -24,16 +27,18 @@ BuildArch:	noarch
 BuildRequires:  sbt
 BuildRequires:	python
 BuildRequires:	java-devel
-BuildRequires:	mvn(cglib:cglib-full)
+BuildRequires:	mvn(cglib:cglib)
 BuildRequires:	mvn(com.h2database:h2)
 BuildRequires:	mvn(mysql:mysql-connector-java)
 BuildRequires:	mvn(postgresql:postgresql)
 BuildRequires:	mvn(net.sourceforge.jtds:jtds)
 BuildRequires:	mvn(org.apache.derby:derby)
 BuildRequires:	mvn(junit:junit)
+BuildRequires:	mvn(asm:asm)
+BuildRequires:	mvn(org.hamcrest:hamcrest-core)
 BuildRequires:	javapackages-tools
 
-Requires:	mvn(cglib:cglib-full)
+Requires:	mvn(cglib:cglib)
 Requires:	mvn(com.h2database:h2)
 Requires:	mvn(mysql:mysql-connector-java)
 Requires:	mvn(postgresql:postgresql)
@@ -67,16 +72,19 @@ Javadoc for %{name}.
 sed -i -e 's/crossScalaVersions := Seq[(].*[)]/crossScalaVersions := Seq()/g' project/SquerylBuild.scala
 sed -i -e 's/% "provided"//g' project/SquerylBuild.scala
 
-sed -i -e 's/-nodep/-full/g' project/SquerylBuild.scala
-
-# export H2VER=$(rpm -q --qf %%{version} $(rpm -q --whatprovides 'mvn(com.h2database:h2)' ))
-
-# echo $H2VER
-
-# %remap_version com.h2database h2 $H2VER project/SquerylBuild.scala
+sed -i -e 's/-nodep//g' project/SquerylBuild.scala
 
 %remap_version_to_installed com.h2database h2 project/SquerylBuild.scala
 
+%remap_version_to_installed mysql mysql-connector-java project/SquerylBuild.scala
+
+%remap_version_to_installed postgresql postgresql project/SquerylBuild.scala
+
+%remap_version_to_installed net.sourceforge.jtds jtds project/SquerylBuild.scala
+
+%remap_version_to_installed org.apache.derby derby project/SquerylBuild.scala
+
+%remap_version_to_installed junit junit project/SquerylBuild.scala
 
 sed -i -e 's/2[.]10[.][0-2]/2.10.3/g' project/SquerylBuild.scala
 
@@ -91,15 +99,25 @@ cp %{SOURCE1} .
 
 chmod 755 climbing-nemesis.py
 
-./climbing-nemesis.py org.scala-lang scalap ivy-local
+%climbing_nemesis org.scala-lang scalap ivy-local
 
-./climbing-nemesis.py cglib cglib-full ivy-local
-./climbing-nemesis.py com.h2database h2 ivy-local
-./climbing-nemesis.py mysql mysql-connector-java ivy-local
-./climbing-nemesis.py postgresql postgresql ivy-local
-./climbing-nemesis.py net.sourceforge.jtds jtds ivy-local
-./climbing-nemesis.py org.apache.derby derby ivy-local
-./climbing-nemesis.py junit junit ivy-local
+%climbing_nemesis cglib cglib-full ivy-local
+
+%climbing_nemesis com.h2database h2 ivy-local
+
+%climbing_nemesis mysql mysql-connector-java ivy-local
+
+%climbing_nemesis postgresql postgresql ivy-local
+
+%climbing_nemesis net.sourceforge.jtds jtds ivy-local
+
+%climbing_nemesis org.apache.derby derby ivy-local
+
+%climbing_nemesis junit junit ivy-local
+
+%climbing_nemesis asm asm ivy-local
+
+%climbing_nemesis org.hamcrest hamcrest-core ivy-local
 
 %build
 
