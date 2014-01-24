@@ -155,11 +155,11 @@ cp -rp target/scala-%{scala_version}/api/* %{buildroot}/%{_javadocdir}/%{name}
 %{_mavenpomdir}/JPP-%{name}.pom
 %{_mavendepmapfragdir}/%{name}
 
-%doc LICENSE README
+%doc license.txt readme.markdown
 
 %files javadoc
 %{_javadocdir}/%{name}
-%doc LICENSE
+%doc license.txt readme.markdown
 
 %changelog
 
