@@ -24,6 +24,7 @@ Source0:        https://github.com/max-l/Squeryl/archive/%{squeryl_version}.tar.
 Source1:	https://raw.github.com/willb/climbing-nemesis/master/climbing-nemesis.py
 
 Patch0:		squeryl-0.9.5.6-notestdeps.patch
+Patch1:		squeryl-0.9.5-6-noSNAPSHOT.patch
 
 BuildArch:	noarch
 BuildRequires:  sbt
@@ -71,6 +72,7 @@ Javadoc for %{name}.
 %setup -q -n %{name}-%{squeryl_version}
 
 %patch0 -p1
+%patch1 -p1
 
 # don't cross-compile for other Scala versions
 sed -i -e 's/crossScalaVersions := Seq[(].*[)]/crossScalaVersions := Seq()/g' project/SquerylBuild.scala
@@ -78,7 +80,7 @@ sed -i -e 's/% "provided"//g' project/SquerylBuild.scala
 
 sed -i -e 's/-nodep//g' project/SquerylBuild.scala
 
-sed -i -e 's/, "-target", "1.6"/, "-target", "1.6", "-encoding", "UTF-8"/' project/SquerylBuild.scala
+sed -i -e 's/, "-target", "1.6"/, "-target", "1.6", "-encoding", "UTF-8", "-J-Drelease"/' project/SquerylBuild.scala
 
 %remap_version_to_installed com.h2database h2 project/SquerylBuild.scala
 
@@ -95,6 +97,8 @@ sed -i -e 's/, "-target", "1.6"/, "-target", "1.6", "-encoding", "UTF-8"/' proje
 sed -i -e 's/2[.]10[.][0-2]/2.10.3/g' project/SquerylBuild.scala
 
 sed -i -e 's/0[.]13[.]0/0.13.1/g' project/build.properties || echo sbt.version=0.13.1 > project/build.properties
+
+echo release=true >> project/build.properties
 
 rm -f project/plugins.sbt
 
