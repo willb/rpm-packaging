@@ -105,7 +105,7 @@ chmod 755 climbing-nemesis.py
 
 %climbing_nemesis org.scala-lang scalap ivy-local
 
-%climbing_nemesis cglib cglib-full ivy-local
+%{climbing_nemesis cglib cglib-full ivy-local} --ignore asm --extra-dep asm:asm:$(rpm -q --qf "%%{version}" $(rpm -q --whatprovides "mvn(asm:asm)" ))
 
 %climbing_nemesis com.h2database h2 ivy-local
 
@@ -117,7 +117,7 @@ chmod 755 climbing-nemesis.py
 
 %climbing_nemesis org.apache.derby derby ivy-local
 
-%climbing_nemesis junit junit ivy-local
+%{climbing_nemesis junit junit ivy-local } --ignore hamcrest
 
 %climbing_nemesis asm asm ivy-local
 
