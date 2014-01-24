@@ -1,18 +1,20 @@
---- a/project/SquerylBuild.scala	2014-01-24 09:22:20.000000000 -0600
-+++ b/project/SquerylBuild.scala	2014-01-24 09:26:23.000000000 -0600
-@@ -72,14 +72,6 @@
+--- a/project/SquerylBuild.scala	2014-01-24 10:31:20.000000000 -0600
++++ b/project/SquerylBuild.scala	2014-01-24 10:09:24.000000000 -0600
+@@ -69,14 +69,6 @@
          "org.apache.derby" % "derby" % "10.7.1.1" % "provided",
          "junit" % "junit" % "4.8.2" % "provided"),
        libraryDependencies <++= scalaVersion { sv =>
 -        Seq("org.scala-lang" % "scalap" % sv,
 -          sv match {
--             case sv if sv startsWith "2.10" =>
--                 "org.scalatest" %% "scalatest" % "1.9.1" % "test"
--          	  case sv if sv startsWith "2.9" =>
--          	       "org.scalatest" % "scalatest_2.9.2" % "1.6.1" % "test"
--          	       case _ =>
--          	       	    "org.scalatest" % "scalatest_2.8.2" % "1.5.1" % "test"
+-          	case sv if sv startsWith "2.10.0" =>
+-          	    "org.scalatest" % ("scalatest_" + sv) % "1.8" % "test"
+-          	case sv if sv startsWith "2.9" =>
+-          		"org.scalatest" % "scalatest_2.9.2" % "1.6.1" % "test"
+-          	case _ =>
+-          		"org.scalatest" % "scalatest_2.8.2" % "1.5.1" % "test"
 -        })
 +        Seq("org.scala-lang" % "scalap" % sv)
        }))
- }
+-}
++}
+\ No newline at end of file
