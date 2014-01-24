@@ -78,6 +78,8 @@ sed -i -e 's/% "provided"//g' project/SquerylBuild.scala
 
 sed -i -e 's/-nodep//g' project/SquerylBuild.scala
 
+sed -i -e 's/, "-target", "1.6"/, "-target", "1.6", "-encoding", "UTF-8"/' project/SquerylBuild.scala
+
 %remap_version_to_installed com.h2database h2 project/SquerylBuild.scala
 
 %remap_version_to_installed mysql mysql-connector-java project/SquerylBuild.scala
