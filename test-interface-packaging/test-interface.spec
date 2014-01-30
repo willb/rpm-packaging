@@ -3,7 +3,7 @@
 
 Name:           test-interface
 Version:        %{test_interface_version}
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Uniform interface to Scala and Java test frameworks
 
 License:        BSD
@@ -67,7 +67,6 @@ mkdir -p classes target/api
 cd classes
 mkdir -p META-INF
 cat > META-INF/MANIFEST.MF << 'EOF'
-'EOF'
 Manifest-Version: 1.0
 Implementation-Vendor: org.scala-sbt
 Implementation-Title: %{name}
@@ -111,6 +110,9 @@ cp -rp target/api/* %{buildroot}/%{_javadocdir}/%{name}
 %doc LICENSE
 
 %changelog
+
+* Thu Jan 30 2014 William Benton <willb@redhat.com> - 1.0-3
+- fixed typo in generated manifest
 
 * Tue Jan 21 2014 William Benton <willb@redhat.com> - 1.0-2
 - conditionally build without sbt (thanks to Gil)
