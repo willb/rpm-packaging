@@ -71,9 +71,6 @@ Source3:        https://github.com/sbt/sbt-site/archive/%{sbt_site_version}.tar.
 # sxr
 Source4:        https://github.com/harrah/browse/archive/v%{sxr_version}.tar.gz
 
-# sbinary
-Source5:        https://github.com/harrah/sbinary/archive/v%{sbinary_version}.tar.gz
-
 # scalacheck
 # nb:  no "v" in this tarball URL
 %if %{?want_scalacheck}
@@ -84,7 +81,6 @@ Source6:	https://github.com/rickynils/scalacheck/archive/%{scalacheck_version}.t
 # nb:  no "v" in this tarball url
 # nb:  this depends on scalaz; might need to excise
 Source7:        https://github.com/etorreborre/specs2/archive/SPECS2-%{specs2_version}.tar.gz	
-Source8:        https://github.com/sbt/test-interface/archive/v%{testinterface_version}.tar.gz
 
 Source16:       https://raw.github.com/willb/climbing-nemesis/master/climbing-nemesis.py
 Source17:       https://raw.github.com/willb/sbt-packaging/master/sbt.boot.properties
@@ -275,9 +271,6 @@ Source75:       http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releas
 Source76:	http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt.sxr/sxr_%{scala_short_version}/%{sxr_version}/jars/sxr_%{scala_short_version}.jar
 %endif
 
-# sbinary
-Source77:	http://repo.typesafe.com/typesafe/ivy-releases/org.scala-tools.sbinary/sbinary_%{scala_short_version}/%{sbinary_version}/jars/sbinary_%{scala_short_version}.jar
-
 # scalacheck
 %if %{?want_scalacheck}
 Source78:       http://oss.sonatype.org/content/repositories/releases/org/scalacheck/scalacheck_%{scala_short_version}/%{scalacheck_version}/scalacheck_%{scala_short_version}-%{scalacheck_version}.jar
@@ -287,9 +280,6 @@ Source78:       http://oss.sonatype.org/content/repositories/releases/org/scalac
 # specs
 Source79:       http://oss.sonatype.org/content/repositories/releases/org/specs2/specs2_%{scala_short_version}/%{specs2_version}/specs2_%{scala_short_version}-%{specs2_version}.jar
 %endif
-
-# test-interface
-Source80:       http://oss.sonatype.org/content/repositories/releases/org/scala-sbt/test-interface/%{testinterface_version}/test-interface-%{testinterface_version}.jar
 
 %if %{?want_dispatch_http}
 # dispatch-http
@@ -337,14 +327,14 @@ Requires:  mvn(org.bouncycastle:bcpg-jdk16)
 Requires:  mvn(org.fusesource.jansi:jansi)
 Requires:  jline2
 
-%if !%{do_bootstrap}
-BuildRequires:  sbt = %{sbt_bootstrap_version}
-
 BuildRequires:  sbinary = %{sbinary_version}
 BuildRequires:  test-interface = %{testinterface_version}
 
 Requires:  sbinary = %{sbinary_version}
 Requires:  test-interface = %{testinterface_version}
+
+%if !%{do_bootstrap}
+BuildRequires:  sbt = %{sbt_bootstrap_version}
 
 %if %{do_proper}
 BuildRequires:  sbt-ghpages = %{sbt_ghpages_version}
@@ -517,8 +507,11 @@ sed -i -e '/precompiled/d' org.scala-sbt.sbt-%{sbt_bootstrap_version}.ivy.xml
 ./climbing-nemesis.py --jarfile %{SOURCE76} org.scala-sbt.sxr sxr %{ivy_local_dir} --version %{sxr_version} --scala %{scala_short_version}
 %endif
 
+# test-interface
+./climbing-nemesis.py org.scala-sbt test-interface %{ivy_local_dir}
+
 # sbinary
-./climbing-nemesis.py --jarfile %{SOURCE77} org.scala-tools.sbinary sbinary %{ivy_local_dir} --version %{sbinary_version} --scala %{scala_short_version}
+./climbing-nemesis.py org.scala-tools.sbinary sbinary_%{scala_short_version} %{ivy_local_dir} # --scala %{scala_short_version}
 
 # scalacheck
 %if %{?want_scalacheck}
@@ -529,9 +522,6 @@ sed -i -e '/precompiled/d' org.scala-sbt.sbt-%{sbt_bootstrap_version}.ivy.xml
 %if %{?want_specs2}
 ./climbing-nemesis.py --jarfile %{SOURCE79} org.specs2 specs2 %{ivy_local_dir} --version %{specs2_version} --scala %{scala_short_version}
 %endif
-
-# test-interface
-./climbing-nemesis.py --jarfile %{SOURCE80} org.scala-sbt test-interface %{ivy_local_dir} --version %{testinterface_version}
 
 %if %{?want_dispatch_http}
 # dispatch-http
