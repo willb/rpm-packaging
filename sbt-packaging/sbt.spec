@@ -3,7 +3,7 @@
 
 # build non-bootstrap packages with tests, cross-referenced sources, etc
 %global do_proper 0
-%global pkg_rel 3
+%global pkg_rel 4
 %global scala_version 2.10.3
 %global scala_short_version 2.10
 %global sbt_bootstrap_version 0.13.1
@@ -581,7 +581,7 @@ java -Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -jar -Dfedora.sbt.i
 # XXX: this is a hack; we seem to get correct metadata but bogus JARs
 # from "sbt publish" for some reason
 for f in $(find published -name \*.jar ) ; do
-    find . -ipath \*target\* -and -name $(basename $f) -exec mv '{}' $f \;
+    find . -ipath \*target\* -and -name $(basename $f) -exec cp '{}' $f \;
 done
 
 %install
@@ -706,6 +706,10 @@ done
 %doc README.md LICENSE NOTICE
 
 %changelog
+* Thu Jan 30 2014 William Benton <willb@redhat.com> - 0.13.1-4
+- use native test-interface and sbinary packages in both bootstrap and non-bootstrap modes
+- fix a bug that was crashing on rawhide
+
 * Mon Jan 20 2014 William Benton <willb@redhat.com> - 0.13.1-3
 - builds as non-bootstrap package
 - numerous other minor fixes
