@@ -587,8 +587,8 @@ done
 %install
 %if 0%{?fedora} >= 21
 
-for mod in $(find published -name \*-0.13.1.jar); do
-    test -f $(dirname $mod)/ivy.xml && %mvn_artifact $(dirname $mod)/ivy.xml $mod
+for mod in $(find published -name \*-%{sbt_full_version}.jar); do
+    test -f $(dirname $mod)/ivy.xml && %mvn_artifact $(dirname $mod)/ivy.xml $(dirname $mod)/*-%{sbt_full_version}.jar
 done
 # This is temporarly needed to workaround a limitation in XMvn Installer
 sed -i "/rawPom/{p;s//effectivePom/g}" .xmvn-reactor
@@ -651,6 +651,8 @@ find %{buildroot}/%{_javadir}/%{name} -name \*test-interface\*  | xargs rm -rf
 
 # remove bootstrap ivy 2.3.0-rc1 jar if we're using it
 find %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir} -lname %{SOURCE19} | xargs dirname | xargs rm -rf
+
+find %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir} -name .\*.lock -delete
 
 concretize() {
     src=$(readlink $1)
