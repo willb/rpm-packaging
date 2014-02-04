@@ -587,10 +587,10 @@ done
 %install
 %if 0%{?fedora} >= 21
 
-for mod in $(find | sed -n "s:/target/[^/]*-%{sbt_full_version}.jar$::;T;p"); do
-  %mvn_artifact $mod/target/*-%{sbt_full_version}.xml \
-                $mod/target/*-%{sbt_full_version}.jar
+for mod in $(find published -name \*-0.13.1.jar); do
+    test -f $(dirname $mod)/ivy.xml && %mvn_artifact $(dirname $mod)/ivy.xml $(dirname $mod)/*-0.13.1.jar
 done
+
 # This is temporarly needed to workaround a limitation in XMvn Installer
 sed -i "/rawPom/{p;s//effectivePom/g}" .xmvn-reactor
 %mvn_install
