@@ -585,24 +585,8 @@ for f in $(find published -name \*.jar ) ; do
 done
 
 %install
-%if 0%{?fedora} >= 21
 
-for mod in $(find published -name \*-%{sbt_full_version}.jar); do
-    test -f $(dirname $mod)/ivy.xml && %mvn_artifact $(dirname $mod)/ivy.xml $(dirname $mod)/*-%{sbt_full_version}.jar
-done
-# This is temporarly needed to workaround a limitation in XMvn Installer
-sed -i "/rawPom/{p;s//effectivePom/g}" .xmvn-reactor
-%mvn_install
-
-%if %{do_bootstrap}
-# In bootstrap mode avoid generating auto-requires on artifacts which
-# are not yet available in system local repository
-sed -i -n '/<autoRequires>/{:a;N;/<\/autoRequires>/{p;b;};/>UNKNOWN</{:b;n;/<\/autoRequires>/{b;};bb;};ba;};p' %{buildroot}%{_mavendepmapfragdir}/*
-%endif
-
-%jpackage_script xsbt.boot.Boot "" "" %{name}:ivy:scala %{name} true
-
-%else
+%jpackage_script xsbt.boot.Boot "" "" %{name}:ivy:scala %{name}-script true
 
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/%{_javadir}/%{name}
@@ -619,8 +603,6 @@ for jar in *.jar ; do
     ln -s $jar $(echo $jar | sed -e 's/-%{sbt_full_version}//g')
 done
 popd
-
-%endif
 
 mkdir -p %{buildroot}/%{_sysconfdir}/%{name}
 
@@ -692,16 +674,11 @@ for sub in ${shortnames[@]} ; do
     %add_maven_depmap JPP.%{name}-${sub}.pom %{name}/${sub}.jar
 done
 
-%if 0%{?fedora} >= 21
-%files -f .mfiles
-%{_bindir}/%{name}
-%else
 %files
 %{_javadir}/%{name}
-%{_bindir}/%{name}
+%{_bindir}/%{name}*
 %{_mavenpomdir}/JPP.%{name}-*.pom
 %{_mavendepmapfragdir}/*
-%endif
 
 %{_sysconfdir}/%{name}
 %doc README.md LICENSE NOTICE
