@@ -670,10 +670,8 @@ for sub in ${shortnames[@]} ; do
 done
 
 %files -f .mfiles
-%{_javadir}/%{name}
 %{_datadir}/%{name}
 %{_bindir}/%{name}*
-%{_mavenpomdir}/JPP.%{name}-*.pom
 
 %{_sysconfdir}/%{name}
 %doc README.md LICENSE NOTICE
