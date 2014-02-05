@@ -601,7 +601,7 @@ chmod 755 %{buildroot}/%{_bindir}/%{name}
 
 pushd %{buildroot}/%{_javadir}/%{name}
 for jar in *.jar ; do
-    ln -s $jar $(echo $jar | sed -e 's/-%{sbt_full_version}//g')
+    mv $jar $(echo $jar | sed -e 's/-%{sbt_full_version}//g')
 done
 popd
 
