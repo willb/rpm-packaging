@@ -96,7 +96,7 @@ Source19:	http://repo1.maven.org/maven2/org/apache/ivy/ivy/2.3.0-rc1/ivy-2.3.0-r
 
 
 # sbt script (to be obsoleted in future releases)
-Source21:	https://github.com/willb/sbt-packaging/blob/master/sbt
+Source21:	https://raw.github.com/willb/sbt-packaging/master/sbt
 
 %if %{do_bootstrap}
 # include bootstrap libraries
