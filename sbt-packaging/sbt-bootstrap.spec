@@ -588,7 +588,6 @@ done
 
 %jpackage_script xsbt.boot.Boot "" "" %{name}:ivy:scala %{name}-script true
 
-rm -rf %{buildroot}
 mkdir -p %{buildroot}/%{_javadir}/%{name}
 
 # collect and install SBT jars
