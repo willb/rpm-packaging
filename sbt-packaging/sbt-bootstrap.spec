@@ -18,6 +18,8 @@
 
 %global ivy_local_dir ivy-local
 
+%global installed_ivy_local %{_datadir}/%{name}/%{ivy_local_dir}
+
 %global generic_ivy_artifact() %{1}/%{2}/%{3}/%{4}/jars/%{5}.jar
 %global generic_ivy_descriptor() %{1}/%{2}/%{3}/%{4}/ivys/ivy.xml#/%{5}-%{4}-ivy.xml
 
@@ -534,12 +536,12 @@ sed -i -e '/precompiled/d' org.scala-sbt.sbt-%{sbt_bootstrap_version}.ivy.xml
 
 # sbt components
 for jar in actions api apply-macro cache classfile classpath collections command compile compiler-integration compiler-ivy-integration completion control cross datatype-generator incremental-compiler interface io ivy launcher launcher-interface logging main main-settings persist process relation run sbt sbt-launch scripted-framework scripted-plugin scripted-sbt tasks task-system test-agent testing tracking; do
-    ./climbing-nemesis.py --jarfile %{_javadir}/%{name}/${jar}-%{sbt_bootstrap_version}.jar --ivyfile %{_javadir}/%{name}/%{ivy_local_dir}/org.scala-sbt/${jar}/%{sbt_bootstrap_version}/ivy.xml org.scala-sbt ${jar} %{ivy_local_dir}
+    ./climbing-nemesis.py --jarfile %{_javadir}/%{name}/${jar}.jar --ivyfile %{installed_ivy_local}/org.scala-sbt/${jar}/%{sbt_bootstrap_version}/ivy.xml org.scala-sbt ${jar} %{ivy_local_dir}
 done
 
-./climbing-nemesis.py --jarfile %{_javadir}/%{name}/compiler-interface-src-%{sbt_bootstrap_version}.jar --ivyfile %{_javadir}/%{name}/%{ivy_local_dir}/org.scala-sbt/compiler-interface/%{sbt_bootstrap_version}/ivy.xml org.scala-sbt compiler-interface-src %{ivy_local_dir} --version %{sbt_bootstrap_version} --override org.scala-sbt:compiler-interface --override-dir-only
+./climbing-nemesis.py --jarfile %{_javadir}/%{name}/compiler-interface-src-%{sbt_bootstrap_version}.jar --ivyfile %{installed_ivy_local}/org.scala-sbt/compiler-interface/%{sbt_bootstrap_version}/ivy.xml org.scala-sbt compiler-interface-src %{ivy_local_dir} --version %{sbt_bootstrap_version} --override org.scala-sbt:compiler-interface --override-dir-only
 
-./climbing-nemesis.py --jarfile %{_javadir}/%{name}/compiler-interface-bin-%{sbt_bootstrap_version}.jar --ivyfile %{_javadir}/%{name}/%{ivy_local_dir}/org.scala-sbt/compiler-interface/%{sbt_bootstrap_version}/ivy.xml org.scala-sbt compiler-interface-bin %{ivy_local_dir} --version %{sbt_bootstrap_version} --override org.scala-sbt:compiler-interface --override-dir-only
+./climbing-nemesis.py --jarfile %{_javadir}/%{name}/compiler-interface-bin-%{sbt_bootstrap_version}.jar --ivyfile %{installed_ivy_local}/org.scala-sbt/compiler-interface/%{sbt_bootstrap_version}/ivy.xml org.scala-sbt compiler-interface-bin %{ivy_local_dir} --version %{sbt_bootstrap_version} --override org.scala-sbt:compiler-interface --override-dir-only
 
 # test-interface
 ./climbing-nemesis.py org.scala-sbt test-interface %{ivy_local_dir}
@@ -599,7 +601,7 @@ chmod 755 %{buildroot}/%{_bindir}/%{name}
 
 pushd %{buildroot}/%{_javadir}/%{name}
 for jar in *.jar ; do
-    ln -s $jar $(echo $jar | sed -e 's/-%{sbt_full_version}//g')
+    mv $jar $(echo $jar | sed -e 's/-%{sbt_full_version}//g')
 done
 popd
 
@@ -607,7 +609,7 @@ mkdir -p %{buildroot}/%{_sysconfdir}/%{name}
 
 sed 's/debug/info/' < sbt.boot.properties > %{buildroot}/%{_sysconfdir}/%{name}/sbt.boot.properties
 
-mkdir -p %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir}
+mkdir -p %{buildroot}/%{installed_ivy_local}
 
 # remove things that we only needed for the bootstrap build
 
@@ -617,10 +619,10 @@ rm -rf %{ivy_local_dir}/org.scalacheck
 rm -rf %{ivy_local_dir}/org.scala-sbt.sxr
 rm -rf %{ivy_local_dir}/cache
 
-(cd %{ivy_local_dir} ; tar --exclude=.md5 --exclude=.sha1 -cf - .) | (cd %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir} ; tar -xf - )
-(cd published ; tar --exclude=\*.md5 --exclude=\*.sha1 -cf - .) | (cd %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir} ; tar -xf - )
+(cd %{ivy_local_dir} ; tar --exclude=.md5 --exclude=.sha1 -cf - .) | (cd %{buildroot}/%{installed_ivy_local} ; tar -xf - )
+(cd published ; tar --exclude=\*.md5 --exclude=\*.sha1 -cf - .) | (cd %{buildroot}/%{installed_ivy_local} ; tar -xf - )
 
-for bootjar in $(find %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir}/org.scala-sbt -type l) ; do
+for bootjar in $(find %{buildroot}/%{installed_ivy_local}/org.scala-sbt -type l) ; do
 rm -f $bootjar
 ln -s %{_javadir}/%{name}/$(basename $bootjar) $bootjar
 done
@@ -628,12 +630,12 @@ done
 %if %{do_bootstrap}
 # reinstall test-interface
 find %{buildroot}/%{_javadir}/%{name} -name \*test-interface\*  | xargs rm -rf
-./climbing-nemesis.py --jarfile %{SOURCE80} org.scala-sbt test-interface %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir} --version %{testinterface_version}
+./climbing-nemesis.py --jarfile %{SOURCE80} org.scala-sbt test-interface %{buildroot}/%{installed_ivy_local} --version %{testinterface_version}
 
 # remove bootstrap ivy 2.3.0-rc1 jar if we're using it
-find %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir} -lname %{SOURCE19} | xargs dirname | xargs rm -rf
+find %{buildroot}/%{installed_ivy_local} -lname %{SOURCE19} | xargs dirname | xargs rm -rf
 
-find %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir} -name .\*.lock -delete
+find %{buildroot}/%{installed_ivy_local} -name .\*.lock -delete
 
 concretize() {
     src=$(readlink $1)
@@ -641,14 +643,14 @@ concretize() {
 }
 
 # copy other bootstrap dependency jars from their sources
-for depjar in $(find %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir} -lname %{_sourcedir}\* ) ; do
+for depjar in $(find %{buildroot}/%{installed_ivy_local} -lname %{_sourcedir}\* ) ; do
 concretize $depjar
 done
 
 %else  # do_bootstrap
 
 find %{buildroot}/%{_javadir}/%{name} -name \*test-interface\*  | xargs rm -rf
-./climbing-nemesis.py org.scala-sbt test-interface %{buildroot}/%{_javadir}/%{name}/%{ivy_local_dir} --version %{testinterface_version}
+./climbing-nemesis.py org.scala-sbt test-interface %{buildroot}/%{installed_ivy_local} --version %{testinterface_version}
 
 %endif # do_bootstrap
 
@@ -673,11 +675,11 @@ for sub in ${shortnames[@]} ; do
     %add_maven_depmap JPP.%{name}-${sub}.pom %{name}/${sub}.jar
 done
 
-%files
+%files -f .mfiles
 %{_javadir}/%{name}
+%{_datadir}/%{name}
 %{_bindir}/%{name}*
 %{_mavenpomdir}/JPP.%{name}-*.pom
-%{_mavendepmapfragdir}/*
 
 %{_sysconfdir}/%{name}
 %doc README.md LICENSE NOTICE
@@ -687,7 +689,6 @@ done
 * Wed Jan 15 2014 William Benton <willb@redhat.com> - 0.13.1-2
 - use generated Ivy files
 - use bootstrap test-interface in bootstrap package
-- official bootstrap package
 
 * Sat Dec 14 2013 William Benton <willb@redhat.com> - 0.13.1-1
 - updated to 0.13.1
