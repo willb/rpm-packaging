@@ -669,6 +669,16 @@ for sub in ${shortnames[@]} ; do
     %add_maven_depmap JPP.%{name}-${sub}.pom %{name}/${sub}.jar
 done
 
+# handle compiler-interface specially
+for pom in $(find . -name \*.pom | grep compiler-interface | head -1) ; do
+    shortname=$(echo $pom | sed -e 's/^.*[/]\([a-z-]\+\)-0.13.1.pom$/\1/g')
+    echo installing POM $pom to %{_mavenpomdir}/JPP.%{name}-${shortname}.pom
+    cp $pom %{buildroot}/%{_mavenpomdir}/JPP.%{name}-${shortname}.pom
+    %add_maven_depmap JPP.%{name}-${shortname}.pom %{name}/${shortname}-src.jar
+    %add_maven_depmap JPP.%{name}-${shortname}.pom %{name}/${shortname}-bin.jar
+done
+
+
 %files -f .mfiles
 %{_datadir}/%{name}
 %{_bindir}/%{name}*
