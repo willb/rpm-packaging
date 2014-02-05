@@ -628,9 +628,6 @@ ln -s %{_javadir}/%{name}/$(basename $bootjar) $bootjar
 done
 
 %if %{do_bootstrap}
-# reinstall test-interface
-find %{buildroot}/%{_javadir}/%{name} -name \*test-interface\*  | xargs rm -rf
-./climbing-nemesis.py --jarfile %{SOURCE80} org.scala-sbt test-interface %{buildroot}/%{installed_ivy_local} --version %{testinterface_version}
 
 # remove bootstrap ivy 2.3.0-rc1 jar if we're using it
 find %{buildroot}/%{installed_ivy_local} -lname %{SOURCE19} | xargs dirname | xargs rm -rf
@@ -646,13 +643,10 @@ concretize() {
 for depjar in $(find %{buildroot}/%{installed_ivy_local} -lname %{_sourcedir}\* ) ; do
 concretize $depjar
 done
-
-%else  # do_bootstrap
-
-find %{buildroot}/%{_javadir}/%{name} -name \*test-interface\*  | xargs rm -rf
-./climbing-nemesis.py org.scala-sbt test-interface %{buildroot}/%{installed_ivy_local} --version %{testinterface_version}
-
 %endif # do_bootstrap
+
+find %{buildroot}/%{_datadir}/%{name} -name \*test-interface\*  | xargs rm -rf
+./climbing-nemesis.py org.scala-sbt test-interface %{buildroot}/%{installed_ivy_local} --version %{testinterface_version}
 
 ### install POM files
 mkdir -p %{buildroot}/%{_mavenpomdir}
