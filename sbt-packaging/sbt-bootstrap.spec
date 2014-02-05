@@ -324,6 +324,25 @@ BuildRequires:  proguard
 BuildRequires:	javapackages-tools
 Requires:	javapackages-tools
 
+BuildRequires:	mvn(oro:oro)
+BuildRequires:	mvn(com.jcraft:jsch)
+BuildRequires:	mvn(commons-httpclient:commons-httpclient)
+BuildRequires:	apache-ivy
+BuildRequires:	mvn(org.scala-lang:scala-compiler)
+BuildRequires:	mvn(org.scala-lang:scala-library)
+BuildRequires:	mvn(org.scala-lang:scala-reflect)
+BuildRequires:	mvn(org.jsoup:jsoup)
+
+Requires:	mvn(oro:oro)
+Requires:	mvn(com.jcraft:jsch)
+Requires:	mvn(commons-httpclient:commons-httpclient)
+Requires:	apache-ivy
+Requires:	mvn(org.scala-lang:scala-compiler)
+Requires:	mvn(org.scala-lang:scala-library)
+Requires:	mvn(org.scala-lang:scala-reflect)
+Requires:	mvn(org.jsoup:jsoup)
+Requires:	proguard
+
 Requires:  mvn(org.bouncycastle:bcprov-jdk16)
 Requires:  mvn(org.bouncycastle:bcpg-jdk16)
 Requires:  mvn(org.fusesource.jansi:jansi)
@@ -539,9 +558,9 @@ for jar in actions api apply-macro cache classfile classpath collections command
     ./climbing-nemesis.py --jarfile %{_javadir}/%{name}/${jar}.jar --ivyfile %{installed_ivy_local}/org.scala-sbt/${jar}/%{sbt_bootstrap_version}/ivy.xml org.scala-sbt ${jar} %{ivy_local_dir}
 done
 
-./climbing-nemesis.py --jarfile %{_javadir}/%{name}/compiler-interface-src-%{sbt_bootstrap_version}.jar --ivyfile %{installed_ivy_local}/org.scala-sbt/compiler-interface/%{sbt_bootstrap_version}/ivy.xml org.scala-sbt compiler-interface-src %{ivy_local_dir} --version %{sbt_bootstrap_version} --override org.scala-sbt:compiler-interface --override-dir-only
+./climbing-nemesis.py --jarfile %{_javadir}/%{name}/compiler-interface-src.jar --ivyfile %{installed_ivy_local}/org.scala-sbt/compiler-interface/%{sbt_bootstrap_version}/ivy.xml org.scala-sbt compiler-interface-src %{ivy_local_dir} --version %{sbt_bootstrap_version} --override org.scala-sbt:compiler-interface --override-dir-only
 
-./climbing-nemesis.py --jarfile %{_javadir}/%{name}/compiler-interface-bin-%{sbt_bootstrap_version}.jar --ivyfile %{installed_ivy_local}/org.scala-sbt/compiler-interface/%{sbt_bootstrap_version}/ivy.xml org.scala-sbt compiler-interface-bin %{ivy_local_dir} --version %{sbt_bootstrap_version} --override org.scala-sbt:compiler-interface --override-dir-only
+./climbing-nemesis.py --jarfile %{_javadir}/%{name}/compiler-interface-bin.jar --ivyfile %{installed_ivy_local}/org.scala-sbt/compiler-interface/%{sbt_bootstrap_version}/ivy.xml org.scala-sbt compiler-interface-bin %{ivy_local_dir} --version %{sbt_bootstrap_version} --override org.scala-sbt:compiler-interface --override-dir-only
 
 # test-interface
 ./climbing-nemesis.py org.scala-sbt test-interface %{ivy_local_dir}
