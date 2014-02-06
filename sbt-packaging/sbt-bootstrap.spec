@@ -304,7 +304,7 @@ Source184:      %sbt_ivy_descriptor precompiled-2_9_3
 
 
 # sbt launcher
-Source128:       http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/%{sbt_bootstrap_version}/sbt-launch.jar
+# Source128:       http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/%{sbt_bootstrap_version}/sbt-launch.jar
 
 %endif
 
@@ -343,10 +343,10 @@ Requires:	mvn(org.scala-lang:scala-reflect)
 Requires:	mvn(org.jsoup:jsoup)
 Requires:	proguard
 
-Requires:  mvn(org.bouncycastle:bcprov-jdk16)
-Requires:  mvn(org.bouncycastle:bcpg-jdk16)
-Requires:  mvn(org.fusesource.jansi:jansi)
-Requires:  jline2
+Requires:	mvn(org.bouncycastle:bcprov-jdk16)
+Requires:	mvn(org.bouncycastle:bcpg-jdk16)
+Requires:	mvn(org.fusesource.jansi:jansi)
+Requires:	jline2
 
 BuildRequires:  sbinary = %{sbinary_version}
 BuildRequires:  test-interface = %{testinterface_version}
@@ -392,9 +392,7 @@ chmod 755 climbing-nemesis.py
 cp %{SOURCE17} .
 
 %if %{do_bootstrap}
-cp %{SOURCE128} .
-%else
-cp %{_javadir}/%{name}/sbt-launch.jar .
+cp %{SOURCE63} .
 %endif
 
 sed -i -e '/dispatch-http/d' project/p.sbt
@@ -554,7 +552,7 @@ sed -i -e '/precompiled/d' org.scala-sbt.sbt-%{sbt_bootstrap_version}.ivy.xml
 # dir.  In the future, we'll use Mikołaj's new xmvn Ivy resolver.
 
 # sbt components
-for jar in actions api apply-macro cache classfile classpath collections command compile compiler-integration compiler-ivy-integration completion control cross datatype-generator incremental-compiler interface io ivy launcher launcher-interface logging main main-settings persist process relation run sbt sbt-launch scripted-framework scripted-plugin scripted-sbt tasks task-system test-agent testing tracking; do
+for jar in actions api apply-macro cache classfile classpath collections command compile compiler-integration compiler-ivy-integration completion control cross datatype-generator incremental-compiler interface io ivy launcher launcher-interface logging main main-settings persist process relation run sbt scripted-framework scripted-plugin scripted-sbt tasks task-system test-agent testing tracking; do
     ./climbing-nemesis.py --jarfile %{_javadir}/%{name}/${jar}.jar --ivyfile %{installed_ivy_local}/org.scala-sbt/${jar}/%{sbt_bootstrap_version}/ivy.xml org.scala-sbt ${jar} %{ivy_local_dir}
 done
 
@@ -578,6 +576,7 @@ rm -f project/Docs.scala
 
 mkdir sbt-boot-dir
 
+%if %{do_bootstrap}
 mkdir -p sbt-boot-dir/scala-%{scala_version}/org.scala-sbt/%{name}/%{sbt_bootstrap_version}/
 mkdir -p sbt-boot-dir/scala-%{scala_version}/lib
 
@@ -590,6 +589,7 @@ for jar in $(find %{ivy_local_dir}/ -name \*.jar | grep bouncycastle) ; do
    cp --symbolic-link $(readlink $jar) sbt-boot-dir/scala-%{scala_version}/lib
 done
 
+%endif
 mkdir -p scala/lib
 for jar in %{_javadir}/scala/*.jar ; do
    cp --symbolic-link $jar scala/lib
@@ -597,7 +597,14 @@ done
 
 %build
 
+%if %{do_bootstrap}
 java -Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -jar -Dfedora.sbt.ivy.dir=ivy-local -Dfedora.sbt.boot.dir=sbt-boot-dir -Divy.checksums='""' -Dsbt.boot.properties=sbt.boot.properties sbt-launch.jar package "set publishTo in Global := Some(Resolver.file(\"published\", file(\"published\"))(Resolver.ivyStylePatterns) ivys \"$(pwd)/published/[organization]/[module]/[revision]/ivy.xml\" artifacts \"$(pwd)/published/[organization]/[module]/[revision]/[artifact]-[revision].[ext]\")" publish makePom
+%else
+export SBT_IVY_DIR=ivy-local
+export SBT_BOOT_DIR=sbt-boot-dir
+export SBT_BOOT_PROPERTIES=sbt.boot.properties
+sbt package "set publishTo in Global := Some(Resolver.file(\"published\", file(\"published\"))(Resolver.ivyStylePatterns) ivys \"$(pwd)/published/[organization]/[module]/[revision]/ivy.xml\" artifacts \"$(pwd)/published/[organization]/[module]/[revision]/[artifact]-[revision].[ext]\")" publish makePom
+%endif
 
 # XXX: this is a hack; we seem to get correct metadata but bogus JARs
 # from "sbt publish" for some reason
@@ -607,12 +614,10 @@ done
 
 %install
 
-%jpackage_script xsbt.boot.Boot "" "" %{name}:ivy:scala %{name}-script true
-
 mkdir -p %{buildroot}/%{_javadir}/%{name}
 
 # collect and install SBT jars
-find published -name \*.jar | grep %{sbt_full_version}.jar | xargs -I JAR cp JAR %{buildroot}/%{_javadir}/%{name}
+find published -name \*.jar | grep -v sbt-launch.jar | grep %{sbt_full_version}.jar | xargs -I JAR cp JAR %{buildroot}/%{_javadir}/%{name}
 
 mkdir -p %{buildroot}/%{_bindir}
 cp -p %{SOURCE21} %{buildroot}/%{_bindir}/%{name}
@@ -623,6 +628,8 @@ for jar in *.jar ; do
     mv $jar $(echo $jar | sed -e 's/-%{sbt_full_version}//g')
 done
 popd
+
+rm -f %{buildroot}/%{_javadir}/%{name}/sbt-launch.jar
 
 mkdir -p %{buildroot}/%{_sysconfdir}/%{name}
 
@@ -638,6 +645,8 @@ rm -rf %{ivy_local_dir}/org.scalacheck
 rm -rf %{ivy_local_dir}/org.scala-sbt.sxr
 rm -rf %{ivy_local_dir}/cache
 
+rm -rf %{ivy_local_dir}/org.scala-sbt/sbt-launch
+
 (cd %{ivy_local_dir} ; tar --exclude=.md5 --exclude=.sha1 -cf - .) | (cd %{buildroot}/%{installed_ivy_local} ; tar -xf - )
 (cd published ; tar --exclude=\*.md5 --exclude=\*.sha1 -cf - .) | (cd %{buildroot}/%{installed_ivy_local} ; tar -xf - )
 
@@ -647,11 +656,8 @@ ln -s %{_javadir}/%{name}/$(basename $bootjar) $bootjar
 done
 
 %if %{do_bootstrap}
-
 # remove bootstrap ivy 2.3.0-rc1 jar if we're using it
 find %{buildroot}/%{installed_ivy_local} -lname %{SOURCE19} | xargs dirname | xargs rm -rf
-
-find %{buildroot}/%{installed_ivy_local} -name .\*.lock -delete
 
 concretize() {
     src=$(readlink $1)
@@ -662,7 +668,10 @@ concretize() {
 for depjar in $(find %{buildroot}/%{installed_ivy_local} -lname %{_sourcedir}\* ) ; do
 concretize $depjar
 done
-%endif # do_bootstrap
+
+%endif  # do_bootstrap
+
+find %{buildroot}/%{installed_ivy_local} -name \*.lock -delete
 
 find %{buildroot}/%{_datadir}/%{name} -name \*test-interface\*  | xargs rm -rf
 ./climbing-nemesis.py org.scala-sbt test-interface %{buildroot}/%{installed_ivy_local} --version %{testinterface_version}
@@ -673,7 +682,7 @@ rm -f .rpm_pomfiles
 touch .rpm_pomfiles
 declare -a shortnames
 
-for pom in $(find . -name \*.pom | grep -v compiler-interface | grep -v launch-test ) ; do 
+for pom in $(find . -name \*.pom | grep -v compiler-interface | grep -v launch-test | grep -v sbt-launch ) ; do 
     shortname=$(echo $pom | sed -e 's/^.*[/]\([a-z-]\+\)-0.13.1.pom$/\1/g')
     echo installing POM $pom to %{_mavenpomdir}/JPP.%{name}-${shortname}.pom
     cp $pom %{buildroot}/%{_mavenpomdir}/JPP.%{name}-${shortname}.pom

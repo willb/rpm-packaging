@@ -645,6 +645,8 @@ rm -rf %{ivy_local_dir}/org.scalacheck
 rm -rf %{ivy_local_dir}/org.scala-sbt.sxr
 rm -rf %{ivy_local_dir}/cache
 
+rm -rf %{ivy_local_dir}/org.scala-sbt/sbt-launch
+
 (cd %{ivy_local_dir} ; tar --exclude=.md5 --exclude=.sha1 -cf - .) | (cd %{buildroot}/%{installed_ivy_local} ; tar -xf - )
 (cd published ; tar --exclude=\*.md5 --exclude=\*.sha1 -cf - .) | (cd %{buildroot}/%{installed_ivy_local} ; tar -xf - )
 
