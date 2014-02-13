@@ -51,6 +51,9 @@ Summary:	The simple build tool for Scala and Java projects
 
 BuildArch:	noarch
 
+# builds don't work on our ARM builders atm due to memory constraints
+ExcludeArch:	%{arm}
+
 License:	BSD
 URL:	http://www.scala-sbt.org
 Source0:	https://github.com/sbt/sbt/archive/v%{version}%{sbt_build}.tar.gz
