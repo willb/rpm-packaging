@@ -6,14 +6,14 @@
 # we don't want scalaz support atm
 %global want_scalaz 0
 
-Name:           json4s
-Version:        %{json4s_version}
-Release:        1%{?dist}
-Summary:        Common AST for Scala JSON parsers.
+Name:		json4s
+Version:	%{json4s_version}
+Release:	1%{?dist}
+Summary:	Common AST for Scala JSON parsers
 
-License:        ASL 2.0
-URL:            https://github.com/json4s/json4s
-Source0:        https://github.com/json4s/json4s/archive/v%{json4s_version}_%{scala_version}.tar.gz
+License:	ASL 2.0
+URL:		https://github.com/json4s/json4s
+Source0:	https://github.com/json4s/json4s/archive/v%{json4s_version}_%{scala_version}.tar.gz
 Source1:	https://raw.github.com/willb/climbing-nemesis/master/climbing-nemesis.py
 
 BuildArch:	noarch
@@ -23,7 +23,7 @@ BuildRequires:	python
 BuildRequires:	maven-local
 BuildRequires:	javapackages-tools
 Requires:	javapackages-tools
-Requires:       scala
+Requires:	scala
 
 Requires:	mvn(com.thoughtworks.paranamer:paranamer)
 Requires:	mvn(org.scala-lang:scalap)
@@ -46,7 +46,7 @@ BuildRequires:	mvn(org.joda:joda-convert)
 json4s is a common AST for Scala JSON parsers.
 
 %package javadoc
-Summary:        Javadoc for %{name}
+Summary:	Javadoc for %{name}
 
 %description javadoc
 Javadoc for %{name}.
@@ -134,7 +134,7 @@ sbt package "set publishTo in Global := Some(Resolver.file(\"published\", file(\
 # XXX: this is a hack; we seem to get correct metadata but bogus JARs
 # from "sbt publish" for some reason
 for f in $(find published -name \*.jar ) ; do
-    find . -ipath \*target\* -and -name $(basename $f) -exec cp '{}' $f \;
+  find . -ipath \*target\* -and -name $(basename $f) -exec cp '{}' $f \;
 done
 
 %install
@@ -144,28 +144,28 @@ mkdir -p %{buildroot}/%{_mavenpomdir}
 
 mkdir -p %{buildroot}/%{_javadocdir}/%{name}
 for apidir in $(find . -name api -type d) ; do
-    pushd $apidir
-    cp -rp . %{buildroot}/%{_javadocdir}/%{name}
-    popd
+  pushd $apidir
+  cp -rp . %{buildroot}/%{_javadocdir}/%{name}
+  popd
 done
 
 for jar in $(find published -name \*.jar | grep -v %{name}_%{scala_version}-%{version}.jar) ; do
-    cp $jar %{buildroot}/%{_javadir}/%{name}/$(echo $jar | cut -f5 -d/ | cut -f1 -d_).jar
+  cp $jar %{buildroot}/%{_javadir}/%{name}/$(echo $jar | cut -f5 -d/ | cut -f1 -d_).jar
 done
 
 declare -a shortnames
 
 for pom in $(find published -name \*.pom | grep -v %{name}_%{scala_version}-%{version}.pom ) ; do 
-    shortname=$(echo $pom | cut -f5 -d/ | cut -f1 -d_)
-    echo installing POM $pom to %{_mavenpomdir}/JPP.%{name}-${shortname}.pom
-    cp $pom %{buildroot}/%{_mavenpomdir}/JPP.%{name}-${shortname}.pom
-    echo %{_mavenpomdir}/JPP.%{name}-${shortname}.pom >> .rpm_pomfiles
-    shortnames=( "${shortnames[@]}" $shortname )
+  shortname=$(echo $pom | cut -f5 -d/ | cut -f1 -d_)
+  echo installing POM $pom to %{_mavenpomdir}/JPP.%{name}-${shortname}.pom
+  cp $pom %{buildroot}/%{_mavenpomdir}/JPP.%{name}-${shortname}.pom
+  echo %{_mavenpomdir}/JPP.%{name}-${shortname}.pom >> .rpm_pomfiles
+  shortnames=( "${shortnames[@]}" $shortname )
 done
 
 for sub in ${shortnames[@]} ; do
-    echo running add_maven_depmap JPP.%{name}-${sub}.pom %{name}/${sub}.jar
-    %add_maven_depmap JPP.%{name}-${sub}.pom %{name}/${sub}.jar
+  echo running add_maven_depmap JPP.%{name}-${sub}.pom %{name}/${sub}.jar
+  %add_maven_depmap JPP.%{name}-${sub}.pom %{name}/${sub}.jar
 done
 
 %files -f .mfiles
