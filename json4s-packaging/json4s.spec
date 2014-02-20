@@ -1,6 +1,8 @@
 %global json4s_version 3.2.7
 %global scala_version 2.10
 
+%global remap_version_to_installed() sed -i -e 's/"%{1}" %% "%{2}" %% "[^"]*"/"%{1}" %% "%{2}" %% "'$(rpm -q --qf "%%%%{version}" $(rpm -q --whatprovides "mvn(%{1}:%{2})" ))'"/g' %{3}
+
 # we don't want scalaz support atm
 %global want_scalaz 0
 
@@ -36,6 +38,11 @@ Javadoc for %{name}.
 %prep
 %setup -q -n %{name}-%{version}_%{scala_version}
 
+# work around buildinfo absence
+sed -i -e 's/BuildInfo.organization/"org.json4s"/' jackson/src/main/scala/org/json4s/jackson/Json4sScalaModule.scala
+sed -i -e 's/BuildInfo.name/"json4s"/' jackson/src/main/scala/org/json4s/jackson/Json4sScalaModule.scala
+sed -i -e 's/BuildInfo.version/"%{version}"/' jackson/src/main/scala/org/json4s/jackson/Json4sScalaModule.scala
+
 sed -i -e 's/2[.]10[.][012]/2.10.3/g' project/*
 
 sed -i -e 's/0[.]13[.]0/0.13.1/g' project/build.properties || echo sbt.version=0.13.1 > project/build.properties
@@ -43,6 +50,7 @@ sed -i -e 's/0[.]13[.]0/0.13.1/g' project/build.properties || echo sbt.version=0
 sed -i -e '/lift build/d'  project/Dependencies.scala
 sed -i -e '/def crossMapped/,+1d'  project/Dependencies.scala
 
+%remap_version_to_installed com.fasterxml.jackson.core jackson-databind project/Dependencies.scala
 
 # not used in Fedora
 sed -i -e '/net.liftweb/d' project/Dependencies.scala
@@ -87,13 +95,12 @@ chmod 755 climbing-nemesis.py
 ./climbing-nemesis.py --jarfile /usr/share/java/scalacheck.jar org.scalacheck scalacheck ivy-local --version 1.11.0 --scala %{scala_version}
 ./climbing-nemesis.py com.thoughtworks.paranamer paranamer ivy-local --version 2.6
 ./climbing-nemesis.py org.scala-lang scalap ivy-local --version 2.10.3
-./climbing-nemesis.py com.fasterxml.jackson.core jackson-databind --version 2.3.1
-./climbing-nemesis.py joda-time joda-time 2.3
-./climbing-nemesis.py org.joda joda-convert 1.6
-
-# com.fasterxml.jackson.core#jackson-databind;2.3.1
-# joda-time#joda-time;2.3
-# org.joda#joda-convert
+./climbing-nemesis.py com.fasterxml.jackson.core jackson-databind ivy-local
+./climbing-nemesis.py com.fasterxml.jackson.core jackson-core ivy-local
+./climbing-nemesis.py com.fasterxml.jackson.core jackson-annotations ivy-local
+./climbing-nemesis.py org.apache.maven.scm maven-scm-provider-gitexe ivy-local --version 1.7
+./climbing-nemesis.py joda-time joda-time ivy-local --version 2.3
+./climbing-nemesis.py org.joda joda-convert ivy-local --version 1.6
 
 %build
 
@@ -108,8 +115,8 @@ mkdir -p %{buildroot}/%{_mavenpomdir}
 
 mkdir -p %{buildroot}/%{_javadocdir}/%{name}
 
-cp core/target/scala-%{scala_version}/%{name}_%{scala_version}-%{version}.jar %{buildroot}/%{_javadir}/%{name}.jar
-cp core/target/scala-%{scala_version}/%{name}_%{scala_version}-%{version}.pom %{buildroot}/%{_mavenpomdir}/JPP-%{name}.pom
+cp core/target/scala-%{scala_version}/%{name}-%{version}_%{scala_version}.jar %{buildroot}/%{_javadir}/%{name}.jar
+cp core/target/scala-%{scala_version}/%{name}_%{version}_%{scala_version}.pom %{buildroot}/%{_mavenpomdir}/JPP-%{name}.pom
 
 cp -rp core/target/scala-%{scala_version}/api/* %{buildroot}/%{_javadocdir}/%{name}
 
