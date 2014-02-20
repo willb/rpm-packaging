@@ -57,6 +57,9 @@ Javadoc for %{name}.
 %prep
 %setup -q -n %{name}-%{version}_%{scala_version}
 
+# eliminate lift code
+rm -rf native-lift
+
 # work around buildinfo absence
 sed -i -e 's/BuildInfo.organization/"org.json4s"/' jackson/src/main/scala/org/json4s/jackson/Json4sScalaModule.scala
 sed -i -e 's/BuildInfo.name/"json4s"/' jackson/src/main/scala/org/json4s/jackson/Json4sScalaModule.scala
