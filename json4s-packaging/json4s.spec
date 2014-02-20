@@ -25,6 +25,25 @@ BuildRequires:	javapackages-tools
 Requires:	javapackages-tools
 Requires:       scala
 
+Requires:	mvn(com.thoughtworks.paranamer:paranamer)
+Requires:	mvn(org.scala-lang:scalap)
+Requires:	mvn(com.fasterxml.jackson.core:jackson-databind)
+Requires:	mvn(com.fasterxml.jackson.core:jackson-core)
+Requires:	mvn(com.fasterxml.jackson.core:jackson-annotations)
+Requires:	mvn(org.apache.maven.scm:maven-scm-provider-gitexe)
+Requires:	mvn(joda-time:joda-time)
+Requires:	mvn(org.joda:joda-convert)
+
+BuildRequires:	mvn(com.thoughtworks.paranamer:paranamer)
+BuildRequires:	mvn(org.scala-lang:scalap)
+BuildRequires:	mvn(com.fasterxml.jackson.core:jackson-databind)
+BuildRequires:	mvn(com.fasterxml.jackson.core:jackson-core)
+BuildRequires:	mvn(com.fasterxml.jackson.core:jackson-annotations)
+BuildRequires:	mvn(org.apache.maven.scm:maven-scm-provider-gitexe)
+BuildRequires:	mvn(joda-time:joda-time)
+BuildRequires:	mvn(org.joda:joda-convert)
+
+
 %description
 
 json4s is a common AST for Scala JSON parsers.
@@ -97,7 +116,6 @@ cp %{SOURCE1} .
 
 chmod 755 climbing-nemesis.py
 
-./climbing-nemesis.py --jarfile /usr/share/java/scalacheck.jar org.scalacheck scalacheck ivy-local --version 1.11.0 --scala %{scala_version}
 ./climbing-nemesis.py com.thoughtworks.paranamer paranamer ivy-local --version 2.6
 ./climbing-nemesis.py org.scala-lang scalap ivy-local --version 2.10.3
 ./climbing-nemesis.py com.fasterxml.jackson.core jackson-databind ivy-local
@@ -152,7 +170,7 @@ for sub in ${shortnames[@]} ; do
 done
 
 %files -f .mfiles
-%{_javadir}/%{name}
+%dir %{_javadir}/%{name}
 
 %doc LICENSE README.md
 
