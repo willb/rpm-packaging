@@ -34,7 +34,7 @@ Summary:        Javadoc for %{name}
 Javadoc for %{name}.
 
 %prep
-%setup -q
+%setup -q -n %{name}-%{version}_%{scala_version}
 
 sed -i -e 's/2[.]10[.][012]/2.10.3/g' project/*
 
@@ -55,27 +55,29 @@ sed -i -e '/jackson-module-scala/d' project/Dependencies.scala
 
 sed -i -e 's/cross crossMapped.*//' project/Dependencies.scala
 
+sed -i -i '/com.typesafe/d' project/build.scala
 
+sed -i -e '/lazy val examples = Project/,/lazy val.*= Project/{/.*/d}' project/build.scala
+sed -i -e '/^[/][/].*/d' project/build.scala
 
 %if %{want_scalaz} == 0
 sed -i -e '/scalaz/d' project/Dependencies.scala
-sed -i -e 's/scalazExt(, )?//' project/build.scala
+sed -i -e 's/scalazExt,//' project/build.scala
 sed -i -e '/lazy val scalazExt/,/dependsOn/d' project/build.scala
 %endif
 
-sed -i -e '/lazy val examples = Project/,/lazy val.*= Project/{//;p;d}' project/build.scala
-
-for target in json4stests benchmark mongo ; do
+for target in json4sTests benchmark mongo ; do
 sed -i -e '/lazy val '$target'/,/dependsOn/d' project/build.scala
-sed -i -e 's/'$target'(, )?//' project/build.scala
+sed -i -e 's/'$target',//' project/build.scala
 done
 
 sed -i -e 's/[+][+] buildInfoSettings//' project/build.scala
 sed -i -e '/buildInfo/d' project/build.scala
+sed -i -e '/sbtbuildinfo/d' project/build.scala
 
 rm -f project/plugins.sbt
 
-cp -r /usr/share/java/sbt/ivy-local .
+cp -r /usr/share/sbt/ivy-local .
 mkdir boot
 
 cp %{SOURCE1} .
@@ -83,7 +85,15 @@ cp %{SOURCE1} .
 chmod 755 climbing-nemesis.py
 
 ./climbing-nemesis.py --jarfile /usr/share/java/scalacheck.jar org.scalacheck scalacheck ivy-local --version 1.11.0 --scala %{scala_version}
+./climbing-nemesis.py com.thoughtworks.paranamer paranamer ivy-local --version 2.6
+./climbing-nemesis.py org.scala-lang scalap ivy-local --version 2.10.3
+./climbing-nemesis.py com.fasterxml.jackson.core jackson-databind --version 2.3.1
+./climbing-nemesis.py joda-time joda-time 2.3
+./climbing-nemesis.py org.joda joda-convert 1.6
 
+# com.fasterxml.jackson.core#jackson-databind;2.3.1
+# joda-time#joda-time;2.3
+# org.joda#joda-convert
 
 %build
 
