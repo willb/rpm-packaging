@@ -30,7 +30,6 @@ Requires:	mvn(org.scala-lang:scalap)
 Requires:	mvn(com.fasterxml.jackson.core:jackson-databind)
 Requires:	mvn(com.fasterxml.jackson.core:jackson-core)
 Requires:	mvn(com.fasterxml.jackson.core:jackson-annotations)
-Requires:	mvn(org.apache.maven.scm:maven-scm-provider-gitexe)
 Requires:	mvn(joda-time:joda-time)
 Requires:	mvn(org.joda:joda-convert)
 
@@ -39,10 +38,8 @@ BuildRequires:	mvn(org.scala-lang:scalap)
 BuildRequires:	mvn(com.fasterxml.jackson.core:jackson-databind)
 BuildRequires:	mvn(com.fasterxml.jackson.core:jackson-core)
 BuildRequires:	mvn(com.fasterxml.jackson.core:jackson-annotations)
-BuildRequires:	mvn(org.apache.maven.scm:maven-scm-provider-gitexe)
 BuildRequires:	mvn(joda-time:joda-time)
 BuildRequires:	mvn(org.joda:joda-convert)
-
 
 %description
 
@@ -57,7 +54,7 @@ Javadoc for %{name}.
 %prep
 %setup -q -n %{name}-%{version}_%{scala_version}
 
-# eliminate lift code
+# eliminate lift codeOB
 rm -rf native-lift
 
 # work around buildinfo absence
@@ -121,10 +118,9 @@ chmod 755 climbing-nemesis.py
 
 ./climbing-nemesis.py com.thoughtworks.paranamer paranamer ivy-local --version 2.6
 ./climbing-nemesis.py org.scala-lang scalap ivy-local --version 2.10.3
-./climbing-nemesis.py com.fasterxml.jackson.core jackson-databind ivy-local
-./climbing-nemesis.py com.fasterxml.jackson.core jackson-core ivy-local
-./climbing-nemesis.py com.fasterxml.jackson.core jackson-annotations ivy-local
-./climbing-nemesis.py org.apache.maven.scm maven-scm-provider-gitexe ivy-local --version 1.7
+./climbing-nemesis.py com.fasterxml.jackson.core jackson-databind ivy-local --ignore maven-scm-provider-gitexe
+./climbing-nemesis.py com.fasterxml.jackson.core jackson-core ivy-local --ignore maven-scm-provider-gitexe
+./climbing-nemesis.py com.fasterxml.jackson.core jackson-annotations ivy-local --ignore maven-scm-provider-gitexe
 ./climbing-nemesis.py joda-time joda-time ivy-local --version 2.3
 ./climbing-nemesis.py org.joda joda-convert ivy-local --version 1.6
 
