@@ -17,8 +17,8 @@ Source0:	https://github.com/json4s/json4s/archive/v%{json4s_version}_%{scala_ver
 Source1:	https://raw.github.com/willb/climbing-nemesis/master/climbing-nemesis.py
 
 BuildArch:	noarch
-BuildRequires:  sbt
-BuildRequires:  scala
+BuildRequires:	sbt
+BuildRequires:	scala
 BuildRequires:	python
 BuildRequires:	maven-local
 BuildRequires:	javapackages-tools
