@@ -83,6 +83,11 @@ sed -i -e 's/[+][+] buildInfoSettings//' project/build.scala
 sed -i -e '/buildInfo/d' project/build.scala
 sed -i -e '/sbtbuildinfo/d' project/build.scala
 
+# munge publishSettings
+sed -i 's/^\(.*val publishSetting =.*\)$/PUBLISH_SETTING_HERE\n\1/' project/build.scala
+sed -i '/val publishSetting =/,/^[[:space:]]*[}][[:space:]]*$/d' project/build.scala
+sed -i 's|PUBLISH_SETTING_HERE|val publishSetting = publishTo <<= (version) { version: String =>\nval cwd = java.lang.System.getProperty("user.dir")\nSome(Resolver.file("published", file("published"))(Resolver.ivyStylePatterns) ivys s"$cwd/published/[organization]/[module]/[revision]/ivy.xml" artifacts s"$cwd/published/[organization]/[module]/[revision]/[artifact]-[revision].[ext]")\n}|' project/build.scala
+
 rm -f project/plugins.sbt
 
 cp -r /usr/share/sbt/ivy-local .
@@ -106,7 +111,14 @@ chmod 755 climbing-nemesis.py
 
 export SBT_BOOT_DIR=boot
 export SBT_IVY_DIR=ivy-local
-sbt package deliverLocal publishM2Configuration
+
+sbt package "set publishTo in Global := Some(Resolver.file(\"published\", file(\"published\"))(Resolver.ivyStylePatterns) ivys \"$(pwd)/published/[organization]/[module]/[revision]/ivy.xml\" artifacts \"$(pwd)/published/[organization]/[module]/[revision]/[artifact]-[revision].[ext]\")" publish makePom
+
+# XXX: this is a hack; we seem to get correct metadata but bogus JARs
+# from "sbt publish" for some reason
+for f in $(find published -name \*.jar ) ; do
+    find . -ipath \*target\* -and -name $(basename $f) -exec cp '{}' $f \;
+done
 
 %install
 rm -rf %{buildroot}
