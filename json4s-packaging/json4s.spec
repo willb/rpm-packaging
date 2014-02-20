@@ -122,24 +122,39 @@ done
 
 %install
 rm -rf %{buildroot}
-mkdir -p %{buildroot}/%{_javadir}
+mkdir -p %{buildroot}/%{_javadir}/%{name}
 mkdir -p %{buildroot}/%{_mavenpomdir}
 
 mkdir -p %{buildroot}/%{_javadocdir}/%{name}
+for apidir in $(find . -name api -type d) ; do
+    pushd $apidir
+    cp -rp . %{buildroot}/%{_javadocdir}/%{name}
+    popd
+done
 
-cp core/target/scala-%{scala_version}/%{name}-%{version}_%{scala_version}.jar %{buildroot}/%{_javadir}/%{name}.jar
-cp core/target/scala-%{scala_version}/%{name}_%{version}_%{scala_version}.pom %{buildroot}/%{_mavenpomdir}/JPP-%{name}.pom
+for jar in $(find published -name \*.jar | grep -v %{name}_%{scala_version}-%{version}.jar) ; do
+    cp $jar %{buildroot}/%{_javadir}/%{name}/$(echo $jar | cut -f5 -d/ | cut -f1 -d_).jar
+done
 
-cp -rp core/target/scala-%{scala_version}/api/* %{buildroot}/%{_javadocdir}/%{name}
+declare -a shortnames
 
-%add_maven_depmap JPP-%{name}.pom %{name}.jar
+for pom in $(find published -name \*.pom | grep -v %{name}_%{scala_version}-%{version}.pom ) ; do 
+    shortname=$(echo $pom | cut -f5 -d/ | cut -f1 -d_)
+    echo installing POM $pom to %{_mavenpomdir}/JPP.%{name}-${shortname}.pom
+    cp $pom %{buildroot}/%{_mavenpomdir}/JPP.%{name}-${shortname}.pom
+    echo %{_mavenpomdir}/JPP.%{name}-${shortname}.pom >> .rpm_pomfiles
+    shortnames=( "${shortnames[@]}" $shortname )
+done
 
-%files
-%{_javadir}/%{name}.jar
-%{_mavenpomdir}/JPP-%{name}.pom
-%{_mavendepmapfragdir}/%{name}
+for sub in ${shortnames[@]} ; do
+    echo running add_maven_depmap JPP.%{name}-${sub}.pom %{name}/${sub}.jar
+    %add_maven_depmap JPP.%{name}-${sub}.pom %{name}/${sub}.jar
+done
 
-%doc LICENSE README
+%files -f .mfiles
+%{_javadir}/%{name}
+
+%doc LICENSE README.md
 
 %files javadoc
 %{_javadocdir}/%{name}
