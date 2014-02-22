@@ -138,7 +138,6 @@ for f in $(find published -name \*.jar ) ; do
 done
 
 %install
-rm -rf %{buildroot}
 mkdir -p %{buildroot}/%{_javadir}/%{name}
 mkdir -p %{buildroot}/%{_mavenpomdir}
 
