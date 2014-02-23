@@ -149,7 +149,7 @@ for apidir in $(find . -name api -type d) ; do
 done
 
 for jar in $(find published -name \*.jar | grep -v %{name}_%{scala_version}-%{version}.jar) ; do
-  cp $jar %{buildroot}/%{_javadir}/%{name}/$(echo $jar | cut -f5 -d/ | cut -f1 -d_).jar
+  install -m 644 $jar %{buildroot}/%{_javadir}/%{name}/$(echo $jar | cut -f5 -d/ | cut -f1 -d_).jar
 done
 
 declare -a shortnames
@@ -157,7 +157,7 @@ declare -a shortnames
 for pom in $(find published -name \*.pom | grep -v %{name}_%{scala_version}-%{version}.pom ) ; do 
   shortname=$(echo $pom | cut -f5 -d/ | cut -f1 -d_)
   echo installing POM $pom to %{_mavenpomdir}/JPP.%{name}-${shortname}.pom
-  cp $pom %{buildroot}/%{_mavenpomdir}/JPP.%{name}-${shortname}.pom
+  install -pm 644 $pom %{buildroot}/%{_mavenpomdir}/JPP.%{name}-${shortname}.pom
   echo %{_mavenpomdir}/JPP.%{name}-${shortname}.pom >> .rpm_pomfiles
   shortnames=( "${shortnames[@]}" $shortname )
 done
@@ -174,6 +174,7 @@ done
 
 %files javadoc
 %{_javadocdir}/%{name}
+%doc LICENSE README.md
 
 
 %changelog
