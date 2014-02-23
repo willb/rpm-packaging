@@ -174,7 +174,7 @@ done
 
 %files javadoc
 %{_javadocdir}/%{name}
-%doc LICENSE README.md
+%doc LICENSE
 
 
 %changelog
