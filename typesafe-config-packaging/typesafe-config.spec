@@ -5,8 +5,6 @@ Summary:       Configuration library for JVM languages
 License:       ASL 2.0
 URL:           https://github.com/typesafehub/config/
 Source0:       https://github.com/typesafehub/config/archive/v%{version}.tar.gz
-Source1:       typesafe-config-template.pom
-# http://mirrors.ibiblio.org/maven2/com/typesafe/config/1.1.0-9f31d6308e7ebbc3d7904b64ebb9f61f7e22a968/config-1.1.0-9f31d6308e7ebbc3d7904b64ebb9f61f7e22a968.pom
 BuildRequires: java-devel
 BuildRequires: javapackages-tools
 BuildRequires: sbt
