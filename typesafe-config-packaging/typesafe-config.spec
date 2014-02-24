@@ -1,6 +1,6 @@
 Name:          typesafe-config
 Version:       1.2.0
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Configuration library for JVM languages
 License:       ASL 2.0
 URL:           https://github.com/typesafehub/config/
@@ -9,6 +9,7 @@ Source1:       typesafe-config-template.pom
 # http://mirrors.ibiblio.org/maven2/com/typesafe/config/1.1.0-9f31d6308e7ebbc3d7904b64ebb9f61f7e22a968/config-1.1.0-9f31d6308e7ebbc3d7904b64ebb9f61f7e22a968.pom
 BuildRequires: java-devel
 BuildRequires: javapackages-tools
+BuildRequires: sbt
 
 Requires:      java
 Requires:      javapackages-tools
@@ -26,27 +27,55 @@ This package contains javadoc for %{name}.
 %prep
 %setup -q -n config-%{version}
 
+rm -f project/plugins.sbt
+
+sed -i -e '/SbtOsgi/d' project/Build.scala
+sed -i -e '/OsgiKeys/d' project/Build.scala
+sed -i -e 's/osgiSettings [+][+]//g' project/Build.scala
+sed -i -e '/override val settings/d' project/Build.scala
+
+sed -i -e '/de.johoop/d' config/build.sbt
+sed -i -e '/JacocoPlugin/d' config/build.sbt
+sed -i -e '/findbugs/,+2d' config/build.sbt
+sed -i -e '/jacoco/,+2d' config/build.sbt
+
+sed -i -e '/% "test"$/,+2d' config/build.sbt
+
+sed -i -e '/com.typesafe.sbt/d' build.sbt
+sed -i -e '/SbtGit/,+2d' build.sbt
+sed -i -e '/useGpg/,+2d' build.sbt
+sed -i -e '/publishSigned/,+2d' build.sbt
+sed -i -e '/publishLocalSigned/,+2d' build.sbt
+
+sed -i -e 's/2[.]10[.][0-2]/2.10.3/' build.sbt
+
+sed -i -e 's/Some("1[.]6")/Some("1.7")/' project/JavaVersionCheck.scala
+
+for buildsbt in $(find . -name build.sbt) ; do
+    (echo ; echo ; echo 'version := "%{version}"'; echo) >> $buildsbt
+done
+
+# missing test deps
+rm -rf config/src/test
+
+cp -r /usr/share/sbt/ivy-local .
+mkdir boot
+
+
 %build
+export SBT_BOOT_DIR=boot
+export SBT_IVY_DIR=ivy-local
 
-mkdir -p config/classes config/target/api
-%javac -d config/classes $(find config/src/main/java -name "*.java")
-
-(
-cd config/classes
-%jar -cf ../target/%{name}-%{version}.jar *
-)
-
-%javadoc -d config/target/api \
- -classpath $PWD/config/target/%{name}-%{version}.jar \
- $(find config/src/main/java -name "*.java")
+#sbt package "set publishTo in Global := Some(Resolver.file(\"published\", file(\"published\"))(Resolver.ivyStylePatterns) ivys \"$(pwd)/published/[organization]/[module]/[revision]/ivy.xml\" artifacts \"$(pwd)/published/[organization]/[module]/[revision]/[artifact]-[revision].[ext]\")" publish makePom
+sbt package makePom deliverLocal doc
 
 %install
 
 mkdir -p %{buildroot}%{_javadir}
-cp -p config/target/%{name}-%{version}.jar %{buildroot}%{_javadir}/%{name}.jar
+cp -p config/target/config-%{version}.jar %{buildroot}%{_javadir}/%{name}.jar
 
 mkdir -p %{buildroot}%{_mavenpomdir}
-install -pm 644 %{SOURCE1} %{buildroot}%{_mavenpomdir}/JPP-%{name}.pom
+install -pm 644 config/target/config-%{version}.pom %{buildroot}%{_mavenpomdir}/JPP-%{name}.pom
 %add_maven_depmap JPP-%{name}.pom %{name}.jar
 
 mkdir -p %{buildroot}%{_javadocdir}/%{name}
@@ -63,5 +92,8 @@ cp -rp config/target/api/* %{buildroot}%{_javadocdir}/%{name}
 %doc LICENSE-2.0.txt
 
 %changelog
+* Mon Feb 24 2014 William Benton <willb@redhat.com> 1.2.0-2
+- updated to use sbt build
+
 * Tue Feb 04 2014 gil cattaneo <puntogil@libero.it> 1.2.0-1
 - initial rpm
