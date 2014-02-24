@@ -1,0 +1,176 @@
+<!-- ant build script by gil -->
+<project
+  name="akka"
+  basedir="." default="build">
+
+  <property name="name"                value="${ant.project.name}"/>
+  <property name="version"             value="@VERSION@"/>
+
+  <property name="actor.dir"            value="${basedir}/${name}-actor"/>
+  <property name="actor.src.dir"        value="${actor.dir}/src/main"/>
+  <property name="actor.build.dir"      value="${actor.dir}/build/classes"/>
+  <property name="actor.resources.dir"  value="${actor.dir}/src/main/resources"/>
+
+  <property name="slf4j.dir"            value="${basedir}/${name}-slf4j"/>
+  <property name="slf4j.src.dir"        value="${slf4j.dir}/src/main"/>
+  <property name="slf4j.build.dir"      value="${slf4j.dir}/build/classes"/>
+  <property name="slf4j.resources.dir"  value="${slf4j.dir}/src/main/resources"/>
+
+  <path id="scala.classpath">
+    <fileset dir="/usr/share/java" includes="scala/scala-compiler.jar"/>
+    <fileset dir="/usr/share/java" includes="scala/scala-library.jar"/>
+  </path>
+
+  <path id="actor.classpath">
+    <path refid="scala.classpath"/>
+    <pathelement location="${actor.build.dir}"/>
+    <fileset dir="/usr/share/java"   includes="typesafe-config.jar"/>
+  </path>
+
+  <path id="slf4j.classpath">
+    <path refid="scala.classpath"/>
+    <pathelement location="${slf4j.build.dir}"/>
+    <pathelement location="${actor.build.dir}"/>
+    <fileset dir="${basedir}/target" includes="${name}-actor.jar"/>
+    <fileset dir="/usr/share/java"   includes="slf4j/slf4j-api.jar"/>
+    <fileset dir="/usr/share/java"   includes="typesafe-config.jar"/>
+  </path>
+  
+  <path id="doc.classpath">
+    <path refid="scala.classpath"/>
+    <pathelement location="${actor.build.dir}"/>
+    <pathelement location="${slf4j.build.dir}"/>
+    <fileset dir="${basedir}/target" includes="${name}-actor.jar"/>
+    <fileset dir="${basedir}/target" includes="${name}-slf4j.jar"/>
+    <fileset dir="/usr/share/java"   includes="scala/scala-library.jar"/>
+    <fileset dir="/usr/share/java"   includes="typesafe-config.jar"/>
+    <fileset dir="/usr/share/java"   includes="slf4j/slf4j-api.jar"/>
+  </path>
+  
+  <taskdef resource="scala/tools/ant/antlib.xml" classpathref="scala.classpath"/>
+
+  <target name="init">
+    <mkdir dir="target"/>
+    <mkdir dir="target/apidocs"/>
+  </target>
+
+  <target name="clean">
+    <delete dir="target"/>
+  </target>
+
+  <target name="clean-all" depends="clean">
+    <delete dir="project/build/target"/>
+    <delete dir="project/boot"/>
+  </target>
+
+  <target name="dist" depends="init,build"
+    description="generate the distribution" >
+  </target>
+
+  <target name="build" 
+    depends="build.actor,build.slf4j" 
+    description="Compile the sources">
+  </target>
+  
+  <target name="build.actor" description="Build Akka Actor">
+    <echo message="Build Akka Actor" />
+    <compile-mix-mode
+      buildclasspath="actor.classpath"
+      dirsrc="${actor.src.dir}"
+      destfile="${actor.build.dir}"/>
+
+    <copy todir="${actor.build.dir}" overwrite="true">
+      <fileset dir="${actor.resources.dir}" includes="**/*.conf"/>
+    </copy>
+
+    <create-jar
+      basedir="${actor.build.dir}"
+      destfile="actor"
+      paramvalue="target"/>
+  </target>
+
+  <target name="build.slf4j" description="Build Akka slf4j">
+    <echo message="Build Akka slf4j" />
+    <compile-scala
+      buildclasspath="slf4j.classpath"
+      dirsrc="${slf4j.src.dir}"
+      destfile="${slf4j.build.dir}"/>
+
+    <create-jar
+      basedir="${slf4j.build.dir}"
+      destfile="slf4j"
+      paramvalue="target"/>
+  </target>
+
+  <macrodef name="compile-mix-mode">
+    <attribute name="destfile"/>
+    <attribute name="dirsrc"/>
+    <attribute name="buildclasspath" default=""/>
+    <sequential>
+      <mkdir dir="@{destfile}"/>
+      <scalac
+        addParams="-deprecation"
+        srcdir="@{dirsrc}"
+        destdir="@{destfile}"
+        classpathref="@{buildclasspath}">
+      </scalac>
+      <javac
+        srcdir="@{dirsrc}"
+        destdir="@{destfile}"
+        includes="**/*.java"
+        debug="true"
+        classpathref="@{buildclasspath}"
+        target="1.6" source="1.6">
+      </javac>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="compile-scala">
+    <attribute name="destfile"/>
+    <attribute name="dirsrc"/>
+    <attribute name="buildclasspath" default=""/>
+    <sequential>
+      <mkdir dir="@{destfile}"/>
+      <scalac
+        addParams="-deprecation"
+        srcdir="@{dirsrc}"
+        destdir="@{destfile}"
+        classpathref="@{buildclasspath}">
+      </scalac>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="create-jar">
+    <attribute name="destfile"/>
+    <attribute name="basedir"/>
+    <attribute name="excludes" default=""/>
+    <attribute name="includes" default=""/>
+    <attribute name="resources" default=""/>
+    <attribute name="paramvalue" default=""/>
+    <sequential>
+      <jar destfile="@{paramvalue}/${name}-@{destfile}.jar"
+        basedir="@{basedir}"
+        excludes="@{excludes}"
+        includes="@{includes}">
+      </jar>
+    </sequential>
+  </macrodef>
+
+  <!-- TODO ${json.src.dir} ${http-json.src.dir} ${mime.src.dir} ${gae.src.dir} -->
+  <target name="doc" depends="init">
+    <copy todir="target/apidocs">
+      <fileset dir=".">
+        <include name="LICENSE"/>
+      </fileset>
+    </copy>
+    <scaladoc
+      srcdir="${actor.src.dir}:${slf4j.src.dir}"
+      destdir="target/apidocs"
+      doctitle="${name} ${version}"
+      classpathref="doc.classpath">
+      <include name="**/*.scala"/>
+      <include name="**/*.java"/>
+    </scaladoc>
+  </target>
+
+</project>
