@@ -6,13 +6,12 @@ Summary:       Software Transactional Memory for Scala
 License:       BSD
 URL:           http://nbronson.github.io/scala-stm/
 Source0:       https://github.com/nbronson/scala-stm/archive/release-%{version}.tar.gz
-# Default use sbt
-Source1:       scala-stm-build.xml
-Source2:       http://repo1.maven.org/maven2/org/scala-stm/scala-stm_%{scala_short_version}/%{version}/scala-stm_%{scala_short_version}-%{version}.pom
 
 BuildRequires: java-devel
 BuildRequires: javapackages-tools
 BuildRequires: ant
+BuildRequires: sbt
+
 BuildRequires: mvn(org.scala-lang:scala-compiler)
 BuildRequires: mvn(org.scala-lang:scala-library)
 Requires:      mvn(org.scala-lang:scala-library)
@@ -46,25 +45,44 @@ find -name '*.jar' -print -delete
 # sb7_java-v1.2.tgz http://lpd.epfl.ch/gramoli/doc/sw/sb7_java-v1.2.tgz
 rm -r lib/*
 
-cp -p %{SOURCE1} build.xml
-sed -i "s|@VERSION@|%{version}|" build.xml
+# get rid of sbt plugins
+rm project/plugins.sbt
+
+# patch build.sbt
+sed -i -e '/% "test"/d' build.sbt
+sed -i -e '/credentials/d' build.sbt
+sed -i -e 's/\(scalaVersion :=\).*$/scalaVersion := "2.10.3"/' build.sbt
+
+# delete tests due to missing deps
+rm -rf src/test
+rm -rf dep-tests
+
+cp -r /usr/share/sbt/ivy-local .
+mkdir boot
 
 %build
 
+export SBT_BOOT_DIR=boot
+export SBT_IVY_DIR=ivy-local
+
+sbt package makePom deliverLocal doc
+
+
 # No test deps available
-ant jar doc
+
 
 %install
 
+# target/scala-2.10/scala-stm_2.10-0.7.jar
 mkdir -p %{buildroot}%{_javadir}
-cp -p target/%{name}.jar %{buildroot}%{_javadir}/
+cp -p target/scala-%{scala_short_version}/%{name}_%{scala_short_version}-%{version}.jar %{buildroot}%{_javadir}/%{name}.jar
 
 mkdir -p %{buildroot}%{_mavenpomdir}
-install -pm 644 %{SOURCE2} %{buildroot}%{_mavenpomdir}/JPP-%{name}.pom
+install -pm 644 target/scala-%{scala_short_version}/%{name}_%{scala_short_version}-%{version}.pom %{buildroot}%{_mavenpomdir}/JPP-%{name}.pom
 %add_maven_depmap
 
 mkdir -p %{buildroot}%{_javadocdir}/%{name}
-cp -rp target/doc/main/api/* %{buildroot}%{_javadocdir}/%{name}
+cp -rp target/scala-%{scala_short_version}/api/* %{buildroot}%{_javadocdir}/%{name}
 
 %files
 %{_javadir}/%{name}.jar
