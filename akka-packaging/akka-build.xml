@@ -11,6 +11,11 @@
   <property name="actor.build.dir"      value="${actor.dir}/build/classes"/>
   <property name="actor.resources.dir"  value="${actor.dir}/src/main/resources"/>
 
+  <property name="remote.dir"            value="${basedir}/${name}-remote"/>
+  <property name="remote.src.dir"        value="${remote.dir}/src/main"/>
+  <property name="remote.build.dir"      value="${remote.dir}/build/classes"/>
+  <property name="remote.resources.dir"  value="${remote.dir}/src/main/resources"/>
+
   <property name="slf4j.dir"            value="${basedir}/${name}-slf4j"/>
   <property name="slf4j.src.dir"        value="${slf4j.dir}/src/main"/>
   <property name="slf4j.build.dir"      value="${slf4j.dir}/build/classes"/>
@@ -24,6 +29,17 @@
   <path id="actor.classpath">
     <path refid="scala.classpath"/>
     <pathelement location="${actor.build.dir}"/>
+    <fileset dir="/usr/share/java"   includes="typesafe-config.jar"/>
+  </path>
+
+  <path id="remote.classpath">
+    <path refid="scala.classpath"/>
+    <pathelement location="${remote.build.dir}"/>
+    <pathelement location="${actor.build.dir}"/>
+    <fileset dir="${basedir}/target" includes="${name}-actor.jar"/>
+    <fileset dir="/usr/share/java"   includes="uncommons-maths.jar"/>
+    <fileset dir="/usr/share/java"   includes="netty.jar"/>
+    <fileset dir="/usr/share/java"   includes="protobuf.jar"/>
     <fileset dir="/usr/share/java"   includes="typesafe-config.jar"/>
   </path>
 
@@ -42,6 +58,7 @@
     <pathelement location="${slf4j.build.dir}"/>
     <fileset dir="${basedir}/target" includes="${name}-actor.jar"/>
     <fileset dir="${basedir}/target" includes="${name}-slf4j.jar"/>
+    <fileset dir="${basedir}/target" includes="${name}-remote.jar"/>
     <fileset dir="/usr/share/java"   includes="scala/scala-library.jar"/>
     <fileset dir="/usr/share/java"   includes="typesafe-config.jar"/>
     <fileset dir="/usr/share/java"   includes="slf4j/slf4j-api.jar"/>
@@ -68,7 +85,7 @@
   </target>
 
   <target name="build" 
-    depends="build.actor,build.slf4j" 
+    depends="build.actor,build.slf4j,build.remote" 
     description="Compile the sources">
   </target>
   
@@ -99,6 +116,19 @@
     <create-jar
       basedir="${slf4j.build.dir}"
       destfile="slf4j"
+      paramvalue="target"/>
+  </target>
+
+  <target name="build.remote" description="Build Akka remote">
+    <echo message="Build Akka remote" />
+    <compile-scala
+      buildclasspath="remote.classpath"
+      dirsrc="${remote.src.dir}"
+      destfile="${remote.build.dir}"/>
+
+    <create-jar
+      basedir="${remote.build.dir}"
+      destfile="remote"
       paramvalue="target"/>
   </target>
 
