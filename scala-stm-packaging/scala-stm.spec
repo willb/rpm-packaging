@@ -1,4 +1,11 @@
 %global scala_short_version 2.10
+
+%if 0%{?fedora} >= 21
+%global java_pkg java-headless
+%else
+%global java_pkg java
+%endif
+
 Name:          scala-stm
 Version:       0.7
 Release:       2%{?dist}
@@ -15,7 +22,7 @@ BuildRequires: sbt
 BuildRequires: mvn(org.scala-lang:scala-compiler)
 BuildRequires: mvn(org.scala-lang:scala-library)
 Requires:      mvn(org.scala-lang:scala-library)
-Requires:      java
+Requires:      %{java_pkg}
 Requires:      javapackages-tools
 BuildArch:     noarch
 
