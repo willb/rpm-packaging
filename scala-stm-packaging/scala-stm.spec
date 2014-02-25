@@ -1,7 +1,7 @@
 %global scala_short_version 2.10
 Name:          scala-stm
 Version:       0.7
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Software Transactional Memory for Scala
 License:       BSD
 URL:           http://nbronson.github.io/scala-stm/
@@ -95,5 +95,8 @@ cp -rp target/scala-%{scala_short_version}/api/* %{buildroot}%{_javadocdir}/%{na
 %doc LICENSE.txt
 
 %changelog
+* Mon Feb 24 2014 William Benton <willb@redhat.com> - 0.7-2
+- updated to use sbt for build
+
 * Thu Feb 06 2014 gil cattaneo <puntogil@libero.it> 0.7-1
 - initial rpm
