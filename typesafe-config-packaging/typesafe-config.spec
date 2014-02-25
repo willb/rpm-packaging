@@ -1,3 +1,9 @@
+%if 0%{?fedora} >= 21
+%global java_pkg java-headless
+%else
+%global java_pkg java
+%endif
+
 Name:          typesafe-config
 Version:       1.2.0
 Release:       2%{?dist}
@@ -9,7 +15,7 @@ BuildRequires: java-devel
 BuildRequires: javapackages-tools
 BuildRequires: sbt
 
-Requires:      java
+Requires:      %{java_pkg}
 Requires:      javapackages-tools
 BuildArch:     noarch
 
