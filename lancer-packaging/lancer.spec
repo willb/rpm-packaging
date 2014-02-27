@@ -11,7 +11,8 @@ BuildRequires:  maven-local
 BuildRequires:  mvn(org.apache.commons:commons-math3)
 
 %description
-Lancer is a reimplementation of some functionality provided by the (non-free) Colt library.
+Lancer is a reimplementation of some functionality provided by the
+(non-free) Colt library.
 
 %package javadoc
 Summary:        API documentation for %{name}
