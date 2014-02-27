@@ -11,7 +11,7 @@
 
 Name:		scalaz
 Version:	%{scalaz_version}
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	extension to the core Scala library for functional programming
 
 License:	BSD
@@ -43,9 +43,19 @@ standard library. It defines a set of foundational type classes
 (e.g. Functor, Monad) and corresponding instances for a large number
 of data structures.
 
+%package javadoc
+Summary:	Javadoc for %{name}
+
+%description javadoc
+This package contains javadoc for %{name}.
+
 %prep
 %setup -q
 %patch0 -p1
+
+%if %{have_native_sbt}
+rm ./sbt
+%endif
 
 cp %{SOURCE1} .
 chmod 755 climbing-nemesis.py
@@ -59,6 +69,33 @@ sed -i -e 's/ tests,//g' project/build.scala
 ./climbing-nemesis.py org.scalacheck scalacheck_%{scala_short_version} ivy-local
 %endif
 
+# the scalaz source directory does not include the BSD 2-clause license text
+cat <<EOF > LICENSE
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+1. Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright
+notice, this list of conditions and the following disclaimer in the
+documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+EOF
+
 %build
 
 %if %{have_native_sbt}
@@ -68,19 +105,26 @@ mkdir boot
 export SBT_BOOT_DIR=boot
 export SBT_IVY_DIR=ivy-local
 
-sbt package makePom
+sbt package makePom doc
 %else
-./sbt package
+./sbt package makePom doc
 %endif
 
 %install
 mkdir -p %{buildroot}/%{_javadir}/%{name}/
 mkdir -p %{buildroot}/%{_mavenpomdir}
+mkdir -p %{buildroot}/%{_javadocdir}/%{name}
 
 for jar in $(find . -wholename \*/scala-%{scala_short_version}/%{name}-\*.jar); do 
     echo $jar
     shortname=$(echo $jar | sed -e 's/^.*[/]\([a-z-]\+\)_%{scala_short_version}-%{scalaz_version}.jar$/\1/g')
     cp $jar %{buildroot}/%{_javadir}/scalaz/${shortname}.jar
+done
+
+for apidir in $(find . -name api -type d | grep -v ivy-local); do
+    module=$(echo $apidir | cut -f2 -d/)
+    mkdir %{buildroot}/%{_javadocdir}/%{name}/$module
+    cp -r $apidir/* %{buildroot}/%{_javadocdir}/%{name}/$module
 done
 
 for pom in $(find . -name %{name}-\*.pom ) ; do 
@@ -100,8 +144,17 @@ done
 
 %files -f .mfiles
 %dir %{_javadir}/%{name}/
-%doc README.md
+%doc README.md LICENSE
+
+%files javadoc
+%{_javadocdir}/%{name}/
+%doc LICENSE
 
 %changelog
+* Wed Feb 26 2014 William Benton <willb@redhat.com> - 7.0.0-2
+- updated paths for released sbt
+- install POM files now
+- generate javadocs
+
 * Tue Nov 26 2013 William Benton <willb@redhat.com> - 7.0.0-1
 - initial package
