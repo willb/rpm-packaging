@@ -1,8 +1,10 @@
 %global scalaz_version 7.0.0
 %global scala_short_version 2.10
 
-# set this to 1 once scalacheck is available in Fedora
-%global have_scalacheck 1
+# set this to 1 once scalacheck is available in Fedora (currently:
+# yes) and scalaz's scalacheck support compiles (currently: no)
+
+%global have_scalacheck 0
 
 # set this to 1 once sbt is available in Fedora
 %global have_native_sbt 1
@@ -14,11 +16,8 @@ Summary:	extension to the core Scala library for functional programming
 
 License:	BSD
 URL:		http://typelevel.org
-# TODO:  get a POM for scalaz or package sbt-release to generate one
 Source0:	https://github.com/scalaz/scalaz/archive/v%{scalaz_version}.tar.gz#/%{name}-v%{version}.tar.gz
 Source1:	https://raw.github.com/willb/climbing-nemesis/master/climbing-nemesis.py
-Source2:	http://repo1.maven.org/maven2/org/%{name}/%{name}-core_%{scala_short_version}/%{scalaz_version}/%{name}-core_%{scala_short_version}-%{scalaz_version}.pom
-Source3:	http://repo1.maven.org/maven2/org/%{name}/%{name}-core_%{scala_short_version}/%{scalaz_version}/%{name}-core_%{scala_short_version}-%{scalaz_version}.pom
 
 Patch0:		scalaz-7.0.0-build.patch
 
@@ -63,24 +62,44 @@ sed -i -e 's/ tests,//g' project/build.scala
 %build
 
 %if %{have_native_sbt}
-cp -r /usr/share/java/sbt/ivy-local .
+cp -r /usr/share/sbt/ivy-local .
 mkdir boot
 
 export SBT_BOOT_DIR=boot
 export SBT_IVY_DIR=ivy-local
 
-sbt package
+sbt package makePom
 %else
 ./sbt package
 %endif
 
 %install
-mkdir -p %{buildroot}/%{_javadir}/scalaz/
+mkdir -p %{buildroot}/%{_javadir}/%{name}/
+mkdir -p %{buildroot}/%{_mavenpomdir}
 
-find . -wholename \*/scala-%{scala_short_version}/\*.jar -exec cp '{}' %{buildroot}/%{_javadir}/scalaz/ \;
+for jar in $(find . -wholename \*/scala-%{scala_short_version}/%{name}-\*.jar); do 
+    echo $jar
+    shortname=$(echo $jar | sed -e 's/^.*[/]\([a-z-]\+\)_%{scala_short_version}-%{scalaz_version}.jar$/\1/g')
+    cp $jar %{buildroot}/%{_javadir}/scalaz/${shortname}.jar
+done
 
-%files
-%{_javadir}/scalaz/
+for pom in $(find . -name %{name}-\*.pom ) ; do 
+    shortname=$(echo $pom | sed -e 's/^.*[/]\([a-z-]\+\)_%{scala_short_version}-%{scalaz_version}.pom$/\1/g')
+    echo installing POM $pom to %{_mavenpomdir}/JPP.%{name}-${shortname}.pom
+    cp $pom %{buildroot}/%{_mavenpomdir}/JPP.%{name}-${shortname}.pom
+    echo %{_mavenpomdir}/JPP.%{name}-${shortname}.pom >> .rpm_pomfiles
+    shortnames=( "${shortnames[@]}" $shortname )
+done
+
+echo shortnames are ${shortnames[@]}
+
+for sub in ${shortnames[@]} ; do
+    echo running add_maven_depmap JPP.%{name}-${sub}.pom %{name}/${sub}.jar
+    %add_maven_depmap JPP.%{name}-${sub}.pom %{name}/${sub}.jar
+done
+
+%files -f .mfiles
+%dir %{_javadir}/%{name}/
 %doc README.md
 
 %changelog
