@@ -1,0 +1,164 @@
+From 88286b1bffc4eb65f6a259c71e613fb76667470b Mon Sep 17 00:00:00 2001
+From: William Benton <willb@redhat.com>
+Date: Thu, 27 Feb 2014 15:46:41 -0600
+Subject: [PATCH 3/7] Removed sbt plugins.
+
+---
+ project/SparkBuild.scala               | 38 +++++-----------------------------
+ project/plugins.sbt                    | 18 ----------------
+ project/project/SparkPluginBuild.scala | 24 ---------------------
+ 3 files changed, 5 insertions(+), 75 deletions(-)
+ delete mode 100644 project/plugins.sbt
+ delete mode 100644 project/project/SparkPluginBuild.scala
+
+diff --git a/project/SparkBuild.scala b/project/SparkBuild.scala
+index 398f5ec..d401c71 100644
+--- a/project/SparkBuild.scala
++++ b/project/SparkBuild.scala
+@@ -18,8 +18,6 @@
+ import sbt._
+ import sbt.Classpaths.publishTask
+ import Keys._
+-import sbtassembly.Plugin._
+-import AssemblyKeys._
+ import scala.util.Properties
+ // For Sonatype publishing
+ //import com.jsuereth.pgp.sbtplugin.PgpKeys._
+@@ -60,11 +58,6 @@ object SparkBuild extends Build {
+ 
+   lazy val mllib = Project("mllib", file("mllib"), settings = mllibSettings) dependsOn(core)
+ 
+-  lazy val assemblyProj = Project("assembly", file("assembly"), settings = assemblyProjSettings)
+-    .dependsOn(core, graphx, bagel, mllib, repl, streaming) dependsOn(maybeYarn: _*)
+-
+-  lazy val assembleDeps = TaskKey[Unit]("assemble-deps", "Build assembly of dependencies and packages Spark projects")
+-
+   // A configuration to set an alternative publishLocalConfiguration
+   lazy val MavenCompile = config("m2r") extend(Compile)
+   lazy val publishLocalBoth = TaskKey[Unit]("publish-local", "publish local for m2 and ivy")
+@@ -116,7 +109,7 @@ object SparkBuild extends Build {
+   // Everything except assembly, tools and examples belong to packageProjects
+   lazy val packageProjects = Seq[ProjectReference](core, repl, bagel, streaming, mllib, graphx) ++ maybeYarnRef
+ 
+-  lazy val allProjects = packageProjects ++ allExternalRefs ++ Seq[ProjectReference](examples, tools, assemblyProj)
++  lazy val allProjects = packageProjects ++ allExternalRefs ++ Seq[ProjectReference](examples, tools)
+ 
+   def sharedSettings = Defaults.defaultSettings ++ Seq(
+     organization       := "org.apache.spark",
+@@ -129,7 +122,6 @@ object SparkBuild extends Build {
+     retrieveManaged := true,
+     retrievePattern := "[type]s/[artifact](-[revision])(-[classifier]).[ext]",
+     transitiveClassifiers in Scope.GlobalScope := Seq("sources"),
+-    testListeners <<= target.map(t => Seq(new eu.henkelmann.sbt.JUnitXmlTestsListener(t.getAbsolutePath))),
+ 
+     // Fork new JVMs for tests and set Java options for those
+     fork := true,
+@@ -230,8 +222,8 @@ object SparkBuild extends Build {
+     publishMavenStyle in MavenCompile := true,
+     publishLocal in MavenCompile <<= publishTask(publishLocalConfiguration in MavenCompile, deliverLocal),
+     publishLocalBoth <<= Seq(publishLocal in MavenCompile, publishLocal).dependOn
+-  ) ++ net.virtualvoid.sbt.graph.Plugin.graphSettings
+-
++  )
++  
+   val slf4jVersion = "1.7.2"
+ 
+   val excludeCglib = ExclusionRule(organization = "org.sonatype.sisu.inject")
+@@ -309,11 +301,11 @@ object SparkBuild extends Build {
+         excludeAll(excludeSnappy)
+         excludeAll(excludeCglib)
+     )
+-  ) ++ assemblySettings ++ extraAssemblySettings
++  )
+ 
+   def toolsSettings = sharedSettings ++ Seq(
+     name := "spark-tools"
+-  ) ++ assemblySettings ++ extraAssemblySettings
++  )
+ 
+   def graphxSettings = sharedSettings ++ Seq(
+     name := "spark-graphx",
+@@ -377,26 +369,6 @@ object SparkBuild extends Build {
+     )
+   )
+ 
+-  def assemblyProjSettings = sharedSettings ++ Seq(
+-    libraryDependencies += "net.sf.py4j" % "py4j" % "0.8.1",
+-    name := "spark-assembly",
+-    assembleDeps in Compile <<= (packageProjects.map(packageBin in Compile in _) ++ Seq(packageDependency in Compile)).dependOn,
+-    jarName in assembly <<= version map { v => "spark-assembly-" + v + "-hadoop" + hadoopVersion + ".jar" },
+-    jarName in packageDependency <<= version map { v => "spark-assembly-" + v + "-hadoop" + hadoopVersion + "-deps.jar" }
+-  ) ++ assemblySettings ++ extraAssemblySettings
+-
+-  def extraAssemblySettings() = Seq(
+-    test in assembly := {},
+-    mergeStrategy in assembly := {
+-      case m if m.toLowerCase.endsWith("manifest.mf") => MergeStrategy.discard
+-      case m if m.toLowerCase.matches("meta-inf.*\\.sf$") => MergeStrategy.discard
+-      case "log4j.properties" => MergeStrategy.discard
+-      case m if m.toLowerCase.startsWith("meta-inf/services/") => MergeStrategy.filterDistinctLines
+-      case "reference.conf" => MergeStrategy.concat
+-      case _ => MergeStrategy.first
+-    }
+-  )
+-
+   def twitterSettings() = sharedSettings ++ Seq(
+     name := "spark-streaming-twitter",
+     libraryDependencies ++= Seq(
+diff --git a/project/plugins.sbt b/project/plugins.sbt
+deleted file mode 100644
+index 4ba0e42..0000000
+--- a/project/plugins.sbt
++++ /dev/null
+@@ -1,18 +0,0 @@
+-resolvers += Resolver.url("artifactory", url("http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases"))(Resolver.ivyStylePatterns)
+-
+-resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/"
+-
+-resolvers += "Spray Repository" at "http://repo.spray.cc/"
+-
+-addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.9.2")
+-
+-addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "2.2.0")
+-
+-addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.5.1")
+-
+-// For Sonatype publishing
+-//resolvers += Resolver.url("sbt-plugin-releases", new URL("http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/"))(Resolver.ivyStylePatterns)
+-
+-//addSbtPlugin("com.jsuereth" % "xsbt-gpg-plugin" % "0.6")
+-
+-addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.7.3")
+diff --git a/project/project/SparkPluginBuild.scala b/project/project/SparkPluginBuild.scala
+deleted file mode 100644
+index 6a66bd1..0000000
+--- a/project/project/SparkPluginBuild.scala
++++ /dev/null
+@@ -1,24 +0,0 @@
+-/*
+- * Licensed to the Apache Software Foundation (ASF) under one or more
+- * contributor license agreements.  See the NOTICE file distributed with
+- * this work for additional information regarding copyright ownership.
+- * The ASF licenses this file to You under the Apache License, Version 2.0
+- * (the "License"); you may not use this file except in compliance with
+- * the License.  You may obtain a copy of the License at
+- *
+- *    http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
+- */
+-
+-import sbt._
+-
+-object SparkPluginDef extends Build {
+-  lazy val root = Project("plugins", file(".")) dependsOn(junitXmlListener)
+-  /* This is not published in a Maven repository, so we get it from GitHub directly */
+-  lazy val junitXmlListener = uri("git://github.com/ijuma/junit_xml_listener.git#fe434773255b451a38e8d889536ebc260f4225ce")
+-}
+-- 
+1.8.3.4 (Apple Git-47)
+
