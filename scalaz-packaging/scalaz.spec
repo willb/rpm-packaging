@@ -118,19 +118,19 @@ mkdir -p %{buildroot}/%{_javadocdir}/%{name}
 for jar in $(find . -wholename \*/scala-%{scala_short_version}/%{name}-\*.jar); do 
     echo $jar
     shortname=$(echo $jar | sed -e 's/^.*[/]\([a-z-]\+\)_%{scala_short_version}-%{scalaz_version}.jar$/\1/g')
-    cp $jar %{buildroot}/%{_javadir}/scalaz/${shortname}.jar
+    cp -p $jar %{buildroot}/%{_javadir}/scalaz/${shortname}.jar
 done
 
 for apidir in $(find . -name api -type d | grep -v ivy-local); do
     module=$(echo $apidir | cut -f2 -d/)
     mkdir %{buildroot}/%{_javadocdir}/%{name}/$module
-    cp -r $apidir/* %{buildroot}/%{_javadocdir}/%{name}/$module
+    cp -rp $apidir/* %{buildroot}/%{_javadocdir}/%{name}/$module
 done
 
 for pom in $(find . -name %{name}-\*.pom ) ; do 
     shortname=$(echo $pom | sed -e 's/^.*[/]\([a-z-]\+\)_%{scala_short_version}-%{scalaz_version}.pom$/\1/g')
     echo installing POM $pom to %{_mavenpomdir}/JPP.%{name}-${shortname}.pom
-    cp $pom %{buildroot}/%{_mavenpomdir}/JPP.%{name}-${shortname}.pom
+    cp -p $pom %{buildroot}/%{_mavenpomdir}/JPP.%{name}-${shortname}.pom
     echo %{_mavenpomdir}/JPP.%{name}-${shortname}.pom >> .rpm_pomfiles
     shortnames=( "${shortnames[@]}" $shortname )
 done
