@@ -1,27 +1,27 @@
 %global gem_name capricious
 
-Name:           rubygem-capricious
-Version:        0.2.2
-Release:        1%{?dist}
-Summary:        Pseudorandom number generator classes and support code
+Name:		rubygem-capricious
+Version:	0.2.2
+Release:	1%{?dist}
+Summary:	Pseudo-random number generator classes and support code
 
 
-License:        ASL 2.0
-URL:            https://github.com/willb/capricious
-Source0:        http://rubygems.org/downloads/capricious-0.2.2.gem
+License:	ASL 2.0
+URL:		https://github.com/willb/capricious
+Source0:	http://rubygems.org/downloads/capricious-0.2.2.gem
 
-BuildArch:      noarch
-BuildRequires:  ruby rubygems-devel rubygem-rspec
-Requires:       ruby(release)
-Requires:       rubygems
+BuildArch:	noarch
+BuildRequires:	ruby rubygems-devel rubygem-rspec
+Requires:	ruby(release)
+Requires:	rubygems
 
-Provides:       rubygem(%{gem_name}) = %{version}
+Provides:	rubygem(%{gem_name}) = %{version}
 
 %description
 
-Capricious provides pseudorandom number generator classes and support
-code.  Each PRNG is parameterized on a source of randomness and a
-probability distribution.
+Capricious provides pseudo-random number generator classes and support
+code.  Each object takes a source of randomness and a probability
+distribution as parameters.
 
 %package doc
 Summary:	Documentation for %{name}
@@ -33,6 +33,8 @@ This package contains documentation for %{name}.
 %prep
 gem unpack %{SOURCE0}
 %setup -q -D -T -n  %{gem_name}-%{version}
+
+rm -f .document .gitignore
 
 # patches for RSpec 2 compatibility
 sed -i -e "/require 'spec'/d" $(find . -name spec_helper.rb)
@@ -50,6 +52,8 @@ sed -i -e 's|count=SAMPLE_COUNT|count=SAMPLE_COUNT*20|' $(find . -name \*_spec.r
 
 
 gem spec %{SOURCE0} -l --ruby > %{gem_name}.gemspec
+sed -i -e 's|"[.]document", ||' %{gem_name}.gemspec
+sed -i -e 's|"[.]gitignore", ||' %{gem_name}.gemspec
 
 %build
 gem build %{gem_name}.gemspec
@@ -60,10 +64,6 @@ gem build %{gem_name}.gemspec
 mkdir -p %{buildroot}%{gem_dir}
 cp -a ./%{gem_dir}/* %{buildroot}%{gem_dir}/
 
-# If there were programs installed:
-# mkdir -p %{buildroot}%{_bindir}
-# cp -a ./%{_bindir}/* %{buildroot}%{_bindir}
- 
 %check
 rspec -Ilib spec
 
@@ -71,11 +71,13 @@ rspec -Ilib spec
 %{gem_instdir}
 %exclude %{gem_cache}
 %{gem_spec}
+%doc LICENSE README.rdoc
 
 %files doc
 %{gem_instdir}/Rakefile
 %{gem_instdir}/spec
-%doc %{gem_docdir}
+%doc %{gem_docdir} 
+%doc LICENSE
 
 %changelog
 
