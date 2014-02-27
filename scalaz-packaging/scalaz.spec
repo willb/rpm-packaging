@@ -7,25 +7,31 @@
 # set this to 1 once sbt is available in Fedora
 %global have_native_sbt 1
 
-Name:           scalaz
-Version:        %{scalaz_version}
-Release:        1%{?dist}
-Summary:        extension to the core Scala library for functional programming
+Name:		scalaz
+Version:	%{scalaz_version}
+Release:	1%{?dist}
+Summary:	extension to the core Scala library for functional programming
 
-License:        BSD
-URL:            http://typelevel.org
+License:	BSD
+URL:		http://typelevel.org
 # TODO:  get a POM for scalaz or package sbt-release to generate one
-Source0:        https://github.com/scalaz/scalaz/archive/v%{scalaz_version}.tar.gz#/%{name}-v%{version}.tar.gz
+Source0:	https://github.com/scalaz/scalaz/archive/v%{scalaz_version}.tar.gz#/%{name}-v%{version}.tar.gz
 Source1:	https://raw.github.com/willb/climbing-nemesis/master/climbing-nemesis.py
+Source2:	http://repo1.maven.org/maven2/org/%{name}/%{name}-core_%{scala_short_version}/%{scalaz_version}/%{name}-core_%{scala_short_version}-%{scalaz_version}.pom
+Source3:	http://repo1.maven.org/maven2/org/%{name}/%{name}-core_%{scala_short_version}/%{scalaz_version}/%{name}-core_%{scala_short_version}-%{scalaz_version}.pom
+
 Patch0:		scalaz-7.0.0-build.patch
 
 BuildArch:	noarch
 
 BuildRequires:	mvn(org.scalacheck:scalacheck_%{scala_short_version})
-BuildRequires:  scala
+BuildRequires:	scala
 %if %{have_native_sbt}
-BuildRequires:  sbt
+BuildRequires:	sbt
 %endif
+
+BuildRequires:	javapackages-tools
+Requires:	javapackages-tools
 
 Requires:       scala
 Requires:	jansi
@@ -69,16 +75,13 @@ sbt package
 %endif
 
 %install
-rm -rf %{buildroot}
 mkdir -p %{buildroot}/%{_javadir}/scalaz/
 
 find . -wholename \*/scala-%{scala_short_version}/\*.jar -exec cp '{}' %{buildroot}/%{_javadir}/scalaz/ \;
 
 %files
 %{_javadir}/scalaz/
-%doc
-
-
+%doc README.md
 
 %changelog
 * Tue Nov 26 2013 William Benton <willb@redhat.com> - 7.0.0-1
