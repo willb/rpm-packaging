@@ -282,13 +282,21 @@ chmod 755 ./climbing-nemesis.py
 
 %climbing_nemesis org.slf4j slf4j-jdk14
 
-%climbing_nemesis com.typesafe.akka akka-remote_%{scala_version}
+%{climbing_nemesis com.typesafe.akka akka-remote_%{scala_version}} --ignore io.netty --extra-dep org.jboss.netty:netty:$(rpm -q --qf "%%{version}" $(rpm -q --whatprovides "mvn(org.jboss.netty:netty:3)" ))
 
 %climbing_nemesis com.typesafe.akka akka-actor_%{scala_version}
 
-%climbing_nemesis org.xerial.snappy snappy-java
+%{climbing_nemesis org.xerial.snappy snappy-java} --ignore felix
 
 # Transitively-carried dependencies
+%climbing_nemesis com.typesafe config
+
+%climbing_nemesis org.uncommons.maths uncommons-maths
+
+%{climbing_nemesis org.jboss.netty netty} --version $(rpm -q --qf "%%{version}" $(rpm -q --whatprovides "mvn(org.jboss.netty:netty:3)" )) --jarfile $(xmvn-resolve org.jboss.netty:netty:3)
+
+%climbing_nemesis com.google.protobuf protobuf-java
+
 %climbing_nemesis javax.servlet javax.servlet-api
 
 %climbing_nemesis org.eclipse.jetty jetty-http
@@ -298,6 +306,12 @@ chmod 755 ./climbing-nemesis.py
 %climbing_nemesis org.eclipse.jetty jetty-util
 
 %{climbing_nemesis org.jboss.spec.javax.transaction jboss-transaction-api_1.2_spec} --version any
+
+%climbing_nemesis org.apache.commons commons-math3
+
+%climbing_nemesis commons-codec commons-codec
+
+%climbing_nemesis commons-logging commons-logging
 
 
 
