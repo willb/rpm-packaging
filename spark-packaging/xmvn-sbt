@@ -1,0 +1,18 @@
+#!/bin/sh
+
+if \[ $(rpm -q --queryformat '%{version}' fedora-release) -ge 21 \] ; then
+export JLINE=jline
+else
+export JLINE=jline2
+fi
+
+export SBT_BOOT_DIR=${SBT_BOOT_DIR:-/usr/share/sbt/boot}
+export SBT_IVY_DIR=${SBT_IVY_DIR:-/usr/share/sbt/ivy-local}
+export SBT_BOOT_PROPERTIES=${SBT_BOOT_PROPERTIES:-/etc/sbt/sbt.boot.properties}
+export BASE_CLASSPATH=$(build-classpath scala ivy sbt ${JLINE} jansi test-interface sbinary)
+export XMVN_CLASSPATH=$(build-classpath aether/api guava ivy maven/maven-model plexus-classworlds plexus-containers/plexus-container-default plexus/utils xbean/xbean-reflect xmvn/xmvn-connector xmvn/xmvn-core xmvn)
+export JAVA_OPTS="-Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled"
+
+echo CLASSPATH is $BASE_CLASSPATH:${XMVN_CLASSPATH}
+
+java -Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -Dsisu.debug=1 -Divy.mode=local -Divysettings.xml=/etc/ivy/ivysettings.xml -Dfedora.sbt.boot.dir=${SBT_BOOT_DIR} -Dsbt.boot.properties=${SBT_BOOT_PROPERTIES} -cp ${BASE_CLASSPATH}:${XMVN_CLASSPATH} xsbt.boot.Boot "$@"
