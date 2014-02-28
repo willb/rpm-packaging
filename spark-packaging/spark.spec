@@ -45,6 +45,9 @@ BuildRequires:	javapackages-tools
 Requires:	javapackages-tools
 Requires:	scala
 
+BuildRequires:	jetty8
+Requires:	jetty8
+
 BuildRequires:	plexus-containers-component-annotations
 
 BuildRequires:	mvn(org.json4s:json4s-jackson_%{scala_version})
@@ -207,13 +210,7 @@ done
 (echo q | SBT_BOOT_PROPERTIES=/etc/sbt/sbt.boot.properties sbt quit) || true
 cp lib/* boot/scala-2.10.3/lib/
 
-./sbt-xmvn core/package core/makePom
-
-# XXX: this is a hack; we seem to get correct metadata but bogus JARs
-# from "sbt publish" for some reason
-for f in $(find published -name \*.jar ) ; do
-  find . -ipath \*target\* -and -name $(basename $f) -exec cp '{}' $f \;
-done
+./sbt-xmvn core/package core/makePom core/doc
 
 %install
 mkdir -p %{buildroot}/%{_javadir}/%{name}
@@ -226,13 +223,13 @@ for apidir in $(find . -name api -type d) ; do
   popd
 done
 
-for jar in $(find published -name \*.jar | grep -v %{name}_%{scala_version}-%{version}.jar) ; do
+for jar in $(find . -name \*.jar | grep _%{scala_version}-%{spark_version}%{spark_version_suffix}.jar) ; do
   install -m 644 $jar %{buildroot}/%{_javadir}/%{name}/$(echo $jar | cut -f5 -d/ | cut -f1 -d_).jar
 done
 
 declare -a shortnames
 
-for pom in $(find published -name \*.pom | grep -v %{name}_%{scala_version}-%{version}.pom ) ; do 
+for pom in $(find . -name \*.pom | grep _%{scala_version}-%{spark_version}%{spark_version_suffix}.pom ) ; do 
   shortname=$(echo $pom | cut -f5 -d/ | cut -f1 -d_)
   echo installing POM $pom to %{_mavenpomdir}/JPP.%{name}-${shortname}.pom
   install -pm 644 $pom %{buildroot}/%{_mavenpomdir}/JPP.%{name}-${shortname}.pom
@@ -257,5 +254,5 @@ done
 
 %changelog
 
-* Mon Feb 10 2014 William Benton <willb@redhat.com> - 0.9.0-1
+* Mon Feb 10 2014 William Benton <willb@redhat.com> - 0.9.0-0.1
 - initial package
