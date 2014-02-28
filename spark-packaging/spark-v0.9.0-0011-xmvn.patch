@@ -1,0 +1,40 @@
+diff --git a/project/SparkBuild.scala b/project/SparkBuild.scala
+index 2bfa6b5..fb0e439 100644
+--- a/project/SparkBuild.scala
++++ b/project/SparkBuild.scala
+@@ -94,6 +94,10 @@ object SparkBuild extends Build {
+   lazy val allProjects = packageProjects ++ allExternalRefs ++ Seq[ProjectReference](tools)
+ 
+   def sharedSettings = Defaults.defaultSettings ++ Seq(
++    resolvers := Seq(new sbt.RawRepository(new org.fedoraproject.maven.connector.ivy.IvyResolver)),
++    externalResolvers := Seq(new sbt.RawRepository(new org.fedoraproject.maven.connector.ivy.IvyResolver)),
++    
++    
+     organization       := "org.apache.spark",
+     version            := "0.9.0-incubating",
+     scalaVersion       := "2.10.3",
+@@ -123,13 +127,6 @@ object SparkBuild extends Build {
+     // Only allow one test at a time, even across projects, since they run in the same JVM
+     concurrentRestrictions in Global += Tags.limit(Tags.Test, 1),
+ 
+-    // also check the local Maven repository ~/.m2
+-    resolvers ++= Seq(Resolver.file("Local Maven Repo", file(Path.userHome + "/.m2/repository"))),
+-
+-    // For Sonatype publishing
+-    resolvers ++= Seq("sonatype-snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
+-      "sonatype-staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2/"),
+-
+     publishMavenStyle := true,
+ 
+     //useGpg in Global := true,
+@@ -208,10 +205,6 @@ object SparkBuild extends Build {
+ 
+   def coreSettings = sharedSettings ++ Seq(
+     name := "spark-core",
+-    resolvers ++= Seq(
+-       "JBoss Repository"     at "http://repository.jboss.org/nexus/content/repositories/releases/",
+-       "Cloudera Repository"  at "https://repository.cloudera.com/artifactory/cloudera-repos/"
+-    ),
+ 
+     libraryDependencies ++= Seq(
+         "com.google.guava"         % "guava"            % "14.0.1",
