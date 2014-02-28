@@ -1,0 +1,83 @@
+From 474037191b66da67aef3d2038e85448294d848c1 Mon Sep 17 00:00:00 2001
+From: William Benton <willb@redhat.com>
+Date: Fri, 28 Feb 2014 15:31:52 -0600
+Subject: [PATCH 2/2] use Akka 2.3.0-RC2
+
+---
+ core/src/main/scala/org/apache/spark/deploy/Client.scala              | 2 +-
+ core/src/main/scala/org/apache/spark/deploy/client/AppClient.scala    | 2 +-
+ .../src/main/scala/org/apache/spark/deploy/worker/WorkerWatcher.scala | 2 +-
+ .../main/scala/org/apache/spark/util/IndestructibleActorSystem.scala  | 2 +-
+ project/SparkBuild.scala                                              | 4 ++--
+ 5 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/core/src/main/scala/org/apache/spark/deploy/Client.scala b/core/src/main/scala/org/apache/spark/deploy/Client.scala
+index 9987e23..7fda886 100644
+--- a/core/src/main/scala/org/apache/spark/deploy/Client.scala
++++ b/core/src/main/scala/org/apache/spark/deploy/Client.scala
+@@ -116,7 +116,7 @@ private class ClientActor(driverArgs: ClientArguments, conf: SparkConf) extends
+       println(s"Error connecting to master ${driverArgs.master} ($remoteAddress), exiting.")
+       System.exit(-1)
+ 
+-    case AssociationErrorEvent(cause, _, remoteAddress, _) =>
++    case AssociationErrorEvent(cause, _, remoteAddress, _, _) =>
+       println(s"Error connecting to master ${driverArgs.master} ($remoteAddress), exiting.")
+       println(s"Cause was: $cause")
+       System.exit(-1)
+diff --git a/core/src/main/scala/org/apache/spark/deploy/client/AppClient.scala b/core/src/main/scala/org/apache/spark/deploy/client/AppClient.scala
+index 1415e2f..8d732db 100644
+--- a/core/src/main/scala/org/apache/spark/deploy/client/AppClient.scala
++++ b/core/src/main/scala/org/apache/spark/deploy/client/AppClient.scala
+@@ -153,7 +153,7 @@ private[spark] class AppClient(
+         logWarning(s"Connection to $address failed; waiting for master to reconnect...")
+         markDisconnected()
+ 
+-      case AssociationErrorEvent(cause, _, address, _) if isPossibleMaster(address) =>
++      case AssociationErrorEvent(cause, _, address, _, _) if isPossibleMaster(address) =>
+         logWarning(s"Could not connect to $address: $cause")
+ 
+       case StopAppClient =>
+diff --git a/core/src/main/scala/org/apache/spark/deploy/worker/WorkerWatcher.scala b/core/src/main/scala/org/apache/spark/deploy/worker/WorkerWatcher.scala
+index 1dc39c4..732a1d7 100644
+--- a/core/src/main/scala/org/apache/spark/deploy/worker/WorkerWatcher.scala
++++ b/core/src/main/scala/org/apache/spark/deploy/worker/WorkerWatcher.scala
+@@ -52,7 +52,7 @@ private[spark] class WorkerWatcher(workerUrl: String) extends Actor
+     case AssociatedEvent(localAddress, remoteAddress, inbound) if isWorker(remoteAddress) =>
+       logInfo(s"Successfully connected to $workerUrl")
+ 
+-    case AssociationErrorEvent(cause, localAddress, remoteAddress, inbound)
++    case AssociationErrorEvent(cause, localAddress, remoteAddress, inbound, _)
+         if isWorker(remoteAddress) =>
+       // These logs may not be seen if the worker (and associated pipe) has died
+       logError(s"Could not initialize connection to worker $workerUrl. Exiting.")
+diff --git a/core/src/main/scala/org/apache/spark/util/IndestructibleActorSystem.scala b/core/src/main/scala/org/apache/spark/util/IndestructibleActorSystem.scala
+index bf71882..08d703e 100644
+--- a/core/src/main/scala/org/apache/spark/util/IndestructibleActorSystem.scala
++++ b/core/src/main/scala/org/apache/spark/util/IndestructibleActorSystem.scala
+@@ -39,7 +39,7 @@ private[akka] class IndestructibleActorSystemImpl(
+     override val name: String,
+     applicationConfig: Config,
+     classLoader: ClassLoader)
+-  extends ActorSystemImpl(name, applicationConfig, classLoader) {
++  extends ActorSystemImpl(name, applicationConfig, classLoader, None) {
+ 
+   protected override def uncaughtExceptionHandler: Thread.UncaughtExceptionHandler = {
+     val fallbackHandler = super.uncaughtExceptionHandler
+diff --git a/project/SparkBuild.scala b/project/SparkBuild.scala
+index 63f5297..2bfa6b5 100644
+--- a/project/SparkBuild.scala
++++ b/project/SparkBuild.scala
+@@ -223,8 +223,8 @@ object SparkBuild extends Build {
+         "com.ning"                 % "compress-lzf"     % "1.0.0",
+         "org.xerial.snappy"        % "snappy-java"      % "1.0.5",
+         "org.ow2.asm"              % "asm"              % "4.0",
+-        "org.spark-project.akka"  %% "akka-remote"      % "2.2.3-shaded-protobuf"  excludeAll(excludeNetty),
+-        "org.spark-project.akka"  %% "akka-slf4j"       % "2.2.3-shaded-protobuf"  excludeAll(excludeNetty),
++        "com.typesafe.akka"  %% "akka-remote"      % "2.3.0-RC2"  excludeAll(excludeNetty),
++        "com.typesafe.akka"  %% "akka-slf4j"       % "2.3.0-RC2"  excludeAll(excludeNetty),
+         "org.json4s"              %% "json4s-jackson"   % "3.2.6",
+         "it.unimi.dsi"             % "fastutil"         % "6.4.4",
+         "colt"                     % "colt"             % "1.2.0",
+-- 
+1.8.3.4 (Apple Git-47)
+

@@ -1,0 +1,27 @@
+From cbc6b801cbf717ecab12f6cbad48e8bfd60c5e82 Mon Sep 17 00:00:00 2001
+From: William Benton <willb@redhat.com>
+Date: Fri, 28 Feb 2014 15:16:45 -0600
+Subject: [PATCH 1/2] use Jetty 8
+
+---
+ project/SparkBuild.scala | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/project/SparkBuild.scala b/project/SparkBuild.scala
+index 956312f..63f5297 100644
+--- a/project/SparkBuild.scala
++++ b/project/SparkBuild.scala
+@@ -181,9 +181,7 @@ object SparkBuild extends Build {
+ 
+     libraryDependencies ++= Seq(
+         "io.netty"          % "netty-all"       % "4.0.13.Final",
+-        "org.eclipse.jetty" % "jetty-server"    % "7.6.8.v20121106",
+-        /** Workaround for SPARK-959. Dependency used by org.eclipse.jetty. Fixed in ivy 2.3.0. */
+-        "org.eclipse.jetty.orbit" % "javax.servlet" % "2.5.0.v201103041518" artifacts Artifact("javax.servlet", "jar", "jar")
++        "org.eclipse.jetty" % "jetty-server"    % "8.1.14.v20131031"
+     ),
+ 
+     parallelExecution := true,
+-- 
+1.8.3.4 (Apple Git-47)
+

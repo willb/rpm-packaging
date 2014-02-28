@@ -30,6 +30,8 @@ Patch4:		spark-v0.9.0-0005-Removed-code-depending-on-Kryo.patch
 Patch5:		spark-v0.9.0-0006-Remove-functionality-depending-on-stream-lib.patch
 Patch6:		spark-v0.9.0-0007-Removed-mesos.patch
 Patch7:		spark-v0.9.0-0008-remove-unavailable-and-unnecessary-deps.patch
+Patch8:		spark-v0.9.0-0009-use-Jetty-8.patch
+Patch9:		spark-v0.9.0-0010-use-Akka-2.3.0-RC2.patch
 
 BuildArch:	noarch
 BuildRequires:	sbt
@@ -129,6 +131,8 @@ Javadoc for %{name}.
 %patch5 -p1
 %patch6 -p1
 %patch7 -p1
+%patch8 -p1
+%patch9 -p1
 
 sed -i -e 's/\(val [A-Z]\+_JVM_VERSION =[^1]\+\)1.6"/\11.7"/' project/SparkBuild.scala
 
