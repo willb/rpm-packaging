@@ -167,6 +167,9 @@ sed -i -e '/%[[:space:]]*"test"/d' project/SparkBuild.scala
 sed -i -e 'N;s/\([%].*["]\),\n\([\t ]*[)]\)/\1\n\2/' project/SparkBuild.scala
 sed -i -e 'N;s/\([%].*[)]\),\n\([\t ]*[)]\)/\1\n\2/' project/SparkBuild.scala
 
+# fix up json4s-jackson version
+sed -i -e 's|\(json4s-jackson"[^"]*"\)3[.]2[.]6|\13.2.7|' project/SparkBuild.scala
+
 cp -r /usr/share/sbt/ivy-local ivy-local
 mkdir boot
 
@@ -189,7 +192,7 @@ mkdir boot
 
 %remap_version_to_installed commons-daemon commons-daemon project/SparkBuild.scala
 
-# XXX: we don't need this
+# XXX: we may not need this
 %remap_version_to_installed commons-io commons-io project/SparkBuild.scala
 
 %remap_version_to_installed com.ning compress-lzf project/SparkBuild.scala
@@ -260,13 +263,13 @@ chmod 755 ./climbing-nemesis.py
 
 %climbing_nemesis it.unimi.dsi fastutil
 
-%climbing_nemesis log4j log4j
+%{climbing_nemesis log4j log4j}  --ignore ant-nodeps --ignore ant-contrib --ignore ant-junit --ignore junit --ignore tools
 
 %climbing_nemesis net.java.dev.jets3t jets3t
 
 %climbing_nemesis org.apache.hadoop hadoop-client
 
-%climbing_nemesis org.apache.zookeeper zookeeper
+%{climbing_nemesis org.apache.zookeeper zookeeper} --ignore jline
 
 %climbing_nemesis org.eclipse.jetty jetty-server
 
@@ -280,11 +283,25 @@ chmod 755 ./climbing-nemesis.py
 
 %climbing_nemesis org.slf4j slf4j-log4j12
 
+%climbing_nemesis org.slf4j slf4j-jdk14
+
 %climbing_nemesis com.typesafe.akka akka-remote_%{scala_version}
 
 %climbing_nemesis com.typesafe.akka akka-actor_%{scala_version}
 
 %climbing_nemesis org.xerial.snappy snappy-java
+
+# Transitively-carried dependencies
+%climbing-nemesis javax.servlet javax.servlet-api
+
+%climbing-nemesis org.eclipse.jetty jetty-http
+
+%climbing-nemesis org.eclipse.jetty jetty-io
+
+%climbing-nemesis org.eclipse.jetty jetty-util
+
+%{climbing-nemesis org.jboss.spec.javax.transaction jboss-transaction-api_1.2_spec} --version any
+
 
 
 %build
