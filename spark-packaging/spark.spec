@@ -45,6 +45,8 @@ BuildRequires:	javapackages-tools
 Requires:	javapackages-tools
 Requires:	scala
 
+BuildRequires:	plexus-containers-component-annotations
+
 BuildRequires:	mvn(org.json4s:json4s-jackson_%{scala_version})
 Requires:	mvn(org.json4s:json4s-jackson_%{scala_version})
 
@@ -107,12 +109,6 @@ Requires:	mvn(com.typesafe.akka:akka-actor_%{scala_version})
 Requires:	mvn(com.typesafe.akka:akka-remote_%{scala_version})
 Requires:	mvn(org.xerial.snappy:snappy-java)
 Requires:	mvn(com.freevariable.lancer:lancer)
-
-
-# XXX: remove these once they aren't necessary
-BuildRequires:	mvn(commons-io:commons-io)
-Requires:	mvn(commons-io:commons-io)
-
 
 %description
 
@@ -186,7 +182,7 @@ cp %{SOURCE3} project/build.sbt
 
 %build
 
-export XMVN_CLASSPATH=$(build-classpath aether/api guava ivy maven/maven-model plexus-classworlds plexus-containers/plexus-container-default plexus/utils xbean/xbean-reflect xmvn/xmvn-connector xmvn/xmvn-core)
+export XMVN_CLASSPATH=$(build-classpath aether/api guava ivy maven/maven-model plexus-classworlds plexus-containers/plexus-container-default plexus/utils xbean/xbean-reflect xmvn/xmvn-connector xmvn/xmvn-core atinject google-guice-no_aop)
 
 export SPARK_HADOOP_VERSION=2.2.0
 export DEFAULT_IS_NEW_HADOOP=true
@@ -201,11 +197,17 @@ for f in $(echo ${XMVN_CLASSPATH} | tr : \  ); do
     cp $f lib
 done
 
+cp /usr/share/java/plexus/containers-component-annotations.jar lib
+
 for sub in project tools bagel mllib streaming core graphx repl; do
  ln -s $(pwd)/lib $sub/lib
 done
 
-./sbt-xmvn package "set publishTo in Global := Some(Resolver.file(\"published\", file(\"published\"))(Resolver.ivyStylePatterns) ivys \"$(pwd)/published/[organization]/[module]/[revision]/ivy.xml\" artifacts \"$(pwd)/published/[organization]/[module]/[revision]/[artifact]-[revision].[ext]\")" publish makePom
+# HACK HACK HACK
+(echo q | SBT_BOOT_PROPERTIES=/etc/sbt/sbt.boot.properties sbt quit) || true
+cp lib/* boot/scala-2.10.3/lib/
+
+./sbt-xmvn core/package core/makePom
 
 # XXX: this is a hack; we seem to get correct metadata but bogus JARs
 # from "sbt publish" for some reason

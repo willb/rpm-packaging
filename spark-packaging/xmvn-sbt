@@ -10,7 +10,7 @@ export SBT_BOOT_DIR=${SBT_BOOT_DIR:-/usr/share/sbt/boot}
 export SBT_IVY_DIR=${SBT_IVY_DIR:-/usr/share/sbt/ivy-local}
 export SBT_BOOT_PROPERTIES=${SBT_BOOT_PROPERTIES:-/etc/sbt/sbt.boot.properties}
 export BASE_CLASSPATH=$(build-classpath scala ivy sbt ${JLINE} jansi test-interface sbinary)
-export XMVN_CLASSPATH=$(build-classpath aether/api guava ivy maven/maven-model plexus-classworlds plexus-containers/plexus-container-default plexus/utils xbean/xbean-reflect xmvn/xmvn-connector xmvn/xmvn-core xmvn)
+export XMVN_CLASSPATH=$(build-classpath aether/api guava ivy maven/maven-model plexus-classworlds plexus-containers/plexus-container-default plexus/utils xbean/xbean-reflect xmvn/xmvn-connector xmvn/xmvn-core xmvn atinject google-guice-no_aop)
 export JAVA_OPTS="-Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled"
 
 echo CLASSPATH is $BASE_CLASSPATH:${XMVN_CLASSPATH}
