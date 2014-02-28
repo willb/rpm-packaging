@@ -20,7 +20,6 @@ Summary:	Lightning-fast cluster computing
 License:	ASL 2.0
 URL:		http://spark.apache.org
 Source0:	https://github.com/apache/spark/archive/v%{spark_version}%{spark_version_suffix}.tar.gz
-Source1:	https://raw.github.com/willb/climbing-nemesis/master/climbing-nemesis.py
 
 Patch0:		spark-v0.9.0-0001-Replace-lift-json-with-json4s-jackson.patch
 Patch1:		spark-v0.9.0-0002-use-sbt-0.13.1.patch
@@ -161,10 +160,6 @@ sed -i -e '/org.apache.*avro/d' project/SparkBuild.scala
 # remove mesos dependency (java support not available yet)
 sed -i -e '/org[.]apache.*mesos/d' project/SparkBuild.scala
 
-# use regular Akka
-sed -i -e 's/org[.]spark-project[.]akka/com.typesafe.akka/' project/SparkBuild.scala
-sed -i -e 's/2[.]2[.]3-shaded-protobuf/2.3.0-RC2/' project/SparkBuild.scala
-
 # remove all test deps for now
 sed -i -e '/%[[:space:]]*"test"/d' project/SparkBuild.scala
 
@@ -173,181 +168,6 @@ sed -i -e 's|\(json4s-jackson"[^"]*"\)3[.]2[.]6|\13.2.7|' project/SparkBuild.sca
 
 cp -r /usr/share/sbt/ivy-local ivy-local
 mkdir boot
-
-# make sure we're expecting the right versions; skip things like
-# json4s and akka that we handle explicitly elsewhere
-
-%remap_version_to_installed com.codahale.metrics metrics-core project/SparkBuild.scala
-
-%remap_version_to_installed com.codahale.metrics metrics-ganglia project/SparkBuild.scala
-
-%remap_version_to_installed com.codahale.metrics metrics-graphite project/SparkBuild.scala
-
-%remap_version_to_installed com.codahale.metrics metrics-json project/SparkBuild.scala
-
-%remap_version_to_installed com.codahale.metrics metrics-jvm project/SparkBuild.scala
-
-%remap_version_to_installed com.google.code.findbugs jsr305 project/SparkBuild.scala
-
-%remap_version_to_installed com.google.guava guava project/SparkBuild.scala
-
-%remap_version_to_installed commons-daemon commons-daemon project/SparkBuild.scala
-
-# XXX: we may not need this
-%remap_version_to_installed commons-io commons-io project/SparkBuild.scala
-
-%remap_version_to_installed com.ning compress-lzf project/SparkBuild.scala
-
-%remap_version_to_installed io.netty netty-all project/SparkBuild.scala
-
-%remap_version_to_installed it.unimi.dsi fastutil project/SparkBuild.scala
-
-%remap_version_to_installed log4j log4j project/SparkBuild.scala
-
-%remap_version_to_installed net.java.dev.jets3t jets3t project/SparkBuild.scala
-
-%remap_version_to_installed org.apache.hadoop hadoop-client project/SparkBuild.scala
-
-%remap_version_to_installed org.apache.hadoop hadoop-client project/SparkBuild.scala
-
-%remap_version_to_installed org.apache.hadoop hadoop-yarn-api project/SparkBuild.scala
-
-%remap_version_to_installed org.apache.hadoop hadoop-yarn-client project/SparkBuild.scala
-
-%remap_version_to_installed org.apache.hadoop hadoop-yarn-common project/SparkBuild.scala
-
-%remap_version_to_installed org.apache.zookeeper zookeeper project/SparkBuild.scala
-
-%remap_version_to_installed org.eclipse.jetty jetty-server project/SparkBuild.scala
-
-%remap_version_to_installed org.eclipse.jetty.orbit javax.servlet project/SparkBuild.scala
-
-%remap_version_to_installed org.jblas jblas project/SparkBuild.scala
-
-%remap_version_to_installed org.ow2.asm asm project/SparkBuild.scala
-
-%remap_version_to_installed org.slf4j slf4j-api project/SparkBuild.scala
-
-%remap_version_to_installed org.slf4j slf4j-log4j12 project/SparkBuild.scala
-
-%remap_version_to_installed org.xerial.snappy snappy-java project/SparkBuild.scala
-
-# generate local Ivy repository
-cp %{SOURCE1} .
-chmod 755 ./climbing-nemesis.py
-
-%climbing_nemesis com.freevariable.lancer lancer
-
-%climbing_nemesis org.json4s json4s-jackson_%{scala_version}
-
-%climbing_nemesis org.json4s json4s-core_%{scala_version}
-
-%climbing_nemesis org.json4s json4s-ast_%{scala_version}
-
-%climbing_nemesis com.codahale.metrics metrics-core
-
-%climbing_nemesis com.codahale.metrics metrics-ganglia
-
-%climbing_nemesis com.codahale.metrics metrics-graphite
-
-%climbing_nemesis com.codahale.metrics metrics-json
-
-%climbing_nemesis com.codahale.metrics metrics-jvm
-
-%climbing_nemesis com.google.code.findbugs jsr305
-
-%climbing_nemesis com.google.guava guava
-
-%climbing_nemesis commons-daemon commons-daemon
-
-%climbing_nemesis com.ning compress-lzf
-
-%climbing_nemesis io.netty netty-all
-
-%climbing_nemesis it.unimi.dsi fastutil
-
-%{climbing_nemesis log4j log4j}  --ignore ant-nodeps --ignore ant-contrib --ignore ant-junit --ignore junit --ignore tools
-
-%climbing_nemesis net.java.dev.jets3t jets3t
-
-%climbing_nemesis org.apache.hadoop hadoop-client
-
-%{climbing_nemesis org.apache.zookeeper zookeeper} --ignore jline
-
-%climbing_nemesis org.eclipse.jetty jetty-server
-
-%{climbing_nemesis org.eclipse.jetty.orbit javax.servlet} --override org.eclipse.jetty.orbit:javax.servlet
-
-%climbing_nemesis org.jblas jblas
-
-%climbing_nemesis org.ow2.asm asm
-
-%climbing_nemesis org.slf4j slf4j-api
-
-%climbing_nemesis org.slf4j slf4j-log4j12
-
-%climbing_nemesis org.slf4j slf4j-jdk14
-
-%{climbing_nemesis com.typesafe.akka akka-remote_%{scala_version}} --ignore io.netty --extra-dep org.jboss.netty:netty:$(rpm -q --qf "%%{version}" $(rpm -q --whatprovides "mvn(org.jboss.netty:netty:3)" ))
-
-%climbing_nemesis com.typesafe.akka akka-actor_%{scala_version}
-
-%climbing_nemesis com.typesafe.akka akka-slf4j_%{scala_version}
-
-%{climbing_nemesis org.xerial.snappy snappy-java} --ignore felix
-
-# Transitively-carried dependencies
-%climbing_nemesis ch.qos.cal10n cal10n-api
-
-%climbing_nemesis org.scala-lang scalap
-
-%climbing_nemesis org.scala-lang scala-library
-
-%climbing_nemesis com.fasterxml.jackson.core jackson-databind
-
-%climbing_nemesis com.fasterxml.jackson.core jackson-annotations
-
-%climbing_nemesis com.fasterxml.jackson.core jackson-core
-
-%climbing_nemesis com.thoughtworks.paranamer paranamer
-
-%climbing_nemesis com.typesafe config
-
-%climbing_nemesis org.uncommons.maths uncommons-maths
-
-%{climbing_nemesis org.jboss.netty netty} --version $(rpm -q --qf "%%{version}" $(rpm -q --whatprovides "mvn(org.jboss.netty:netty:3)" )) --jarfile $(xmvn-resolve org.jboss.netty:netty:3)
-
-%climbing_nemesis com.google.protobuf protobuf-java
-
-%{climbing_nemesis javax.servlet javax.servlet-api} --override javax.servlet:javax.servlet-api --version 3.1.0
-
-%{climbing_nemesis javax.enterprise cdi-api} --ignore weld --ignore seam --ignore testng
-
-%climbing_nemesis org.eclipse.jetty jetty-http
-
-%climbing_nemesis org.eclipse.jetty jetty-io
-
-%climbing_nemesis org.eclipse.jetty jetty-util
-
-%{climbing_nemesis org.jboss.spec.javax.transaction jboss-transaction-api_1.2_spec} --version any
-
-%climbing_nemesis info.ganglia.gmetric4j gmetric4j
-
-%{climbing_nemesis org.apache.commons commons-math3} --ignore wagon
-
-%{climbing_nemesis commons-codec commons-codec} --version 1.4
-
-%climbing_nemesis commons-logging commons-logging
-
-%climbing_nemesis org.slf4j slf4j-jdk14
-
-%climbing_nemesis org.apache.httpcomponents httpclient
-
-%climbing_nemesis org.apache.httpcomponents httpcore
-
-%climbing_nemesis com.jamesmurty.utils java-xmlbuilder
-
-
 
 %build
 
