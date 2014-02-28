@@ -40,7 +40,7 @@ index 62ceba1..afae171 100644
 -            <artifactId>lift-json_${scala.binary.version}</artifactId>
 +            <groupId>org.json4s</groupId>
 +            <artifactId>json4s-jackson_${scala.binary.version}</artifactId>
-+            <version>3.2.6</version>
++            <version>3.2.7</version>
          </dependency>
          <dependency>
              <groupId>it.unimi.dsi</groupId>
@@ -239,12 +239,12 @@ diff --git a/project/SparkBuild.scala b/project/SparkBuild.scala
 index b891ffa..398f5ec 100644
 --- a/project/SparkBuild.scala
 +++ b/project/SparkBuild.scala
-@@ -260,7 +260,7 @@ object SparkBuild extends Build {
+@@ -260,8 +260,7 @@ object SparkBuild extends Build {
          "org.spark-project.akka"  %% "akka-remote"      % "2.2.3-shaded-protobuf"  excludeAll(excludeNetty),
          "org.spark-project.akka"  %% "akka-slf4j"       % "2.2.3-shaded-protobuf"  excludeAll(excludeNetty),
          "org.spark-project.akka"  %% "akka-testkit"     % "2.2.3-shaded-protobuf" % "test",
 -        "net.liftweb"             %% "lift-json"        % "2.5.1"  excludeAll(excludeNetty),
-+        "org.json4s"              %% "json4s-jackson"   % "3.2.6",
++        "org.json4s"              %% "json4s-jackson"   % "3.2.7",
          "it.unimi.dsi"             % "fastutil"         % "6.4.4",
          "colt"                     % "colt"             % "1.2.0",
          "org.apache.mesos"         % "mesos"            % "0.13.0",
