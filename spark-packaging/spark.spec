@@ -20,6 +20,9 @@ Summary:	Lightning-fast cluster computing
 License:	ASL 2.0
 URL:		http://spark.apache.org
 Source0:	https://github.com/apache/spark/archive/v%{spark_version}%{spark_version_suffix}.tar.gz
+Source1:	xmvn-sbt
+Source2:	xmvn-sbt.properties
+Source3:	default-build.sbt
 
 Patch0:		spark-v0.9.0-0001-Replace-lift-json-with-json4s-jackson.patch
 Patch1:		spark-v0.9.0-0002-use-sbt-0.13.1.patch
@@ -31,6 +34,7 @@ Patch6:		spark-v0.9.0-0007-Removed-mesos.patch
 Patch7:		spark-v0.9.0-0008-remove-unavailable-and-unnecessary-deps.patch
 Patch8:		spark-v0.9.0-0009-use-Jetty-8.patch
 Patch9:		spark-v0.9.0-0010-use-Akka-2.3.0-RC2.patch
+Patch10:	spark-v0.9.0-0011-xmvn.patch
 
 BuildArch:	noarch
 BuildRequires:	sbt
@@ -132,6 +136,7 @@ Javadoc for %{name}.
 %patch7 -p1
 %patch8 -p1
 %patch9 -p1
+%patch10 -p1
 
 sed -i -e 's/\(val [A-Z]\+_JVM_VERSION =[^1]\+\)1.6"/\11.7"/' project/SparkBuild.scala
 
@@ -166,18 +171,41 @@ sed -i -e '/%[[:space:]]*"test"/d' project/SparkBuild.scala
 # fix up json4s-jackson version
 sed -i -e 's|\(json4s-jackson"[^"]*"\)3[.]2[.]6|\13.2.7|' project/SparkBuild.scala
 
-cp -r /usr/share/sbt/ivy-local ivy-local
 mkdir boot
 
+# remove bundled sbt script
+rm -rf sbt
+
+cp %{SOURCE1} sbt-xmvn
+chmod 755 sbt-xmvn
+
+cp %{SOURCE2} xmvn-sbt.properties
+
+cp %{SOURCE3} build.sbt
+cp %{SOURCE3} project/build.sbt
+
 %build
+
+export XMVN_CLASSPATH=$(build-classpath aether/api guava ivy maven/maven-model plexus-classworlds plexus-containers/plexus-container-default plexus/utils xbean/xbean-reflect xmvn/xmvn-connector xmvn/xmvn-core)
 
 export SPARK_HADOOP_VERSION=2.2.0
 export DEFAULT_IS_NEW_HADOOP=true
 
 export SBT_BOOT_DIR=boot
-export SBT_IVY_DIR=ivy-local
 
-sbt package "set publishTo in Global := Some(Resolver.file(\"published\", file(\"published\"))(Resolver.ivyStylePatterns) ivys \"$(pwd)/published/[organization]/[module]/[revision]/ivy.xml\" artifacts \"$(pwd)/published/[organization]/[module]/[revision]/[artifact]-[revision].[ext]\")" publish makePom
+export SBT_BOOT_PROPERTIES=xmvn-sbt.properties
+
+mkdir lib
+
+for f in $(echo ${XMVN_CLASSPATH} | tr : \  ); do 
+    cp --symbolic-link $f lib
+done
+
+ln -s $(pwd)/lib project/lib
+
+
+
+./sbt-xmvn package "set publishTo in Global := Some(Resolver.file(\"published\", file(\"published\"))(Resolver.ivyStylePatterns) ivys \"$(pwd)/published/[organization]/[module]/[revision]/ivy.xml\" artifacts \"$(pwd)/published/[organization]/[module]/[revision]/[artifact]-[revision].[ext]\")" publish makePom
 
 # XXX: this is a hack; we seem to get correct metadata but bogus JARs
 # from "sbt publish" for some reason
