@@ -20,9 +20,9 @@ Summary:	Lightning-fast cluster computing
 License:	ASL 2.0
 URL:		http://spark.apache.org
 Source0:	https://github.com/apache/spark/archive/v%{spark_version}%{spark_version_suffix}.tar.gz
-Source1:	xmvn-sbt
-Source2:	xmvn-sbt.properties
-Source3:	default-build.sbt
+Source1:	https://raw.github.com/willb/spark-packaging/master/xmvn-sbt
+Source2:	https://raw.github.com/willb/spark-packaging/master/xmvn-sbt.properties
+Source3:	https://raw.github.com/willb/spark-packaging/master/default-build.sbt
 
 Patch0:		spark-v0.9.0-0001-Replace-lift-json-with-json4s-jackson.patch
 Patch1:		spark-v0.9.0-0002-use-sbt-0.13.1.patch
