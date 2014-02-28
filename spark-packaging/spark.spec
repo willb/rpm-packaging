@@ -10,7 +10,7 @@
 
 %global remap_version_to_installed() sed -i -e 's/"%{1}"[\t ]*%%[\t ]*"%{2}"[\t ]*%%[\t ]*"[^"]*"/"%{1}" %% "%{2}" %% "'$(rpm -q --qf "%%%%{version}" $(rpm -q --whatprovides "mvn(%{1}:%{2})" ))'"/g' %{3}
 
-%global climbing_nemesis() ./climbing-nemesis.py %{1} %{2} ivy-local --version $(rpm -q --qf "%%%%{version}" $(rpm -q --whatprovides "mvn(%{1}:%{2})" ))
+%global climbing_nemesis() ./climbing-nemesis.py %{1} %{2} ivy-local --log debug --version $(rpm -q --qf "%%%%{version}" $(rpm -q --whatprovides "mvn(%{1}:%{2})" ))
 
 Name:		spark
 Version:	%{spark_version}
@@ -236,6 +236,10 @@ chmod 755 ./climbing-nemesis.py
 
 %climbing_nemesis org.json4s json4s-jackson_%{scala_version}
 
+%climbing_nemesis org.json4s json4s-core_%{scala_version}
+
+%climbing_nemesis org.json4s json4s-ast_%{scala_version}
+
 %climbing_nemesis com.codahale.metrics metrics-core
 
 %climbing_nemesis com.codahale.metrics metrics-ganglia
@@ -251,8 +255,6 @@ chmod 755 ./climbing-nemesis.py
 %climbing_nemesis com.google.guava guava
 
 %climbing_nemesis commons-daemon commons-daemon
-
-%climbing_nemesis commons-io commons-io
 
 %climbing_nemesis com.ning compress-lzf
 
@@ -270,7 +272,7 @@ chmod 755 ./climbing-nemesis.py
 
 %climbing_nemesis org.eclipse.jetty jetty-server
 
-%climbing_nemesis org.eclipse.jetty.orbit javax.servlet
+%{climbing_nemesis org.eclipse.jetty.orbit javax.servlet} --override org.eclipse.jetty.orbit:javax.servlet
 
 %climbing_nemesis org.jblas jblas
 
@@ -286,9 +288,25 @@ chmod 755 ./climbing-nemesis.py
 
 %climbing_nemesis com.typesafe.akka akka-actor_%{scala_version}
 
+%climbing_nemesis com.typesafe.akka akka-slf4j_%{scala_version}
+
 %{climbing_nemesis org.xerial.snappy snappy-java} --ignore felix
 
 # Transitively-carried dependencies
+%climbing_nemesis ch.qos.cal10n cal10n-api
+
+%climbing_nemesis org.scala-lang scalap
+
+%climbing_nemesis org.scala-lang scala-library
+
+%climbing_nemesis com.fasterxml.jackson.core jackson-databind
+
+%climbing_nemesis com.fasterxml.jackson.core jackson-annotations
+
+%climbing_nemesis com.fasterxml.jackson.core jackson-core
+
+%climbing_nemesis com.thoughtworks.paranamer paranamer
+
 %climbing_nemesis com.typesafe config
 
 %climbing_nemesis org.uncommons.maths uncommons-maths
@@ -297,7 +315,9 @@ chmod 755 ./climbing-nemesis.py
 
 %climbing_nemesis com.google.protobuf protobuf-java
 
-%climbing_nemesis javax.servlet javax.servlet-api
+%{climbing_nemesis javax.servlet javax.servlet-api} --override javax.servlet:javax.servlet-api --version 3.1.0
+
+%{climbing_nemesis javax.enterprise cdi-api} --ignore weld --ignore seam --ignore testng
 
 %climbing_nemesis org.eclipse.jetty jetty-http
 
@@ -307,11 +327,21 @@ chmod 755 ./climbing-nemesis.py
 
 %{climbing_nemesis org.jboss.spec.javax.transaction jboss-transaction-api_1.2_spec} --version any
 
-%climbing_nemesis org.apache.commons commons-math3
+%climbing_nemesis info.ganglia.gmetric4j gmetric4j
 
-%climbing_nemesis commons-codec commons-codec
+%{climbing_nemesis org.apache.commons commons-math3} --ignore wagon
+
+%{climbing_nemesis commons-codec commons-codec} --version 1.4
 
 %climbing_nemesis commons-logging commons-logging
+
+%climbing_nemesis org.slf4j slf4j-jdk14
+
+%climbing_nemesis org.apache.httpcomponents httpclient
+
+%climbing_nemesis org.apache.httpcomponents httpcore
+
+%climbing_nemesis com.jamesmurty.utils java-xmlbuilder
 
 
 
