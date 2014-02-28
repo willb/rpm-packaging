@@ -164,11 +164,6 @@ sed -i -e 's/2[.]2[.]3-shaded-protobuf/2.3.0-RC2/' project/SparkBuild.scala
 # remove all test deps for now
 sed -i -e '/%[[:space:]]*"test"/d' project/SparkBuild.scala
 
-# make sure we haven't introduced any syntax errors by pulling out the
-# final elements in sequence literals
-sed -i -e 'N;s/\([%].*["]\),\n\([\t ]*[)]\)/\1\n\2/' project/SparkBuild.scala
-sed -i -e 'N;s/\([%].*[)]\),\n\([\t ]*[)]\)/\1\n\2/' project/SparkBuild.scala
-
 # fix up json4s-jackson version
 sed -i -e 's|\(json4s-jackson"[^"]*"\)3[.]2[.]6|\13.2.7|' project/SparkBuild.scala
 
