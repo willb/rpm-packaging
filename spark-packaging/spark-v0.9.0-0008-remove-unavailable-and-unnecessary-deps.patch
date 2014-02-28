@@ -1,0 +1,57 @@
+From 73a6adeaa4f763b09ff25451825f05faa3caafb4 Mon Sep 17 00:00:00 2001
+From: William Benton <willb@redhat.com>
+Date: Fri, 28 Feb 2014 09:00:04 -0600
+Subject: [PATCH] remove unavailable and unnecessary deps
+
+---
+ project/SparkBuild.scala | 15 ++-------------
+ 1 file changed, 2 insertions(+), 13 deletions(-)
+
+diff --git a/project/SparkBuild.scala b/project/SparkBuild.scala
+index 068bf74..956312f 100644
+--- a/project/SparkBuild.scala
++++ b/project/SparkBuild.scala
+@@ -183,13 +183,7 @@ object SparkBuild extends Build {
+         "io.netty"          % "netty-all"       % "4.0.13.Final",
+         "org.eclipse.jetty" % "jetty-server"    % "7.6.8.v20121106",
+         /** Workaround for SPARK-959. Dependency used by org.eclipse.jetty. Fixed in ivy 2.3.0. */
+-        "org.eclipse.jetty.orbit" % "javax.servlet" % "2.5.0.v201103041518" artifacts Artifact("javax.servlet", "jar", "jar"),
+-        "org.scalatest"    %% "scalatest"       % "1.9.1"  % "test",
+-        "org.scalacheck"   %% "scalacheck"      % "1.10.0" % "test",
+-        "com.novocode"      % "junit-interface" % "0.9"    % "test",
+-        "org.easymock"      % "easymock"        % "3.1"    % "test",
+-        "org.mockito"       % "mockito-all"     % "1.8.5"  % "test",
+-        "commons-io"        % "commons-io"      % "2.4"    % "test"
++        "org.eclipse.jetty.orbit" % "javax.servlet" % "2.5.0.v201103041518" artifacts Artifact("javax.servlet", "jar", "jar")
+     ),
+ 
+     parallelExecution := true,
+@@ -233,13 +227,11 @@ object SparkBuild extends Build {
+         "org.ow2.asm"              % "asm"              % "4.0",
+         "org.spark-project.akka"  %% "akka-remote"      % "2.2.3-shaded-protobuf"  excludeAll(excludeNetty),
+         "org.spark-project.akka"  %% "akka-slf4j"       % "2.2.3-shaded-protobuf"  excludeAll(excludeNetty),
+-        "org.spark-project.akka"  %% "akka-testkit"     % "2.2.3-shaded-protobuf" % "test",
+         "org.json4s"              %% "json4s-jackson"   % "3.2.6",
+         "it.unimi.dsi"             % "fastutil"         % "6.4.4",
+         "colt"                     % "colt"             % "1.2.0",
+         "org.apache.mesos"         % "mesos"            % "0.13.0",
+         "net.java.dev.jets3t"      % "jets3t"           % "0.7.1",
+-        "org.apache.derby"         % "derby"            % "10.4.2.0"                     % "test",
+         "org.apache.hadoop"        % "hadoop-client"    % hadoopVersion excludeAll(excludeJackson, excludeNetty, excludeAsm, excludeCglib),
+         "org.apache.avro"          % "avro"             % "1.7.4",
+         "org.apache.avro"          % "avro-ipc"         % "1.7.4" excludeAll(excludeNetty),
+@@ -248,10 +240,7 @@ object SparkBuild extends Build {
+         "com.codahale.metrics"     % "metrics-jvm"      % "3.0.0",
+         "com.codahale.metrics"     % "metrics-json"     % "3.0.0",
+         "com.codahale.metrics"     % "metrics-ganglia"  % "3.0.0",
+-        "com.codahale.metrics"     % "metrics-graphite" % "3.0.0",
+-        "com.twitter"             %% "chill"            % "0.3.1",
+-        "com.twitter"              % "chill-java"       % "0.3.1",
+-        "com.clearspring.analytics" % "stream"          % "2.5.1"
++        "com.codahale.metrics"     % "metrics-graphite" % "3.0.0"
+       )
+   )
+ 
+-- 
+1.8.3.4 (Apple Git-47)
+
