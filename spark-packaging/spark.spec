@@ -164,7 +164,8 @@ sed -i -e '/%[[:space:]]*"test"/d' project/SparkBuild.scala
 
 # make sure we haven't introduced any syntax errors by pulling out the
 # final elements in sequence literals
-sed -i -e 'N;s/\([%].*[")]\),\n\([\t ]*[)]\)/\1\n\2/' project/SparkBuild.scala
+sed -i -e 'N;s/\([%].*["]\),\n\([\t ]*[)]\)/\1\n\2/' project/SparkBuild.scala
+sed -i -e 'N;s/\([%].*[)]\),\n\([\t ]*[)]\)/\1\n\2/' project/SparkBuild.scala
 
 cp -r /usr/share/sbt/ivy-local ivy-local
 mkdir boot
