@@ -292,15 +292,15 @@ chmod 755 ./climbing-nemesis.py
 %climbing_nemesis org.xerial.snappy snappy-java
 
 # Transitively-carried dependencies
-%climbing-nemesis javax.servlet javax.servlet-api
+%climbing_nemesis javax.servlet javax.servlet-api
 
-%climbing-nemesis org.eclipse.jetty jetty-http
+%climbing_nemesis org.eclipse.jetty jetty-http
 
-%climbing-nemesis org.eclipse.jetty jetty-io
+%climbing_nemesis org.eclipse.jetty jetty-io
 
-%climbing-nemesis org.eclipse.jetty jetty-util
+%climbing_nemesis org.eclipse.jetty jetty-util
 
-%{climbing-nemesis org.jboss.spec.javax.transaction jboss-transaction-api_1.2_spec} --version any
+%{climbing_nemesis org.jboss.spec.javax.transaction jboss-transaction-api_1.2_spec} --version any
 
 
 
