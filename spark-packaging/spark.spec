@@ -8,7 +8,7 @@
 %global want_hadoop 0
 %endif
 
-%global remap_version_to_installed() sed -i -e 's/"%{1}" %% "%{2}" %% "[^"]*"/"%{1}" %% "%{2}" %% "'$(rpm -q --qf "%%%%{version}" $(rpm -q --whatprovides "mvn(%{1}:%{2})" ))'"/g' %{3}
+%global remap_version_to_installed() sed -i -e 's/"%{1}"[\t ]*%%[\t ]*"%{2}"[\t ]*%%[\t ]*"[^"]*"/"%{1}" %% "%{2}" %% "'$(rpm -q --qf "%%%%{version}" $(rpm -q --whatprovides "mvn(%{1}:%{2})" ))'"/g' %{3}
 
 %global climbing_nemesis() ./climbing-nemesis.py %{1} %{2} ivy-local --version $(rpm -q --qf "%%%%{version}" $(rpm -q --whatprovides "mvn(%{1}:%{2})" ))
 
@@ -71,6 +71,7 @@ BuildRequires:	mvn(org.slf4j:slf4j-log4j12)
 BuildRequires:	mvn(com.typesafe.akka:akka-actor_%{scala_version})
 BuildRequires:	mvn(com.typesafe.akka:akka-remote_%{scala_version})
 BuildRequires:	mvn(org.xerial.snappy:snappy-java)
+BuildRequires:	mvn(com.freevariable.lancer:lancer)
 
 Requires:	mvn(com.codahale.metrics:metrics-core)
 Requires:	mvn(com.codahale.metrics:metrics-ganglia)
@@ -80,7 +81,6 @@ Requires:	mvn(com.codahale.metrics:metrics-jvm)
 Requires:	mvn(com.google.code.findbugs:jsr305)
 Requires:	mvn(com.google.guava:guava)
 Requires:	mvn(commons-daemon:commons-daemon)
-Requires:	mvn(commons-io:commons-io)
 Requires:	mvn(com.ning:compress-lzf)
 Requires:	mvn(io.netty:netty-all)
 Requires:	mvn(it.unimi.dsi:fastutil)
@@ -100,6 +100,13 @@ Requires:	mvn(org.slf4j:slf4j-log4j12)
 Requires:	mvn(com.typesafe.akka:akka-actor_%{scala_version})
 Requires:	mvn(com.typesafe.akka:akka-remote_%{scala_version})
 Requires:	mvn(org.xerial.snappy:snappy-java)
+Requires:	mvn(com.freevariable.lancer:lancer)
+
+
+# XXX: remove these once they aren't necessary
+BuildRequires:	mvn(commons-io:commons-io)
+Requires:	mvn(commons-io:commons-io)
+
 
 %description
 
@@ -142,6 +149,9 @@ sed -i -e '/com.twitter.*chill/d' project/SparkBuild.scala
 # remove stream-lib dependency (not available yet)
 sed -i -e '/com.clearspring.*stream/d' project/SparkBuild.scala
 
+# remove avro because it's only used for flume (which we don't build)
+sed -i -e '/org.apache.*avro/d' project/SparkBuild.scala
+
 # remove mesos dependency (java support not available yet)
 sed -i -e '/org[.]apache.*mesos/d' project/SparkBuild.scala
 
@@ -152,13 +162,76 @@ sed -i -e 's/2[.]2[.]3-shaded-protobuf/2.3.0-RC2/' project/SparkBuild.scala
 # remove all test deps for now
 sed -i -e '/%[[:space:]]*"test"/d' project/SparkBuild.scala
 
+# make sure we haven't introduced any syntax errors by pulling out the
+# final elements in sequence literals
+sed -i -e 'N;s/\([%].*[")]\),\n\([\t ]*[)]\)/\1\n\2/' project/SparkBuild.scala
 
 cp -r /usr/share/sbt/ivy-local ivy-local
 mkdir boot
 
+# make sure we're expecting the right versions; skip things like
+# json4s and akka that we handle explicitly elsewhere
+
+%remap_version_to_installed com.codahale.metrics metrics-core project/SparkBuild.scala
+
+%remap_version_to_installed com.codahale.metrics metrics-ganglia project/SparkBuild.scala
+
+%remap_version_to_installed com.codahale.metrics metrics-graphite project/SparkBuild.scala
+
+%remap_version_to_installed com.codahale.metrics metrics-json project/SparkBuild.scala
+
+%remap_version_to_installed com.codahale.metrics metrics-jvm project/SparkBuild.scala
+
+%remap_version_to_installed com.google.code.findbugs jsr305 project/SparkBuild.scala
+
+%remap_version_to_installed com.google.guava guava project/SparkBuild.scala
+
+%remap_version_to_installed commons-daemon commons-daemon project/SparkBuild.scala
+
+# XXX: we don't need this
+%remap_version_to_installed commons-io commons-io project/SparkBuild.scala
+
+%remap_version_to_installed com.ning compress-lzf project/SparkBuild.scala
+
+%remap_version_to_installed io.netty netty-all project/SparkBuild.scala
+
+%remap_version_to_installed it.unimi.dsi fastutil project/SparkBuild.scala
+
+%remap_version_to_installed log4j log4j project/SparkBuild.scala
+
+%remap_version_to_installed net.java.dev.jets3t jets3t project/SparkBuild.scala
+
+%remap_version_to_installed org.apache.hadoop hadoop-client project/SparkBuild.scala
+
+%remap_version_to_installed org.apache.hadoop hadoop-client project/SparkBuild.scala
+
+%remap_version_to_installed org.apache.hadoop hadoop-yarn-api project/SparkBuild.scala
+
+%remap_version_to_installed org.apache.hadoop hadoop-yarn-client project/SparkBuild.scala
+
+%remap_version_to_installed org.apache.hadoop hadoop-yarn-common project/SparkBuild.scala
+
+%remap_version_to_installed org.apache.zookeeper zookeeper project/SparkBuild.scala
+
+%remap_version_to_installed org.eclipse.jetty jetty-server project/SparkBuild.scala
+
+%remap_version_to_installed org.eclipse.jetty.orbit javax.servlet project/SparkBuild.scala
+
+%remap_version_to_installed org.jblas jblas project/SparkBuild.scala
+
+%remap_version_to_installed org.ow2.asm asm project/SparkBuild.scala
+
+%remap_version_to_installed org.slf4j slf4j-api project/SparkBuild.scala
+
+%remap_version_to_installed org.slf4j slf4j-log4j12 project/SparkBuild.scala
+
+%remap_version_to_installed org.xerial.snappy snappy-java project/SparkBuild.scala
+
 # generate local Ivy repository
 cp %{SOURCE1} .
 chmod 755 ./climbing-nemesis.py
+
+%climbing_nemesis com.freevariable.lancer lancer
 
 %climbing_nemesis org.json4s json4s-jackson_%{scala_version}
 
