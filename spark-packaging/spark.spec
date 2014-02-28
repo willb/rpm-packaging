@@ -198,12 +198,12 @@ export SBT_BOOT_PROPERTIES=xmvn-sbt.properties
 mkdir lib
 
 for f in $(echo ${XMVN_CLASSPATH} | tr : \  ); do 
-    cp --symbolic-link $f lib
+    cp $f lib
 done
 
-ln -s $(pwd)/lib project/lib
-
-
+for sub in project tools bagel mllib streaming core graphx repl; do
+ ln -s $(pwd)/lib $sub/lib
+done
 
 ./sbt-xmvn package "set publishTo in Global := Some(Resolver.file(\"published\", file(\"published\"))(Resolver.ivyStylePatterns) ivys \"$(pwd)/published/[organization]/[module]/[revision]/ivy.xml\" artifacts \"$(pwd)/published/[organization]/[module]/[revision]/[artifact]-[revision].[ext]\")" publish makePom
 
