@@ -190,9 +190,6 @@ export XMVN_CLASSPATH=$(build-classpath aether/api guava ivy maven/maven-model p
 export SPARK_HADOOP_VERSION=2.2.0
 export DEFAULT_IS_NEW_HADOOP=true
 
-mkdir ivy-local
-
-export SBT_IVY_DIR=ivy-local
 export SBT_BOOT_DIR=boot
 
 export SBT_BOOT_PROPERTIES=xmvn-sbt.properties
@@ -213,7 +210,10 @@ done
 (echo q | SBT_BOOT_PROPERTIES=/etc/sbt/sbt.boot.properties sbt quit) || true
 cp lib/* boot/scala-2.10.3/lib/
 
-./sbt-xmvn core/package core/makePom core/doc
+alltargets() {for f in "$@" ; do echo $f/package $f/makePom $f/doc $f/publishLocal; done}
+
+# ./sbt-xmvn core/package core/makePom core/doc core/publishLocal
+./sbt-xmvn $(alltargets core mllib graphx bagel streaming repl tools)
 
 %install
 mkdir -p %{buildroot}/%{_javadir}/%{name}
