@@ -15,4 +15,4 @@ export JAVA_OPTS="-Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled"
 
 echo CLASSPATH is $BASE_CLASSPATH:${XMVN_CLASSPATH}
 
-java -Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -Dsisu.debug=1 -Divy.mode=local -Divysettings.xml=/etc/ivy/ivysettings.xml -Dfedora.sbt.boot.dir=${SBT_BOOT_DIR} -Dsbt.boot.properties=${SBT_BOOT_PROPERTIES} -cp ${BASE_CLASSPATH}:${XMVN_CLASSPATH} xsbt.boot.Boot "$@"
+java -Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -Dsisu.debug=1 -Divy.mode=local -Divysettings.xml=/etc/ivy/ivysettings.xml -Dfedora.sbt.boot.dir=${SBT_BOOT_DIR} -Dfedora.sbt.ivy.dir=${SBT_IVY_DIR} -Dsbt.boot.properties=${SBT_BOOT_PROPERTIES} -cp ${BASE_CLASSPATH}:${XMVN_CLASSPATH} xsbt.boot.Boot "$@"

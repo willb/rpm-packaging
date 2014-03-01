@@ -14,7 +14,7 @@
 
 Name:		spark
 Version:	%{spark_version}
-Release:	0.1%{?dist}
+Release:	0.2%{?dist}
 Summary:	Lightning-fast cluster computing
 
 License:	ASL 2.0
@@ -190,6 +190,9 @@ export XMVN_CLASSPATH=$(build-classpath aether/api guava ivy maven/maven-model p
 export SPARK_HADOOP_VERSION=2.2.0
 export DEFAULT_IS_NEW_HADOOP=true
 
+mkdir ivy-local
+
+export SBT_IVY_DIR=ivy-local
 export SBT_BOOT_DIR=boot
 
 export SBT_BOOT_PROPERTIES=xmvn-sbt.properties
@@ -253,6 +256,9 @@ done
 
 
 %changelog
+
+* Sat Mar 1 2014 William Benton <willb@redhat.com> - 0.9.0-0.2
+- fixes and refinements
 
 * Mon Feb 10 2014 William Benton <willb@redhat.com> - 0.9.0-0.1
 - initial package
