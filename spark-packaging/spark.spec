@@ -219,6 +219,7 @@ alltargets() { for f in "$@" ; do echo $f/package $f/makePom $f/doc $f/publishLo
 export SBT_BOOT_PROPERTIES=xmvn-sbt.properties
 
 # ./sbt-xmvn core/package core/makePom core/doc core/publishLocal
+# NB:  repl doesn't build atm due to jline
 ./sbt-xmvn $(alltargets core mllib graphx bagel streaming)
 
 %install
@@ -228,17 +229,19 @@ mkdir -p %{buildroot}/%{_mavenpomdir}
 mkdir -p %{buildroot}/%{_javadocdir}/%{name}
 for apidir in $(find . -name api -type d) ; do
   pushd $apidir
-  cp -rp . %{buildroot}/%{_javadocdir}/%{name}
+  mod=$(echo $apidir | cut -f2 -d/)
+  mkdir -p %{buildroot}/%{_javadocdir}/%{name}/$mod
+  cp -rp . %{buildroot}/%{_javadocdir}/%{name}/$mod
   popd
 done
 
-for jar in $(find . -name \*.jar | grep _%{scala_version}-%{spark_version}%{spark_version_suffix}.jar) ; do
+for jar in $(find . -name \*.jar | grep target | grep _%{scala_version}-%{spark_version}%{spark_version_suffix}.jar) ; do
   install -m 644 $jar %{buildroot}/%{_javadir}/%{name}/$(echo $jar | cut -f5 -d/ | cut -f1 -d_).jar
 done
 
 declare -a shortnames
 
-for pom in $(find . -name \*.pom | grep _%{scala_version}-%{spark_version}%{spark_version_suffix}.pom ) ; do 
+for pom in $(find . -name \*.pom | grep target | grep _%{scala_version}-%{spark_version}%{spark_version_suffix}.pom ) ; do 
   shortname=$(echo $pom | cut -f5 -d/ | cut -f1 -d_)
   echo installing POM $pom to %{_mavenpomdir}/JPP.%{name}-${shortname}.pom
   install -pm 644 $pom %{buildroot}/%{_mavenpomdir}/JPP.%{name}-${shortname}.pom
@@ -264,7 +267,7 @@ done
 %changelog
 
 * Sat Mar 1 2014 William Benton <willb@redhat.com> - 0.9.0-0.2
-- fixes and refinements
+- include mllib, bagel, streaming, and graphx
 
 * Mon Feb 10 2014 William Benton <willb@redhat.com> - 0.9.0-0.1
 - initial package
