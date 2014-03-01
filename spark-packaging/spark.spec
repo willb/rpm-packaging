@@ -170,6 +170,9 @@ sed -i -e '/%[[:space:]]*"test"/d' project/SparkBuild.scala
 # fix up json4s-jackson version
 sed -i -e 's|\(json4s-jackson"[^"]*"\)3[.]2[.]6|\13.2.7|' project/SparkBuild.scala
 
+# don't use scala bundled jline
+sed -i -e 's|"org.scala-lang".*"jline"|"jline" % "jline"|g' project/SparkBuild.scala
+
 mkdir boot
 
 # remove bundled sbt script
@@ -180,8 +183,8 @@ chmod 755 sbt-xmvn
 
 cp %{SOURCE2} xmvn-sbt.properties
 
-cp %{SOURCE3} build.sbt
-cp %{SOURCE3} project/build.sbt
+# cp %{SOURCE3} build.sbt
+# cp %{SOURCE3} project/build.sbt
 
 %build
 
@@ -190,9 +193,10 @@ export XMVN_CLASSPATH=$(build-classpath aether/api guava ivy maven/maven-model p
 export SPARK_HADOOP_VERSION=2.2.0
 export DEFAULT_IS_NEW_HADOOP=true
 
-export SBT_BOOT_DIR=boot
+mkdir ivy-local
+cp -r /usr/share/sbt/ivy-local/* ivy-local
 
-export SBT_BOOT_PROPERTIES=xmvn-sbt.properties
+export SBT_BOOT_DIR=boot
 
 mkdir lib
 
@@ -210,10 +214,12 @@ done
 (echo q | SBT_BOOT_PROPERTIES=/etc/sbt/sbt.boot.properties sbt quit) || true
 cp lib/* boot/scala-2.10.3/lib/
 
-alltargets() {for f in "$@" ; do echo $f/package $f/makePom $f/doc $f/publishLocal; done}
+alltargets() { for f in "$@" ; do echo $f/package $f/makePom $f/doc $f/publishLocal; done }
+
+export SBT_BOOT_PROPERTIES=xmvn-sbt.properties
 
 # ./sbt-xmvn core/package core/makePom core/doc core/publishLocal
-./sbt-xmvn $(alltargets core mllib graphx bagel streaming repl tools)
+./sbt-xmvn $(alltargets core mllib graphx bagel streaming)
 
 %install
 mkdir -p %{buildroot}/%{_javadir}/%{name}

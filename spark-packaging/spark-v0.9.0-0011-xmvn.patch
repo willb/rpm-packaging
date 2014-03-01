@@ -1,14 +1,24 @@
+From eab118d8acf17f64cb76a966715bbe8f15397da5 Mon Sep 17 00:00:00 2001
+From: William Benton <willb@redhat.com>
+Date: Fri, 28 Feb 2014 16:39:51 -0600
+Subject: [PATCH] fedora-only resolver changes
+
+---
+ project/SparkBuild.scala | 15 ++++-----------
+ 1 file changed, 4 insertions(+), 11 deletions(-)
+
 diff --git a/project/SparkBuild.scala b/project/SparkBuild.scala
-index 2bfa6b5..fb0e439 100644
+index 2bfa6b5..895c4bb 100644
 --- a/project/SparkBuild.scala
 +++ b/project/SparkBuild.scala
-@@ -94,6 +94,10 @@ object SparkBuild extends Build {
+@@ -93,7 +93,11 @@ object SparkBuild extends Build {
+ 
    lazy val allProjects = packageProjects ++ allExternalRefs ++ Seq[ProjectReference](tools)
  
++  val ivyLocal = Resolver.file("local", file("IVY_LOCAL"))(Resolver.ivyStylePatterns)
++
    def sharedSettings = Defaults.defaultSettings ++ Seq(
-+    resolvers := Seq(new sbt.RawRepository(new org.fedoraproject.maven.connector.ivy.IvyResolver)),
-+    externalResolvers := Seq(new sbt.RawRepository(new org.fedoraproject.maven.connector.ivy.IvyResolver)),
-+    
++    externalResolvers := Seq(new sbt.RawRepository(new org.fedoraproject.maven.connector.ivy.IvyResolver), ivyLocal),
 +    
      organization       := "org.apache.spark",
      version            := "0.9.0-incubating",
@@ -38,3 +48,6 @@ index 2bfa6b5..fb0e439 100644
  
      libraryDependencies ++= Seq(
          "com.google.guava"         % "guava"            % "14.0.1",
+-- 
+1.8.3.4 (Apple Git-47)
+
