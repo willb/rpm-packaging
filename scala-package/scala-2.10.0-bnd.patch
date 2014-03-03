@@ -1,0 +1,22 @@
+diff -up scala-2.10.0-sources/build.xml.bndx scala-2.10.0-sources/build.xml
+--- scala-2.10.0-sources/build.xml.bndx	2013-01-07 22:47:24.862355735 +0100
++++ scala-2.10.0-sources/build.xml	2013-01-07 22:55:35.930399829 +0100
+@@ -280,9 +280,6 @@ INITIALISATION
+   </target>
+ 
+   <target name="init.extra.tasks" depends="init.maven.tasks" unless="init.extra.tasks.finished">
+-    <artifact:dependencies pathId="extra.tasks.classpath" filesetId="extra.tasks.fileset">
+-      <dependency groupId="biz.aQute" artifactId="bnd" version="1.50.0"/>
+-    </artifact:dependencies>
+     <!-- Pax runner -->
+     <property name="pax.exam.version" value="2.5.0"/>
+     <artifact:dependencies pathId="pax.exam.classpath" filesetId="pax.exam.fileset">
+@@ -297,7 +294,7 @@ INITIALISATION
+       <dependency groupId="org.apache.felix" artifactId="org.apache.felix.framework" version="3.2.2"/>
+     </artifact:dependencies>
+     <!-- BND support -->
+-    <typedef resource="aQute/bnd/ant/taskdef.properties" classpathref="extra.tasks.classpath" />
++    <typedef resource="aQute/bnd/ant/taskdef.properties" classpath="/usr/share/java/aqute-bnd.jar" />
+     <property name="init.maven.tasks.finished" value="true" />
+   </target>
+ 

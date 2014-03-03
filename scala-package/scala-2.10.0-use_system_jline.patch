@@ -1,0 +1,135 @@
+diff -up scala-2.10.0-RC5/build.xml.sysjline scala-2.10.0-RC5/build.xml
+--- scala-2.10.0-RC5/build.xml.sysjline	2012-12-07 19:39:49.000000000 +0100
++++ scala-2.10.0-RC5/build.xml	2012-12-07 20:40:26.749580408 +0100
+@@ -206,7 +206,7 @@ PROPERTIES
+   <property name="msil.starr.jar" value="${lib.dir}/msil.jar"/>
+   <property name="reflect.starr.jar" value="${lib.dir}/scala-reflect.jar"/>
+   <property name="comp.starr.jar" value="${lib.dir}/scala-compiler.jar"/>
+-  <property name="jline.jar" value="${lib.dir}/jline.jar"/>
++  <property name="jline.jar" value="/usr/share/java/jline2.jar"/>
+   <property name="ant.jar" value="${ant.home}/lib/ant.jar"/>
+   <property name="scalacheck.jar" value="${lib.dir}/scalacheck.jar"/>
+ 
+@@ -259,7 +259,6 @@ INITIALISATION
+ 
+   <target name="init.jars" depends="init.jars.check" unless="lib.jars.uptodate">
+     <echo level="warn" message="Updating bootstrap libs.  (To do this by hand, run ./pull-binary-libs.sh)"/>
+-    <exec osfamily="unix" vmlauncher="false" executable="./pull-binary-libs.sh" failifexecutionfails="true" />
+     <exec osfamily="windows" vmlauncher="false" executable="pull-binary-libs.sh" failifexecutionfails="true" />
+     <!-- uptodate task needs to know these are what's in the sha. -->
+     <touch>
+@@ -423,7 +422,7 @@ INITIALISATION
+      </echo>
+   </target>
+ 
+-  <target name="init" depends="init.jars, init.maven.jars, init.version.done, init.fail.bad.jdk, init.warn.jdk7, init.extra.tasks">
++  <target name="init" depends="init.maven.jars, init.version.done, init.fail.bad.jdk, init.warn.jdk7, init.extra.tasks">
+     <property name="scalac.args.always" value="-Yreify-copypaste" />
+   <!-- scalac.args.optimise is selectively overridden in certain antcall tasks. -->
+     <property name="scalac.args.optimise" value=""/>
+@@ -1535,7 +1534,6 @@ PACKED QUICK BUILD (PACK)
+       <fileset dir="${build-asm.dir}/classes"/>
+       <fileset dir="${build-libs.dir}/classes/fjbg"/>
+     </jar>
+-    <copy file="${jline.jar}" toDir="${build-pack.dir}/lib"/>
+     <copy todir="${build-pack.dir}/lib">
+       <fileset dir="${lib-extra.dir}">
+         <include name="**/*.jar"/>
+diff -up scala-2.10.0-RC5/src/compiler/scala/tools/nsc/interpreter/ConsoleReaderHelper.scala.sysjline scala-2.10.0-RC5/src/compiler/scala/tools/nsc/interpreter/ConsoleReaderHelper.scala
+--- scala-2.10.0-RC5/src/compiler/scala/tools/nsc/interpreter/ConsoleReaderHelper.scala.sysjline	2012-12-07 19:39:50.000000000 +0100
++++ scala-2.10.0-RC5/src/compiler/scala/tools/nsc/interpreter/ConsoleReaderHelper.scala	2012-12-07 19:51:05.782792214 +0100
+@@ -6,8 +6,8 @@
+ package scala.tools.nsc
+ package interpreter
+ 
+-import scala.tools.jline.console.{ ConsoleReader, CursorBuffer }
+-import scala.tools.jline.console.completer.CompletionHandler
++import jline.console.{ ConsoleReader, CursorBuffer }
++import jline.console.completer.CompletionHandler
+ import Completion._
+ 
+ trait ConsoleReaderHelper extends ConsoleReader {
+diff -up scala-2.10.0-RC5/src/compiler/scala/tools/nsc/interpreter/Delimited.scala.sysjline scala-2.10.0-RC5/src/compiler/scala/tools/nsc/interpreter/Delimited.scala
+--- scala-2.10.0-RC5/src/compiler/scala/tools/nsc/interpreter/Delimited.scala.sysjline	2012-12-07 19:39:50.000000000 +0100
++++ scala-2.10.0-RC5/src/compiler/scala/tools/nsc/interpreter/Delimited.scala	2012-12-07 19:51:05.782792214 +0100
+@@ -6,7 +6,7 @@
+ package scala.tools.nsc
+ package interpreter
+ 
+-import scala.tools.jline.console.completer.ArgumentCompleter.{ ArgumentDelimiter, ArgumentList }
++import jline.console.completer.ArgumentCompleter.{ ArgumentDelimiter, ArgumentList }
+ 
+ class JLineDelimiter extends ArgumentDelimiter {
+   def toJLine(args: List[String], cursor: Int) = args match {
+diff -up scala-2.10.0-RC5/src/compiler/scala/tools/nsc/interpreter/JLineCompletion.scala.sysjline scala-2.10.0-RC5/src/compiler/scala/tools/nsc/interpreter/JLineCompletion.scala
+--- scala-2.10.0-RC5/src/compiler/scala/tools/nsc/interpreter/JLineCompletion.scala.sysjline	2012-12-07 19:39:50.000000000 +0100
++++ scala-2.10.0-RC5/src/compiler/scala/tools/nsc/interpreter/JLineCompletion.scala	2012-12-07 19:51:05.783792215 +0100
+@@ -6,8 +6,8 @@
+ package scala.tools.nsc
+ package interpreter
+ 
+-import scala.tools.jline._
+-import scala.tools.jline.console.completer._
++import jline._
++import jline.console.completer._
+ import Completion._
+ import scala.collection.mutable.ListBuffer
+ 
+diff -up scala-2.10.0-RC5/src/compiler/scala/tools/nsc/interpreter/JLineReader.scala.sysjline scala-2.10.0-RC5/src/compiler/scala/tools/nsc/interpreter/JLineReader.scala
+--- scala-2.10.0-RC5/src/compiler/scala/tools/nsc/interpreter/JLineReader.scala.sysjline	2012-12-07 19:39:50.000000000 +0100
++++ scala-2.10.0-RC5/src/compiler/scala/tools/nsc/interpreter/JLineReader.scala	2012-12-07 19:51:05.783792215 +0100
+@@ -6,8 +6,8 @@
+ package scala.tools.nsc
+ package interpreter
+ 
+-import scala.tools.jline.console.ConsoleReader
+-import scala.tools.jline.console.completer._
++import jline.console.ConsoleReader
++import jline.console.completer._
+ import session._
+ import scala.collection.JavaConverters._
+ import Completion._
+diff -up scala-2.10.0-RC5/src/compiler/scala/tools/nsc/interpreter/Parsed.scala.sysjline scala-2.10.0-RC5/src/compiler/scala/tools/nsc/interpreter/Parsed.scala
+--- scala-2.10.0-RC5/src/compiler/scala/tools/nsc/interpreter/Parsed.scala.sysjline	2012-12-07 19:39:50.000000000 +0100
++++ scala-2.10.0-RC5/src/compiler/scala/tools/nsc/interpreter/Parsed.scala	2012-12-07 19:51:05.783792215 +0100
+@@ -6,7 +6,7 @@
+ package scala.tools.nsc
+ package interpreter
+ 
+-import scala.tools.jline.console.completer.ArgumentCompleter.{ ArgumentDelimiter, ArgumentList }
++import jline.console.completer.ArgumentCompleter.{ ArgumentDelimiter, ArgumentList }
+ import util.returning
+ 
+ /** One instance of a command buffer.
+diff -up scala-2.10.0-RC5/src/compiler/scala/tools/nsc/interpreter/ReplProps.scala.sysjline scala-2.10.0-RC5/src/compiler/scala/tools/nsc/interpreter/ReplProps.scala
+--- scala-2.10.0-RC5/src/compiler/scala/tools/nsc/interpreter/ReplProps.scala.sysjline	2012-12-07 19:39:50.000000000 +0100
++++ scala-2.10.0-RC5/src/compiler/scala/tools/nsc/interpreter/ReplProps.scala	2012-12-07 19:51:05.783792215 +0100
+@@ -13,8 +13,8 @@ class ReplProps {
+   private def bool(name: String) = BooleanProp.keyExists(name)
+   private def int(name: String) = IntProp(name)
+ 
+-  val jlineDebug = bool("scala.tools.jline.internal.Log.debug")
+-  val jlineTrace = bool("scala.tools.jline.internal.Log.trace")
++  val jlineDebug = bool("jline.internal.Log.debug")
++  val jlineTrace = bool("jline.internal.Log.trace")
+ 
+   val info  = bool("scala.repl.info")
+   val debug = bool("scala.repl.debug")
+diff -up scala-2.10.0-RC5/src/compiler/scala/tools/nsc/interpreter/session/package.scala.sysjline scala-2.10.0-RC5/src/compiler/scala/tools/nsc/interpreter/session/package.scala
+--- scala-2.10.0-RC5/src/compiler/scala/tools/nsc/interpreter/session/package.scala.sysjline	2012-12-07 19:39:49.000000000 +0100
++++ scala-2.10.0-RC5/src/compiler/scala/tools/nsc/interpreter/session/package.scala	2012-12-07 19:51:05.784792216 +0100
+@@ -14,10 +14,10 @@ package object session {
+   type JIterator[T]       = java.util.Iterator[T]
+   type JListIterator[T]   = java.util.ListIterator[T]
+ 
+-  type JEntry             = scala.tools.jline.console.history.History.Entry
+-  type JHistory           = scala.tools.jline.console.history.History
+-  type JMemoryHistory     = scala.tools.jline.console.history.MemoryHistory
+-  type JPersistentHistory = scala.tools.jline.console.history.PersistentHistory
++  type JEntry             = jline.console.history.History.Entry
++  type JHistory           = jline.console.history.History
++  type JMemoryHistory     = jline.console.history.MemoryHistory
++  type JPersistentHistory = jline.console.history.PersistentHistory
+ 
+   private[interpreter] implicit def charSequenceFix(x: CharSequence): String = x.toString
+ }
