@@ -1,0 +1,253 @@
+From ab4e57f1acd2ee95622a0d264f9b81c4bbb43f9e Mon Sep 17 00:00:00 2001
+From: William Benton <willb@redhat.com>
+Date: Sun, 23 Feb 2014 17:22:07 -0600
+Subject: [PATCH 1/7] Replace lift-json with json4s-jackson.
+
+The aim of the Json4s project is to provide a common API for
+Scala JSON libraries.  It is Apache-licensed, easier for
+downstream distributions to package, and mostly API-compatible
+with lift-json.  Furthermore, the Jackson-backed implementation
+parses faster than lift-json on all but the smallest inputs.
+
+Backported patch from master to 0.9.0.
+
+Conflicts:
+	core/src/main/scala/org/apache/spark/deploy/master/ui/ApplicationPage.scala
+	core/src/main/scala/org/apache/spark/deploy/master/ui/IndexPage.scala
+	core/src/main/scala/org/apache/spark/ui/JettyUtils.scala
+	core/src/test/scala/org/apache/spark/deploy/JsonProtocolSuite.scala
+---
+ core/pom.xml                                       |  5 +++--
+ .../apache/spark/deploy/FaultToleranceTest.scala   |  9 ++++----
+ .../org/apache/spark/deploy/JsonProtocol.scala     |  2 +-
+ .../spark/deploy/master/ui/ApplicationPage.scala   |  2 +-
+ .../apache/spark/deploy/master/ui/IndexPage.scala  |  2 +-
+ .../apache/spark/deploy/worker/ui/IndexPage.scala  |  2 +-
+ .../scala/org/apache/spark/ui/JettyUtils.scala     |  8 ++++----
+ .../apache/spark/deploy/JsonProtocolSuite.scala    | 24 ++++++++++++++++++----
+ project/SparkBuild.scala                           |  2 +-
+ 9 files changed, 37 insertions(+), 19 deletions(-)
+
+diff --git a/core/pom.xml b/core/pom.xml
+index 62ceba1..afae171 100644
+--- a/core/pom.xml
++++ b/core/pom.xml
+@@ -108,8 +108,9 @@
+             <artifactId>scala-library</artifactId>
+         </dependency>
+         <dependency>
+-            <groupId>net.liftweb</groupId>
+-            <artifactId>lift-json_${scala.binary.version}</artifactId>
++            <groupId>org.json4s</groupId>
++            <artifactId>json4s-jackson_${scala.binary.version}</artifactId>
++            <version>3.2.6</version>
+         </dependency>
+         <dependency>
+             <groupId>it.unimi.dsi</groupId>
+diff --git a/core/src/main/scala/org/apache/spark/deploy/FaultToleranceTest.scala b/core/src/main/scala/org/apache/spark/deploy/FaultToleranceTest.scala
+index 4dfb19e..60a87af 100644
+--- a/core/src/main/scala/org/apache/spark/deploy/FaultToleranceTest.scala
++++ b/core/src/main/scala/org/apache/spark/deploy/FaultToleranceTest.scala
+@@ -29,7 +29,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
+ import scala.collection.mutable.ListBuffer
+ import scala.sys.process._
+ 
+-import net.liftweb.json.JsonParser
++import org.json4s._
++import org.json4s.jackson.JsonMethods
+ 
+ import org.apache.spark.{Logging, SparkContext}
+ import org.apache.spark.deploy.master.RecoveryState
+@@ -312,7 +313,7 @@ private[spark] object FaultToleranceTest extends App with Logging {
+ private[spark] class TestMasterInfo(val ip: String, val dockerId: DockerId, val logFile: File)
+   extends Logging  {
+ 
+-  implicit val formats = net.liftweb.json.DefaultFormats
++  implicit val formats = org.json4s.DefaultFormats
+   var state: RecoveryState.Value = _
+   var liveWorkerIPs: List[String] = _
+   var numLiveApps = 0
+@@ -322,7 +323,7 @@ private[spark] class TestMasterInfo(val ip: String, val dockerId: DockerId, val
+   def readState() {
+     try {
+       val masterStream = new InputStreamReader(new URL("http://%s:8080/json".format(ip)).openStream)
+-      val json = JsonParser.parse(masterStream, closeAutomatically = true)
++      val json = JsonMethods.parse(masterStream)
+ 
+       val workers = json \ "workers"
+       val liveWorkers = workers.children.filter(w => (w \ "state").extract[String] == "ALIVE")
+@@ -350,7 +351,7 @@ private[spark] class TestMasterInfo(val ip: String, val dockerId: DockerId, val
+ private[spark] class TestWorkerInfo(val ip: String, val dockerId: DockerId, val logFile: File)
+   extends Logging {
+ 
+-  implicit val formats = net.liftweb.json.DefaultFormats
++  implicit val formats = org.json4s.DefaultFormats
+ 
+   logDebug("Created worker: " + this)
+ 
+diff --git a/core/src/main/scala/org/apache/spark/deploy/JsonProtocol.scala b/core/src/main/scala/org/apache/spark/deploy/JsonProtocol.scala
+index e607b8c..a43d004 100644
+--- a/core/src/main/scala/org/apache/spark/deploy/JsonProtocol.scala
++++ b/core/src/main/scala/org/apache/spark/deploy/JsonProtocol.scala
+@@ -17,7 +17,7 @@
+ 
+ package org.apache.spark.deploy
+ 
+-import net.liftweb.json.JsonDSL._
++import org.json4s.JsonDSL._
+ 
+ import org.apache.spark.deploy.DeployMessages.{MasterStateResponse, WorkerStateResponse}
+ import org.apache.spark.deploy.master.{ApplicationInfo, WorkerInfo}
+diff --git a/core/src/main/scala/org/apache/spark/deploy/master/ui/ApplicationPage.scala b/core/src/main/scala/org/apache/spark/deploy/master/ui/ApplicationPage.scala
+index 9485bfd..1b234d6 100644
+--- a/core/src/main/scala/org/apache/spark/deploy/master/ui/ApplicationPage.scala
++++ b/core/src/main/scala/org/apache/spark/deploy/master/ui/ApplicationPage.scala
+@@ -22,7 +22,7 @@ import scala.xml.Node
+ 
+ import akka.pattern.ask
+ import javax.servlet.http.HttpServletRequest
+-import net.liftweb.json.JsonAST.JValue
++import org.json4s.JValue
+ 
+ import org.apache.spark.deploy.JsonProtocol
+ import org.apache.spark.deploy.DeployMessages.{MasterStateResponse, RequestMasterState}
+diff --git a/core/src/main/scala/org/apache/spark/deploy/master/ui/IndexPage.scala b/core/src/main/scala/org/apache/spark/deploy/master/ui/IndexPage.scala
+index a9af8df..a55264b 100644
+--- a/core/src/main/scala/org/apache/spark/deploy/master/ui/IndexPage.scala
++++ b/core/src/main/scala/org/apache/spark/deploy/master/ui/IndexPage.scala
+@@ -23,7 +23,7 @@ import scala.xml.Node
+ 
+ import akka.pattern.ask
+ import javax.servlet.http.HttpServletRequest
+-import net.liftweb.json.JsonAST.JValue
++import org.json4s.JValue
+ 
+ import org.apache.spark.deploy.{DeployWebUI, JsonProtocol}
+ import org.apache.spark.deploy.DeployMessages.{MasterStateResponse, RequestMasterState}
+diff --git a/core/src/main/scala/org/apache/spark/deploy/worker/ui/IndexPage.scala b/core/src/main/scala/org/apache/spark/deploy/worker/ui/IndexPage.scala
+index 925c6fb..de356dc 100644
+--- a/core/src/main/scala/org/apache/spark/deploy/worker/ui/IndexPage.scala
++++ b/core/src/main/scala/org/apache/spark/deploy/worker/ui/IndexPage.scala
+@@ -22,7 +22,7 @@ import scala.xml.Node
+ 
+ import akka.pattern.ask
+ import javax.servlet.http.HttpServletRequest
+-import net.liftweb.json.JsonAST.JValue
++import org.json4s.JValue
+ 
+ import org.apache.spark.deploy.JsonProtocol
+ import org.apache.spark.deploy.DeployMessages.{RequestWorkerState, WorkerStateResponse}
+diff --git a/core/src/main/scala/org/apache/spark/ui/JettyUtils.scala b/core/src/main/scala/org/apache/spark/ui/JettyUtils.scala
+index 7211dbc..4e43fd5 100644
+--- a/core/src/main/scala/org/apache/spark/ui/JettyUtils.scala
++++ b/core/src/main/scala/org/apache/spark/ui/JettyUtils.scala
+@@ -23,10 +23,10 @@ import scala.annotation.tailrec
+ import scala.util.{Try, Success, Failure}
+ import scala.xml.Node
+ 
+-import net.liftweb.json.{JValue, pretty, render}
+-
+-import org.eclipse.jetty.server.{Server, Request, Handler}
+-import org.eclipse.jetty.server.handler.{ResourceHandler, HandlerList, ContextHandler, AbstractHandler}
++import org.json4s.JValue
++import org.json4s.jackson.JsonMethods.{pretty, render}
++import org.eclipse.jetty.server.{Handler, Request, Server}
++import org.eclipse.jetty.server.handler.{AbstractHandler, ContextHandler, HandlerList, ResourceHandler}
+ import org.eclipse.jetty.util.thread.QueuedThreadPool
+ 
+ import org.apache.spark.Logging
+diff --git a/core/src/test/scala/org/apache/spark/deploy/JsonProtocolSuite.scala b/core/src/test/scala/org/apache/spark/deploy/JsonProtocolSuite.scala
+index d05bbd6..8f1df8a 100644
+--- a/core/src/test/scala/org/apache/spark/deploy/JsonProtocolSuite.scala
++++ b/core/src/test/scala/org/apache/spark/deploy/JsonProtocolSuite.scala
+@@ -20,8 +20,12 @@ package org.apache.spark.deploy
+ import java.io.File
+ import java.util.Date
+ 
+-import net.liftweb.json.{JsonAST, JsonParser}
+-import net.liftweb.json.JsonAST.JValue
++import org.json4s._
++
++import org.json4s.JValue
++import org.json4s.jackson.JsonMethods
++import com.fasterxml.jackson.core.JsonParseException
++
+ import org.scalatest.FunSuite
+ 
+ import org.apache.spark.deploy.DeployMessages.{MasterStateResponse, WorkerStateResponse}
+@@ -32,21 +36,31 @@ class JsonProtocolSuite extends FunSuite {
+   test("writeApplicationInfo") {
+     val output = JsonProtocol.writeApplicationInfo(createAppInfo())
+     assertValidJson(output)
++    assertValidDataInJson(output, JsonMethods.parse(JsonConstants.appInfoJsonStr))
+   }
+ 
+   test("writeWorkerInfo") {
+     val output = JsonProtocol.writeWorkerInfo(createWorkerInfo())
+     assertValidJson(output)
++    assertValidDataInJson(output, JsonMethods.parse(JsonConstants.workerInfoJsonStr))
+   }
+ 
+   test("writeApplicationDescription") {
+     val output = JsonProtocol.writeApplicationDescription(createAppDesc())
+     assertValidJson(output)
++    assertValidDataInJson(output, JsonMethods.parse(JsonConstants.appDescJsonStr))
+   }
+ 
+   test("writeExecutorRunner") {
+     val output = JsonProtocol.writeExecutorRunner(createExecutorRunner())
+     assertValidJson(output)
++    assertValidDataInJson(output, JsonMethods.parse(JsonConstants.executorRunnerJsonStr))
++  }
++
++  test("writeDriverInfo") {
++    val output = JsonProtocol.writeDriverInfo(createDriverInfo())
++    assertValidJson(output)
++    assertValidDataInJson(output, JsonMethods.parse(JsonConstants.driverInfoJsonStr))
+   }
+ 
+   test("writeMasterState") {
+@@ -59,6 +73,7 @@ class JsonProtocolSuite extends FunSuite {
+       activeDrivers, completedDrivers, RecoveryState.ALIVE)
+     val output = JsonProtocol.writeMasterState(stateResponse)
+     assertValidJson(output)
++    assertValidDataInJson(output, JsonMethods.parse(JsonConstants.masterStateJsonStr))
+   }
+ 
+   test("writeWorkerState") {
+@@ -70,6 +85,7 @@ class JsonProtocolSuite extends FunSuite {
+       finishedExecutors, drivers, finishedDrivers, "masterUrl", 4, 1234, 4, 1234, "masterWebUiUrl")
+     val output = JsonProtocol.writeWorkerState(stateResponse)
+     assertValidJson(output)
++    assertValidDataInJson(output, JsonMethods.parse(JsonConstants.workerStateJsonStr))
+   }
+ 
+   def createAppDesc(): ApplicationDescription = {
+@@ -106,9 +122,9 @@ class JsonProtocolSuite extends FunSuite {
+ 
+   def assertValidJson(json: JValue) {
+     try {
+-      JsonParser.parse(JsonAST.compactRender(json))
++      JsonMethods.parse(JsonMethods.compact(json))
+     } catch {
+-      case e: JsonParser.ParseException => fail("Invalid Json detected", e)
++      case e: JsonParseException => fail("Invalid Json detected", e)
+     }
+   }
+ }
+diff --git a/project/SparkBuild.scala b/project/SparkBuild.scala
+index b891ffa..398f5ec 100644
+--- a/project/SparkBuild.scala
++++ b/project/SparkBuild.scala
+@@ -260,7 +260,7 @@ object SparkBuild extends Build {
+         "org.spark-project.akka"  %% "akka-remote"      % "2.2.3-shaded-protobuf"  excludeAll(excludeNetty),
+         "org.spark-project.akka"  %% "akka-slf4j"       % "2.2.3-shaded-protobuf"  excludeAll(excludeNetty),
+         "org.spark-project.akka"  %% "akka-testkit"     % "2.2.3-shaded-protobuf" % "test",
+-        "net.liftweb"             %% "lift-json"        % "2.5.1"  excludeAll(excludeNetty),
++        "org.json4s"              %% "json4s-jackson"   % "3.2.6",
+         "it.unimi.dsi"             % "fastutil"         % "6.4.4",
+         "colt"                     % "colt"             % "1.2.0",
+         "org.apache.mesos"         % "mesos"            % "0.13.0",
+-- 
+1.8.3.4 (Apple Git-47)
+

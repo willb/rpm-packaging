@@ -1,0 +1,53 @@
+From eab118d8acf17f64cb76a966715bbe8f15397da5 Mon Sep 17 00:00:00 2001
+From: William Benton <willb@redhat.com>
+Date: Fri, 28 Feb 2014 16:39:51 -0600
+Subject: [PATCH] fedora-only resolver changes
+
+---
+ project/SparkBuild.scala | 15 ++++-----------
+ 1 file changed, 4 insertions(+), 11 deletions(-)
+
+diff --git a/project/SparkBuild.scala b/project/SparkBuild.scala
+index 2bfa6b5..895c4bb 100644
+--- a/project/SparkBuild.scala
++++ b/project/SparkBuild.scala
+@@ -93,7 +93,11 @@ object SparkBuild extends Build {
+ 
+   lazy val allProjects = packageProjects ++ allExternalRefs ++ Seq[ProjectReference](tools)
+ 
++  val ivyLocal = Resolver.file("local", file("IVY_LOCAL"))(Resolver.ivyStylePatterns)
++
+   def sharedSettings = Defaults.defaultSettings ++ Seq(
++    externalResolvers := Seq(new sbt.RawRepository(new org.fedoraproject.maven.connector.ivy.IvyResolver), ivyLocal),
++    
+     organization       := "org.apache.spark",
+     version            := "0.9.0-incubating",
+     scalaVersion       := "2.10.3",
+@@ -123,13 +127,6 @@ object SparkBuild extends Build {
+     // Only allow one test at a time, even across projects, since they run in the same JVM
+     concurrentRestrictions in Global += Tags.limit(Tags.Test, 1),
+ 
+-    // also check the local Maven repository ~/.m2
+-    resolvers ++= Seq(Resolver.file("Local Maven Repo", file(Path.userHome + "/.m2/repository"))),
+-
+-    // For Sonatype publishing
+-    resolvers ++= Seq("sonatype-snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
+-      "sonatype-staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2/"),
+-
+     publishMavenStyle := true,
+ 
+     //useGpg in Global := true,
+@@ -208,10 +205,6 @@ object SparkBuild extends Build {
+ 
+   def coreSettings = sharedSettings ++ Seq(
+     name := "spark-core",
+-    resolvers ++= Seq(
+-       "JBoss Repository"     at "http://repository.jboss.org/nexus/content/repositories/releases/",
+-       "Cloudera Repository"  at "https://repository.cloudera.com/artifactory/cloudera-repos/"
+-    ),
+ 
+     libraryDependencies ++= Seq(
+         "com.google.guava"         % "guava"            % "14.0.1",
+-- 
+1.8.3.4 (Apple Git-47)
+

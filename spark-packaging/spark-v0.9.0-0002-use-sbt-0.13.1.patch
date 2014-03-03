@@ -1,0 +1,22 @@
+From 64d595b9cc0a92ab133f1e13512c5d7da2982fdb Mon Sep 17 00:00:00 2001
+From: William Benton <willb@redhat.com>
+Date: Thu, 27 Feb 2014 14:25:34 -0600
+Subject: [PATCH 2/7] use sbt 0.13.1
+
+---
+ project/build.properties | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/project/build.properties b/project/build.properties
+index 839f5fb..4b52bb9 100644
+--- a/project/build.properties
++++ b/project/build.properties
+@@ -14,4 +14,4 @@
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+ #
+-sbt.version=0.12.4
++sbt.version=0.13.1
+-- 
+1.8.3.4 (Apple Git-47)
+
