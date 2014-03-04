@@ -91,8 +91,8 @@ Source6:	https://github.com/rickynils/scalacheck/archive/%{scalacheck_version}.t
 Source7:	https://github.com/etorreborre/specs2/archive/SPECS2-%{specs2_version}.tar.gz	
 
 Source16:	https://raw.github.com/willb/climbing-nemesis/master/climbing-nemesis.py
-Source17:	https://raw.github.com/willb/sbt-packaging/master/sbt.boot.properties
-Source15:	https://raw.github.com/willb/sbt-packaging/master/rpmbuild-sbt.boot.properties
+Source17:	https://raw.github.com/willb/rpm-packaging/master/sbt-packaging/sbt.boot.properties
+Source15:	https://raw.github.com/willb/rpm-packaging/master/sbt-packaging/rpmbuild-sbt.boot.properties
 
 # Ivy POM
 # necessary for bootstrapping with sbt 0.13.1
@@ -105,7 +105,7 @@ Source19:	http://repo1.maven.org/maven2/org/apache/ivy/ivy/2.3.0-rc1/ivy-2.3.0-r
 
 
 # sbt script (to be obsoleted in future releases)
-Source21:	https://raw.github.com/willb/sbt-packaging/master/sbt
+Source21:	https://raw.github.com/willb/rpm-packaging/master/sbt-packaging/sbt
 
 %if %{do_bootstrap}
 # include bootstrap libraries
