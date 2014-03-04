@@ -6,7 +6,7 @@
 
 # build non-bootstrap packages with tests, cross-referenced sources, etc
 %global do_proper 0
-%global pkg_rel 4
+%global pkg_rel 5
 %global scala_version 2.10.3
 %global scala_short_version 2.10
 %global sbt_bootstrap_version 0.13.1
@@ -92,6 +92,7 @@ Source7:	https://github.com/etorreborre/specs2/archive/SPECS2-%{specs2_version}.
 
 Source16:	https://raw.github.com/willb/climbing-nemesis/master/climbing-nemesis.py
 Source17:	https://raw.github.com/willb/sbt-packaging/master/sbt.boot.properties
+Source15:	https://raw.github.com/willb/sbt-packaging/master/rpmbuild-sbt.boot.properties
 
 # Ivy POM
 # necessary for bootstrapping with sbt 0.13.1
@@ -390,6 +391,7 @@ sbt is the simple build tool for Scala and Java projects.
 sed -i -e '/% "test"/d' project/Util.scala
 
 cp %{SOURCE16} .
+cp %{SOURCE15} .
 chmod 755 climbing-nemesis.py
 
 cp %{SOURCE17} .
@@ -404,8 +406,12 @@ sed -i -e '/sbt-ghpages/d' project/p.sbt
 
 
 sed -i -e 's/0.7.1/0.6.2/g' project/p.sbt
-sed -i -e 's/FEDORA_SCALA_VERSION/%{scala_version}/g' sbt.boot.properties
-sed -i -e 's/FEDORA_SBT_VERSION/%{sbt_version}/g' sbt.boot.properties
+
+for props in rpmbuild-sbt.boot.properties sbt.boot.properties ; do
+    sed -i -e 's/FEDORA_SCALA_VERSION/%{scala_version}/g' $props
+    sed -i -e 's/FEDORA_SBT_VERSION/%{sbt_version}/g' $props
+done
+
 sed -i -e 's/["]2[.]10[.]2["]/\"2.10.3\"/g' $(find . -name \*.sbt) $(find . -name \*.xml)
 sed -i -e 's/["]2[.]10[.]2-RC2["]/\"2.10.3\"/g' $(find . -name \*.sbt)
 
@@ -601,11 +607,11 @@ done
 %build
 
 %if %{do_bootstrap}
-java -Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -jar -Dfedora.sbt.ivy.dir=ivy-local -Dfedora.sbt.boot.dir=sbt-boot-dir -Divy.checksums='""' -Dsbt.boot.properties=sbt.boot.properties sbt-launch.jar package "set publishTo in Global := Some(Resolver.file(\"published\", file(\"published\"))(Resolver.ivyStylePatterns) ivys \"$(pwd)/published/[organization]/[module]/[revision]/ivy.xml\" artifacts \"$(pwd)/published/[organization]/[module]/[revision]/[artifact]-[revision].[ext]\")" publish makePom
+java -Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -jar -Dfedora.sbt.ivy.dir=ivy-local -Dfedora.sbt.boot.dir=sbt-boot-dir -Divy.checksums='""' -Dsbt.boot.properties=rpmbuild-sbt.boot.properties sbt-launch.jar package "set publishTo in Global := Some(Resolver.file(\"published\", file(\"published\"))(Resolver.ivyStylePatterns) ivys \"$(pwd)/published/[organization]/[module]/[revision]/ivy.xml\" artifacts \"$(pwd)/published/[organization]/[module]/[revision]/[artifact]-[revision].[ext]\")" publish makePom
 %else
 export SBT_IVY_DIR=ivy-local
 export SBT_BOOT_DIR=sbt-boot-dir
-export SBT_BOOT_PROPERTIES=sbt.boot.properties
+export SBT_BOOT_PROPERTIES=rpmbuild-sbt.boot.properties
 sbt package "set publishTo in Global := Some(Resolver.file(\"published\", file(\"published\"))(Resolver.ivyStylePatterns) ivys \"$(pwd)/published/[organization]/[module]/[revision]/ivy.xml\" artifacts \"$(pwd)/published/[organization]/[module]/[revision]/[artifact]-[revision].[ext]\")" publish makePom
 %endif
 
@@ -636,7 +642,10 @@ rm -f %{buildroot}/%{_javadir}/%{name}/sbt-launch.jar
 
 mkdir -p %{buildroot}/%{_sysconfdir}/%{name}
 
-sed 's/debug/info/' < sbt.boot.properties > %{buildroot}/%{_sysconfdir}/%{name}/sbt.boot.properties
+# XXXXXXX
+for props in rpmbuild-sbt.boot.properties sbt.boot.properties ; do
+    sed 's/debug/info/' < $props > %{buildroot}/%{_sysconfdir}/%{name}/$props
+done
 
 mkdir -p %{buildroot}/%{installed_ivy_local}
 
@@ -711,6 +720,9 @@ done
 %doc README.md LICENSE NOTICE
 
 %changelog
+* Tue Mar 4 2014 William Benton <willb@redhat.com> - 0.13.1-5
+- fixes BZ 1072096
+
 * Thu Jan 30 2014 William Benton <willb@redhat.com> - 0.13.1-4
 - use native test-interface and sbinary packages in both bootstrap and non-bootstrap modes
 - fix a bug that was crashing on rawhide
