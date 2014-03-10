@@ -9,7 +9,7 @@ License:       ASL 2.0
 URL:           http://akka.io/
 Source0:       https://github.com/akka/akka/archive/v%{namedversion}.tar.gz
 # Default use sbt
-Source1:       akka-build.xml
+Source1:       https://raw.github.com/willb/rpm-packaging/85bb1497a483faef89749cd4704b04a23bf32e5d/akka-packaging/akka-build.xml
 # Build only these sub-modules, cause: unavailable build deps
 # TODO  akka-camel akka-contrib akka-durable-mailboxes akka-persistence akka-samples akka-zeromq
 Source2:       http://repo1.maven.org/maven2/com/typesafe/akka/akka-actor_%{scala_short_version}/%{namedversion}/akka-actor_%{scala_short_version}-%{namedversion}.pom
