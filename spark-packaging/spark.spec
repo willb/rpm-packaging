@@ -14,7 +14,7 @@
 
 Name:		spark
 Version:	%{spark_version}
-Release:	0.2%{?dist}
+Release:	0.3%{?dist}
 Summary:	Lightning-fast cluster computing
 
 License:	ASL 2.0
@@ -37,7 +37,7 @@ Patch9:		spark-v0.9.0-0010-use-Akka-2.3.0-RC2.patch
 Patch10:	spark-v0.9.0-0011-xmvn.patch
 
 BuildArch:	noarch
-BuildRequires:	sbt
+BuildRequires:	sbt >= 0.13.1-5
 BuildRequires:	scala
 BuildRequires:	python
 BuildRequires:	maven-local
@@ -197,6 +197,7 @@ mkdir ivy-local
 cp -r /usr/share/sbt/ivy-local/* ivy-local
 
 export SBT_BOOT_DIR=boot
+export SBT_IVY_DIR=ivy-local
 
 mkdir lib
 
@@ -211,7 +212,7 @@ for sub in project tools bagel mllib streaming core graphx repl; do
 done
 
 # HACK HACK HACK
-(echo q | SBT_BOOT_PROPERTIES=/etc/sbt/sbt.boot.properties sbt quit) || true
+(echo q | SBT_BOOT_PROPERTIES=/etc/sbt/rpmbuild-sbt.boot.properties sbt quit) || true
 cp lib/* boot/scala-2.10.3/lib/
 
 alltargets() { for f in "$@" ; do echo $f/package $f/makePom $f/doc $f/publishLocal; done }
@@ -265,6 +266,9 @@ done
 
 
 %changelog
+
+* Tue Mar 11 2014 William Benton <willb@redhat.com> - 0.9.0-0.3
+- fixes to work with newer Fedora sbt package
 
 * Sat Mar 1 2014 William Benton <willb@redhat.com> - 0.9.0-0.2
 - include mllib, bagel, streaming, and graphx
