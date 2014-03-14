@@ -22,7 +22,6 @@ URL:		http://spark.apache.org
 Source0:	https://github.com/apache/spark/archive/v%{spark_version}%{spark_version_suffix}.tar.gz
 Source1:	https://raw.github.com/willb/rpm-packaging/v%{spark_version}/spark-packaging/xmvn-sbt
 Source2:	https://raw.github.com/willb/rpm-packaging/v%{spark_version}/spark-packaging/xmvn-sbt.properties
-Source3:	https://raw.github.com/willb/rpm-packaging/v%{spark_version}/spark-packaging/default-build.sbt
 
 Patch0:		spark-v0.9.0-0001-Replace-lift-json-with-json4s-jackson.patch
 Patch1:		spark-v0.9.0-0002-use-sbt-0.13.1.patch
@@ -182,9 +181,6 @@ cp %{SOURCE1} sbt-xmvn
 chmod 755 sbt-xmvn
 
 cp %{SOURCE2} xmvn-sbt.properties
-
-# cp %{SOURCE3} build.sbt
-# cp %{SOURCE3} project/build.sbt
 
 %build
 
