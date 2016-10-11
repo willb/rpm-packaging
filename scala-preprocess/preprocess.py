@@ -3,6 +3,15 @@
 import xml.etree.ElementTree as ET
 from subprocess import PIPE, Popen as popen
 
+def remove_jarjar(tree):
+    """ Remove Jar Jar Links from the buid.  Assumes this will be 
+        run before aetherize """
+    for childpath in [".//{urn:maven-artifact-ant}dependencies[@pathId='jarjar.classpath']", ".//taskdef[@classpathref='jarjar.classpath']"]:
+        child = tree.find(childpath)
+        parent = tree.find("%s/.." % childpath)
+        parent.remove(child)
+
+
 def aetherize(tree):
     """ Replace maven-ant-tasks with aether-ant-tasks. """
 
@@ -15,14 +24,15 @@ def aetherize(tree):
     classpath = tree.find(".//path[@id='maven-ant-tasks.classpath']")
     classpath.attrib["id"] = "aether-ant-tasks.classpath"
     del classpath.attrib["path"]
-    
+    classpath.tag = "path"
+
     files = []
     with popen(["build-classpath", "aether-ant-tasks", "maven-artifact"], stdout=PIPE) as proc:
         files = proc.stdout.read().decode().rstrip().split(":")
 
     for jar in files:
-        child = ET.SubElement(classpath, "file")
-        child.attrib["name"] = jar
+        child = ET.SubElement(classpath, "pathelement")
+        child.attrib["location"] = jar
 
     typedef = tree.find(".//typedef[@resource='org/apache/maven/artifact/ant/antlib.xml']")
     typedef.attrib["resource"] = "org/eclipse/aether/ant/antlib.xml"
@@ -39,7 +49,7 @@ def elim_bootstrap_fetch(tree):
         boot.remove(child)
     echo = boot.find("./echo")
     echo.attrib["message"] = "Not fetching bootstrap libraries in the Fedora build"
-    
+
 
 def transform(infile, outfile):
     tree = ET.parse(infile)
