@@ -3,6 +3,13 @@
 import xml.etree.ElementTree as ET
 from subprocess import PIPE, Popen as popen
 
+
+def ant_contrib(tree):
+    """ Fixes classpath for ant-contrib """
+    task = tree.find(".//taskdef[@resource='net/sf/antcontrib/antlib.xml']")
+    task.attrib["classpath"] = "/usr/share/java/ant-contrib/ant-contrib.jar"
+
+
 def remove_jarjar(tree):
     """ Remove Jar Jar Links from the build.  Assumes this will be 
         run before aetherize """
@@ -62,6 +69,7 @@ def transform(infile, outfile):
     tree = ET.parse(infile)
     
     elim_bootstrap_fetch(tree)
+    ant_contrib(tree)
     remove_jarjar(tree)
     remove_vizant(tree)
     aetherize(tree)
