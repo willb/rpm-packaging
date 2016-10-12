@@ -37,7 +37,7 @@ def aetherize(tree):
             child.tag = "{antlib:org.eclipse.aether.ant}dependencies"
             resolve.append(child)
             if "filesetId" in child.attrib:
-                fileset = ET.SubElement(child, "files")
+                fileset = ET.SubElement(resolve, "files")
                 fileset.attrib["refid"] = child.attrib["filesetId"]
                 del child.attrib["filesetId"]
             if "pathId" in child.attrib:
