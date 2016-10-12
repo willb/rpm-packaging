@@ -41,6 +41,10 @@ def aetherize(tree):
                 fileset.attrib["refid"] = child.attrib["filesetId"]
                 del child.attrib["filesetId"]
 
+    for parent in tree.findall(".//copy-deps/.."):
+        for copydeps in parent.findall("copy-deps"):
+            parent.remove(copydeps)
+
     for elt in tree.findall(".//{urn:maven-artifact-ant}dependencies"):
         elt.tag = "{antlib:org.eclipse.aether.ant}dependencies"
 
