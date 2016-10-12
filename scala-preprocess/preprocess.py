@@ -40,6 +40,12 @@ def aetherize(tree):
                 fileset = ET.SubElement(child, "files")
                 fileset.attrib["refid"] = child.attrib["filesetId"]
                 del child.attrib["filesetId"]
+            if "pathId" in child.attrib:
+                for scope in ["compile", "runtime", "test"]:
+                    classpath = ET.SubElement(resolve, "path")
+                    classpath.attrib["refid"] = child.attrib["pathId"]
+                    classpath.attrib["classpath"] = scope
+                del child.attrib["pathId"]
 
     for parent in tree.findall(".//copy-deps/.."):
         for copydeps in parent.findall("copy-deps"):
