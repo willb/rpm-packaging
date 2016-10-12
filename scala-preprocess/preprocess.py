@@ -37,8 +37,8 @@ def aetherize(tree):
             child.tag = "{antlib:org.eclipse.aether.ant}dependencies"
             resolve.append(child)
             if "filesetId" in child.attrib:
-                fileset = ET.SubElement(resolve, "files")
-                fileset.attrib["refid"] = child.attrib["filesetId"]
+                # fileset = ET.SubElement(resolve, "files")
+                # fileset.attrib["refid"] = child.attrib["filesetId"]
                 del child.attrib["filesetId"]
             if "pathId" in child.attrib:
                 for scope in ["compile", "runtime", "test"]:
@@ -61,16 +61,6 @@ def aetherize(tree):
     classpath.attrib["id"] = "aether-ant-tasks.classpath"
     del classpath.attrib["path"]
     classpath.tag = "path"
-
-    if False:
-        # this should be handled by aether-ant-tasks
-        files = []
-        with popen(["build-classpath", "aether-ant-tasks", "maven-artifact"], stdout=PIPE) as proc:
-            files = proc.stdout.read().decode().rstrip().split(":")
-
-        for jar in files:
-            child = ET.SubElement(classpath, "pathelement")
-            child.attrib["location"] = jar
 
     typedef = tree.find(".//typedef[@resource='org/apache/maven/artifact/ant/antlib.xml']")
     typedef.attrib["resource"] = "org/eclipse/aether/ant/antlib.xml"
