@@ -29,6 +29,18 @@ def remove_vizant(tree):
 def aetherize(tree):
     """ Replace maven-ant-tasks with aether-ant-tasks. """
 
+    # wrap dependencies in resolves
+    for parent in tree.findall(".//{urn:maven-artifact-ant}dependencies/.."):
+        resolve = ET.SubElement(parent, "{antlib:org.eclipse.aether.ant}resolve")
+        for child in parent.findall("{urn:maven-artifact-ant}dependencies"):
+            parent.remove(child)
+            child.tag = "{antlib:org.eclipse.aether.ant}dependencies"
+            resolve.append(child)
+            if "filesetId" in child.attrib:
+                fileset = ET.SubElement(child, "files")
+                fileset.attrib["refid"] = child.attrib["filesetId"]
+                del child.attrib["filesetId"]
+
     for elt in tree.findall(".//{urn:maven-artifact-ant}dependencies"):
         elt.tag = "{antlib:org.eclipse.aether.ant}dependencies"
 
@@ -40,13 +52,15 @@ def aetherize(tree):
     del classpath.attrib["path"]
     classpath.tag = "path"
 
-    files = []
-    with popen(["build-classpath", "aether-ant-tasks", "maven-artifact"], stdout=PIPE) as proc:
-        files = proc.stdout.read().decode().rstrip().split(":")
+    if False:
+        # this should be handled by aether-ant-tasks
+        files = []
+        with popen(["build-classpath", "aether-ant-tasks", "maven-artifact"], stdout=PIPE) as proc:
+            files = proc.stdout.read().decode().rstrip().split(":")
 
-    for jar in files:
-        child = ET.SubElement(classpath, "pathelement")
-        child.attrib["location"] = jar
+        for jar in files:
+            child = ET.SubElement(classpath, "pathelement")
+            child.attrib["location"] = jar
 
     typedef = tree.find(".//typedef[@resource='org/apache/maven/artifact/ant/antlib.xml']")
     typedef.attrib["resource"] = "org/eclipse/aether/ant/antlib.xml"
