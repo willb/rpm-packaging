@@ -4,14 +4,21 @@ import xml.etree.ElementTree as ET
 from subprocess import PIPE, Popen as popen
 
 def remove_jarjar(tree):
-    """ Remove Jar Jar Links from the buid.  Assumes this will be 
+    """ Remove Jar Jar Links from the build.  Assumes this will be 
         run before aetherize """
-    for childpath in [".//{urn:maven-artifact-ant}dependencies[@pathId='jarjar.classpath']", ".//taskdef[@classpathref='jarjar.classpath']"]:
+    for childpath in [".//{urn:maven-artifact-ant}dependencies[@pathId='jarjar.classpath']", ".//taskdef[@classpathref='jarjar.classpath']", ".//jarjar"]:
         child = tree.find(childpath)
         parent = tree.find("%s/.." % childpath)
         parent.remove(child)
 
 
+def remove_vizant(tree):
+    """ Remove visualizations from the build. """
+    for childpath in [".//target[@name='graph.init']", ".//target[@name='graph.all']", ".//target[@name='graph.sabbus']"]:
+        child = tree.find(childpath)
+        parent = tree.find("%s/.." % childpath)
+        parent.remove(child)
+    
 def aetherize(tree):
     """ Replace maven-ant-tasks with aether-ant-tasks. """
 
@@ -55,6 +62,8 @@ def transform(infile, outfile):
     tree = ET.parse(infile)
     
     elim_bootstrap_fetch(tree)
+    remove_jarjar(tree)
+    remove_vizant(tree)
     aetherize(tree)
     
     tree.write(outfile)
