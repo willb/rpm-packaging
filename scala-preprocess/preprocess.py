@@ -49,6 +49,12 @@ def aetherize(tree):
                     classpath.attrib["classpath"] = scope
                 del child.attrib["pathId"]
 
+    # trim spurious dependencies elements
+    for parent in tree.findall(".//{antlib:org.eclipse.aether.ant}dependencies//"):
+        for deps in parent.findall(".//{antlib:org.eclipse.aether.ant}dependencies"):
+            if len(list(deps)) == 0:
+                parent.remove(deps)
+    
     for parent in tree.findall(".//copy-deps/.."):
         for copydeps in parent.findall("copy-deps"):
             parent.remove(copydeps)
