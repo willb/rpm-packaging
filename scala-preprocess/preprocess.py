@@ -99,6 +99,37 @@ def remove_bnd(tree):
             for child in parent.findall("./%s" % path):
                 parent.remove(child)
 
+
+def spliceout(seq, s):
+    """ 
+    If seq is a comma-delimited sequence of words, 
+        * remove s (if s is a string) or 
+        * strings not satisfying s (if s is a function) 
+    and reconstruct it 
+    """
+    if isinstance(s, str):
+        predicate = (lambda x: s == x)
+    else:
+        predicate = s
+    return ", ".join([elt.strip() for elt in seq.split(",") if not predicate(elt.strip())])
+
+
+def remove_test_deps(tree):
+    """ remove tests and associated dependencies that we can't support on Fedora.  run before aetherize """
+    for parent in tree.findall(".//target/.."):
+        for child in parent.findall("./target"):
+            for removed in ["osgi", "partest", "bc"]:
+                if "name" in child.attrib and removed in child.attrib["name"]:
+                    parent.remove(child)
+                elif "depends" in child.attrib:
+                    child.attrib["depends"] = spliceout(child.attrib["depends"], lambda x: removed in x)
+
+    for parent in tree.findall(".//{urn:maven-artifact-ant}dependencies/.."):
+        for child in parent.findall("./{urn:maven-artifact-ant}dependencies"):
+            if "pathId" in child.attrib and child.attrib["pathId"] in ["pax.exam.classpath"]:
+                parent.remove(child)
+                
+
 def transform(infile, outfile):
     tree = ET.parse(infile)
     
@@ -107,6 +138,7 @@ def transform(infile, outfile):
     remove_jarjar(tree)
     remove_vizant(tree)
     remove_bnd(tree)
+    remove_test_deps(tree)
     aetherize(tree)
     
     tree.write(outfile)
