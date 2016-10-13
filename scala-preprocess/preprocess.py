@@ -50,10 +50,9 @@ def aetherize(tree):
                         classpath.attrib["refid"] = child.attrib["pathId"]
                         classpath.attrib["classpath"] = scope
                 del child.attrib["pathId"]
-            if "versionsId" in child.attrib:
-                del child.attrib["versionsId"]
-            if "javadocFilesetId" in child.attrib:
-                del child.attrib["javadocFilesetId"]
+            for unwanted_attribute in ["versionsId", "javadocFilesetId", "sourcesFilesetId"]:
+                if unwanted_attribute in child.attrib:
+                    del child.attrib[unwanted_attribute]
 
     # trim spurious dependencies elements
     for parent in tree.findall(".//{antlib:org.eclipse.aether.ant}dependencies//"):
