@@ -30,15 +30,17 @@ def aetherize(tree):
     """ Replace maven-ant-tasks with aether-ant-tasks. """
 
     # wrap dependencies in resolves
+    resolve = ET.SubElement(tree.getroot(), "{antlib:org.eclipse.aether.ant}resolve")
+    rdeps = ET.SubElement(resolve, "{antlib:org.eclipse.aether.ant}dependencies")
     for parent in tree.findall(".//{urn:maven-artifact-ant}dependencies/.."):
-        resolve = ET.SubElement(parent, "{antlib:org.eclipse.aether.ant}resolve")
         for child in parent.findall("{urn:maven-artifact-ant}dependencies"):
             parent.remove(child)
             child.tag = "{antlib:org.eclipse.aether.ant}dependencies"
             resolve.append(child)
             if "filesetId" in child.attrib:
-                # fileset = ET.SubElement(resolve, "files")
-                # fileset.attrib["refid"] = child.attrib["filesetId"]
+                fileset = ET.SubElement(resolve, "files")
+                fileset.attrib["refid"] = child.attrib["filesetId"]
+                child.attrib["id"] = child.attrib["filesetId"]
                 del child.attrib["filesetId"]
             if "pathId" in child.attrib:
                 for scope in ["compile", "runtime", "test"]:
