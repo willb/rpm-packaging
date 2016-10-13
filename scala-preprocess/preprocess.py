@@ -43,18 +43,24 @@ def aetherize(tree):
                 child.attrib["id"] = child.attrib["filesetId"]
                 del child.attrib["filesetId"]
             if "pathId" in child.attrib:
-                for scope in ["compile", "runtime", "test"]:
-                    classpath = ET.SubElement(resolve, "path")
-                    classpath.attrib["refid"] = child.attrib["pathId"]
-                    classpath.attrib["classpath"] = scope
+                if False:
+                    # XXX: do we need this?
+                    for scope in ["compile", "runtime", "test"]:
+                        classpath = ET.SubElement(resolve, "path")
+                        classpath.attrib["refid"] = child.attrib["pathId"]
+                        classpath.attrib["classpath"] = scope
                 del child.attrib["pathId"]
+            if "versionsId" in child.attrib:
+                del child.attrib["versionsId"]
+            if "javadocFilesetId" in child.attrib:
+                del child.attrib["javadocFilesetId"]
 
     # trim spurious dependencies elements
     for parent in tree.findall(".//{antlib:org.eclipse.aether.ant}dependencies//"):
         for deps in parent.findall(".//{antlib:org.eclipse.aether.ant}dependencies"):
             if len(list(deps)) == 0:
                 parent.remove(deps)
-    
+
     for parent in tree.findall(".//copy-deps/.."):
         for copydeps in parent.findall("copy-deps"):
             parent.remove(copydeps)
@@ -62,9 +68,10 @@ def aetherize(tree):
     for elt in tree.findall(".//{urn:maven-artifact-ant}dependencies"):
         elt.tag = "{antlib:org.eclipse.aether.ant}dependencies"
 
-    for elt in tree.findall(".//{urn:maven-artifact-ant}remoteRepository"):
-        elt.tag = "{antlib:org.eclipse.aether.ant}remoterepo"
-
+    for parent in tree.findall(".//{urn:maven-artifact-ant}remoteRepository/.."):
+        for child in parent.findall("./{urn:maven-artifact-ant}remoteRepository"):
+            parent.remove(child)
+    
     classpath = tree.find(".//path[@id='maven-ant-tasks.classpath']")
     classpath.attrib["id"] = "aether-ant-tasks.classpath"
     del classpath.attrib["path"]
@@ -87,6 +94,12 @@ def elim_bootstrap_fetch(tree):
     echo.attrib["message"] = "Not fetching bootstrap libraries in the Fedora build"
 
 
+def remove_bnd(tree):
+    for path in ["include[@name='src/build/bnd/*.bnd']", "typedef[@classpathref='extra.tasks.classpath']"]:
+        for parent in tree.findall(".//%s/.." % path):
+            for child in parent.findall("./%s" % path):
+                parent.remove(child)
+
 def transform(infile, outfile):
     tree = ET.parse(infile)
     
@@ -94,6 +107,7 @@ def transform(infile, outfile):
     ant_contrib(tree)
     remove_jarjar(tree)
     remove_vizant(tree)
+    remove_bnd(tree)
     aetherize(tree)
     
     tree.write(outfile)
